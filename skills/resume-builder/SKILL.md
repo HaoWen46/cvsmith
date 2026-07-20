@@ -26,6 +26,15 @@ Read `references/screening-2026.md` once per session before drafting —
 it explains what the pipeline you're writing for actually does, and why
 each rule below exists.
 
+**Research discipline.** Bundled references are the doctrine; trust
+them within their `Verify by:` windows instead of re-researching per
+task (same question must get the same answer, or iteration stops being
+measurable). Fetch fresh only what is *task-scoped*: the posting, the
+company, the user's links. Full tier rules + external-tool catalog:
+`references/tools-and-sources.md` — read it when tempted to search
+the web for screening/market facts, or when a PDF defeats the bundled
+extractors.
+
 ## Workflow
 
 ### 1. Intake — meet the material where it lives

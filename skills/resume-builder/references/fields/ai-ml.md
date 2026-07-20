@@ -1,9 +1,14 @@
 # Field guide: AI / ML / LLM / agent roles
 
+Last verified: 2026-07
+Verify by: 2027-02
+
 The most competitive and fastest-moving segment of 2026 hiring — and
 the one where generic resumes die fastest, because every applicant
 lists the same frameworks. What differentiates is *evidence of the
-work the role actually consists of*.
+work the role actually consists of*. (The evidence ranking below is
+the perishable part — it tracks what roles actually screen for, which
+shifts with the field's tooling seasons; hence the short window.)
 
 ## What counts as evidence (strongest first)
 

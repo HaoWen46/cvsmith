@@ -1,8 +1,12 @@
 # How resume screening works in 2026 — and what that implies
 
-Last verified: 2026-07. Sources frozen from the project research base
-(PROJECT_PLAN.md §9); re-verify claims marked (†) before trusting them
-past mid-2027 — this space moves fast.
+Last verified: 2026-07
+Verify by: 2027-07
+
+Sources frozen from the project research base (PROJECT_PLAN.md §9);
+claims marked (†) are the perishable ones — the refresh protocol is
+MAINTENANCE.md's job, not the reading agent's. Within the window,
+trust this file over general recollection.
 
 ## The pipeline
 

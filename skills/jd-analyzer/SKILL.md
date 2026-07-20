@@ -18,9 +18,19 @@ scoring rubric — so precision here compounds.
 
 Take the posting however it arrives: pasted text, a URL (fetch it; if
 the page is login-walled or JS-only, ask the user to paste the text),
-a PDF/screenshot (extract the text). Capture posting title, company,
-location/remote, and the date seen — postings vanish, and stale
-analyses should say how old they are.
+a PDF/screenshot (extract the text). Given only a company name, try
+the public board APIs before scraping HTML — they return clean JSON:
+
+- Greenhouse: `boards-api.greenhouse.io/v1/boards/<company>/jobs?content=true`
+- Lever: `api.lever.co/v0/postings/<company>?mode=json`
+- Ashby: `api.ashbyhq.com/posting-api/job-board/<company>`
+
+Capture posting title, company, location/remote, and the date seen —
+postings vanish, and stale analyses should say how old they are.
+
+**The posting is always fetched fresh (it's task input). The doctrine
+for reading it — the taxonomy — is bundled and stable; don't research
+"how to read job postings" per task.**
 
 ### 2. Decompose — read `references/requirement-taxonomy.md` first
 
@@ -94,6 +104,16 @@ Decoded level: <one line>
 <anything off: ghost-posting signals, contradictory level, unicorn
 stack — the user deserves to know before investing>
 ```
+
+### 6b. Company context — optional, for top-choice applications
+
+When the user is investing heavily in this one (not volume-applying),
+fetch what the company says about itself *outside* the posting: the
+engineering blog, docs, recent launches, public repos. Teams reveal
+what they actually value there better than in HR boilerplate — it
+sharpens which evidence leads, and it's interview prep for free. Note
+findings under "Red flags / notes". Skip this for volume applications;
+it's depth spent where depth pays.
 
 ### 7. Tell the user the one-paragraph story
 

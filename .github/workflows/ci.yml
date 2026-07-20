@@ -4,6 +4,8 @@ on:
   push:
     branches: [main]
   pull_request:
+  schedule:
+    - cron: "0 8 1 * *"  # monthly: fail (not just warn) on stale references
 
 env:
   TYPST_VERSION: "0.15.1"
@@ -32,6 +34,14 @@ jobs:
           done
           [ "$found" -eq 0 ] && echo "no skills yet — nothing to lint (M3)"
           exit $fail
+
+  freshness:
+    name: Reference freshness
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check Verify-by stamps
+        run: python3 .github/scripts/check_freshness.py ${{ github.event_name == 'schedule' && '--strict' || '' }}
 
   templates:
     name: Compile Typst templates

@@ -113,3 +113,9 @@ user's, not the builder's. If the user overrode a mechanical
 recommendation and the checks fail, the report says so and names the
 uses the file is unsafe for. A reassuring false PASS is the one output
 this skill must never produce.
+
+Scoring doctrine (rubric, failure modes) is bundled and stable within
+its verify-by windows — don't re-research "what ATSs do" mid-
+evaluation; changing rubrics between iterations makes scores
+incomparable. Task inputs (the PDF, the JD analysis) are always
+current by construction.
