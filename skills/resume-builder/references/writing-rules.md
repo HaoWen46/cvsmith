@@ -79,6 +79,48 @@ published, presented, maintained, reviewed, taught, launched, scaled.
   a link for Y would fix it." Users can often supply what's missing —
   they just didn't know it mattered.
 
+## Register — same facts, different music
+
+The bullet formula, quantification, honesty, and parse mechanics are
+invariant. **Register** — tone, formality, self-presentation
+amplitude — is not: it's a function of industry × market × employer
+type × seniority, and the combinations are endless.
+
+This file deliberately does *not* enumerate them. You have absorbed
+millions of real resumes, postings, and hiring norms across every one
+of these cells; that latent knowledge is deeper and more current than
+any table this file could ship. The failure mode isn't ignorance —
+it's **defaulting to Anglo-tech punch without noticing the choice**.
+So:
+
+1. **Name the cell out loud** before drafting: "US seed-stage startup
+   SWE", "German industrial engineering", "US bulge-bracket banking
+   analyst", "UK civil service". If you can't name it, ask.
+2. **Sample the cell** (task-scoped fetch): 2–3 current postings or
+   the employer's own careers page set the temperature better than
+   any guide. Match *their* register, not your default.
+3. **Confirm with the user in one line** when the register you're
+   adopting differs from this file's baseline examples.
+
+Calibration of the axis (contrast, not a lookup table):
+
+- **US tech startup** — energetic-concrete: "Shipped X; cut Y 40%."
+  Visible ambition reads as fit.
+- **German industrial / Nordic engineering** — sober-complete: the
+  same numbers, framed for precision and duration over punch;
+  superlatives read as unserious.
+- **US banking / consulting** — dense-formal-conventional: strict
+  one page, classical section grammar, polished parallel structure;
+  deviation is itself a negative signal; awards and GPA carry real
+  weight.
+- **UK public sector / academia anywhere** — understated-evidential:
+  claims sized carefully; "led" only when you truly led.
+
+What never bends with register: the facts and numbers themselves (how
+they're *framed* changes, never whether they appear), the anti-slop
+list (slop is failure in every culture), honesty, and parse
+mechanics (machines read every culture's PDFs the same way).
+
 ## Section-level guidance
 
 - **Ordering is field-dependent** (see the field file), but the

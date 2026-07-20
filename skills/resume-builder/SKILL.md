@@ -113,7 +113,11 @@ general version for the field; say so and move on.
 
 ### 5. Draft evidence, not prose
 
-Read `references/writing-rules.md` before writing any bullet. For each
+Read `references/writing-rules.md` before writing any bullet — and
+apply its Register section first: name the industry × market ×
+employer-type cell you're writing for, out loud. The default
+energetic-tech tone is a *choice*, and for a German bank or a UK
+ministry it's the wrong one. For each
 experience: extract claims from the material, demand quantification
 (ask the user for numbers rather than inventing ranges), attach a
 concrete artifact where possible (repo, paper, launched thing). Apply
