@@ -25,12 +25,25 @@ The moat is the **evaluator**: a test harness that checks a PDF the same way scr
 
 Design principles, full component specs, and the research base live in [PROJECT_PLAN.md](PROJECT_PLAN.md).
 
+## Quickstart (render path)
+
+Write a `resume.yaml` following the
+[data schema](skills/resume-builder/assets/templates/data-schema.md)
+(sample: [`evals/fixtures/resume-sample/resume.yaml`](evals/fixtures/resume-sample/resume.yaml)), then:
+
+```sh
+skills/resume-builder/scripts/render.sh path/to/resume.yaml
+```
+
+Output is a tagged PDF/UA-1 + PDF/A-2a file rendered with vendored fonts
+(identical on every machine), smoke-checked for a healthy text layer.
+
 ## Status
 
 Pre-alpha — scaffolding stage. Roadmap (see the plan for details):
 
 - [x] **M0** — Repo scaffold, CI skeleton, draft data schema
-- [ ] **M1** — Render path: `onecol.typ` template + `render.sh` (resume.yaml → verified-parseable PDF)
+- [x] **M1** — Render path: `onecol.typ` template + `render.sh` (resume.yaml → verified-parseable PDF)
 - [ ] **M2** — Evaluator scripts (extraction, parse simulation, hidden-text check, structure lint) + broken-PDF fixtures
 - [ ] **M3** — The three SKILL.md files + reference library
 - [ ] **M4** — Eval loop (`evals/evals.json`, with-skill vs. baseline runs)

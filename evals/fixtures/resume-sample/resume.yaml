@@ -1,0 +1,89 @@
+# Synthetic fixture — "Sam Casey" does not exist. Every employer, metric,
+# and URL below is invented for template/evaluator testing. Conforms to
+# skills/resume-builder/assets/templates/data-schema.md (draft v0.1).
+
+meta:
+  target_field: ai-ml
+  page_budget: 1
+
+basics:
+  name: Sam Casey
+  email: sam.casey@example.com
+  phone: "+1 (555) 010-4477"
+  location: Seattle, WA
+  links:
+    - label: GitHub
+      url: https://github.com/samcasey-demo
+    - label: Portfolio
+      url: https://samcasey.example.com
+
+education:
+  - institution: University of Washington
+    degree: B.S.
+    field: Computer Science
+    start: 2022-09
+    end: 2026-06
+    gpa: "3.8/4.0"
+    coursework: [Machine Learning, Distributed Systems, NLP, Databases]
+    honors: ["Dean's List (6 quarters)"]
+
+experience:
+  - organization: Meridian Labs
+    title: Machine Learning Engineering Intern
+    location: Seattle, WA
+    start: 2025-06
+    end: 2025-09
+    bullets:
+      - Built an offline evaluation harness for a RAG customer-support
+        assistant (Python, pytest), scoring 1,200 historical tickets nightly
+        and catching 3 retrieval regressions before they shipped.
+      - Cut p95 retrieval latency from 480 ms to 210 ms by adding
+        embedding-cache warmup and moving the vector index from flat search
+        to HNSW.
+      - Wrote the team's prompt-injection red-team suite (41 cases), now a
+        required pre-deploy gate for two production assistants.
+  - organization: UW Systems Research Group
+    title: Undergraduate Research Assistant
+    location: Seattle, WA
+    start: 2024-10
+    end: 2025-05
+    bullets:
+      - Implemented a trace-driven simulator for GPU cluster schedulers;
+        reproduced 3 published baselines within 2% and surfaced a starvation
+        edge case now included in the group's benchmark suite.
+      - Co-authored a workshop paper on preemption-aware scheduling
+        (2nd author) and presented it at the poster session.
+
+projects:
+  - name: ledgerlite
+    url: https://github.com/samcasey-demo/ledgerlite
+    stack: [Rust, SQLite]
+    bullets:
+      - Append-only personal-finance CLI with double-entry validation;
+        1.4k GitHub stars, 27 external contributors, signed releases for
+        macOS and Linux.
+  - name: whisperboard
+    stack: [Python, PyTorch]
+    start: 2024-01
+    end: 2024-04
+    bullets:
+      - Local-first meeting transcriber; fine-tuned Whisper-small on 30 h of
+        noisy lecture audio, cutting word error rate from 18.2% to 11.6% on
+        a held-out set.
+
+skills:
+  - label: Languages
+    items: [Python, Rust, TypeScript, SQL]
+  - label: ML
+    items: [PyTorch, scikit-learn, RAG pipelines, eval harnesses]
+  - label: Systems
+    items: [Linux, Docker, GitHub Actions, Postgres]
+
+publications:
+  - citation: "Casey, S., Okafor, D., and Lin, M. (2025). Preemption-Aware
+      Scheduling for Shared GPU Clusters. HotCloud Workshop."
+    url: https://example.com/hotcloud25-preemption.pdf
+
+awards:
+  - name: ACM ICPC Pacific Northwest Regional — 5th place
+    date: 2024-11

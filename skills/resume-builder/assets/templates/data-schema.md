@@ -67,6 +67,8 @@ projects:                # optional; often the core section for students
   - name: cvsmith
     url: https://github.com/HaoWen46/cvsmith            # optional
     stack: [Typst, Python]                              # optional, rendered inline
+    start: 2026-07                                      # optional
+    end: present                                        # optional
     bullets:
       - Agent-skill toolkit that renders tagged PDFs and adversarially
         verifies them against 2026 screening-pipeline checks.
@@ -99,15 +101,21 @@ awards:                  # optional
   everything else (OSS, research not under a formal title, hackathons) goes
   in `projects`. The evaluator's parse simulation checks that both sections
   route under standard headings ("Experience", "Projects").
+- **Project right column**: a project entry's right-hand meta shows its
+  `url` when present, otherwise its date range — one thing per line keeps
+  the skim clean. If both are given, dates are dropped from display (they
+  stay in the data), so prefer `url` for living projects and dates for
+  finished ones.
 - **`skills`**: groups keep the section honest — 2–4 groups, each a short
   list the person can defend in an interview. The JD-alignment layer scores
   semantic coverage from bullets first; `skills` is a secondary signal.
 
-## Open questions (to resolve in M1 while building `onecol.typ`)
+## Open questions
 
-- Whether `meta.page_budget` > 1 changes template selection or just lints.
+- ~~Whether `meta.page_budget` > 1 changes template selection or just
+  lints.~~ Resolved in M1: it lints only — `render.sh` warns when the
+  output exceeds the budget; template choice stays explicit.
 - Certifications / languages-spoken sections: add on first real demand
   rather than speculatively.
 - Schema validation: a small `validate_schema.py` under the evaluator's
-  scripts, or JSON Schema shipped next to this file. Decide when the first
-  template consumes real data.
+  scripts, or JSON Schema shipped next to this file. Decide in M2.
