@@ -57,7 +57,7 @@ Pre-alpha — scaffolding stage. Roadmap (see the plan for details):
 
 ## A note on personal data
 
-Real career materials never belong in this repo. If you run the skills inside this checkout, keep raw inputs and generated resumes in `materials/`, `output/`, or `drafts/` — all gitignored. Everything under `evals/fixtures/` and `examples/` is synthetic or sanitized.
+The skills read your materials wherever they already live — pasted into chat, attached, or in place on disk. Nothing has to be moved into any particular folder, and the builder checks that a workspace path is gitignored before writing personal data into any git repo. If you develop *inside this checkout*, `materials/`, `output/`, and `drafts/` are pre-gitignored for scratch use. Everything under `evals/fixtures/` and `examples/` is synthetic or sanitized — real career materials never belong in this repo.
 
 ## License
 

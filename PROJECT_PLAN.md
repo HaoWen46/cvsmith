@@ -25,6 +25,7 @@ Existing tools are static SaaS checkers or Python scripts wrapping an LLM API. *
 - **Skills, not services.** No server, no API keys required for the core path. Deterministic checks live in bundled scripts; judgment lives in instructions the agent executes with its own intelligence.
 - **Typst, not LaTeX.** Typst 0.15 (June 2026) emits tagged PDF/UA-1 (+ PDF/A-2a dual) — a clean machine-readable structure tree, near-ideal for ATS parsers — with sane syntax, instant compiles, and templates an agent can actually reason about.
 - **Honesty is a feature.** The skills never fabricate experience, never stuff keywords, never inject hidden text — and the evaluator *proves* the absence of hidden text. This is both ethics and pure self-interest given 2026 detection.
+- **Meet users where they are.** No filing rituals, no required folder layout, no assumption the user even has this repo. Intake adapts to pasted text, attachments, files read in place, remote pointers, or nothing at all — the skill conforms to the user, never the reverse.
 - **General-purpose, field-aware.** Works for any field via a field-detection step + per-field reference files; ships deepest coverage for AI/ML/SWE first.
 
 ## 3. Deliverables
@@ -98,7 +99,13 @@ Skill anatomy follows the canonical conventions: SKILL.md ≤ ~500 lines with YA
 
 **Workflow encoded in SKILL.md:**
 
-1. **Intake protocol.** Ask the user to drop raw material into a `materials/` folder (or attach files): old resumes, transcript, project notes/READMEs, GitHub links, performance reviews, anything. Explicitly tell the user that messy is fine — the skill's job is extraction. Inventory what's there; ask only for the gaps that matter (dates, metrics, scope).
+1. **Intake protocol — meet the material where it lives.** Users don't follow filing rituals; the skill adapts to however material actually shows up:
+   - *Already in the conversation.* Pasted text, attachments, offhand mentions — all of it is material. Inventory it first; never ask the user to re-supply or relocate something they already provided.
+   - *On disk.* Ask where things live and read them in place. Offer — never auto-run — a consented scan of the obvious spots (cwd, Desktop, Downloads, Documents) for resume-shaped files (`*resume*`, `*cv*`, `*transcript*`, LinkedIn's `Profile.pdf`).
+   - *Remote pointers.* GitHub profiles/repos and personal sites are fetchable; use connected tools (Drive, Notion, …) when available. LinkedIn pages don't scrape — ask for LinkedIn's "Save to PDF" export instead.
+   - *Nothing at all.* Fall back to a structured interview (defined in references); its output becomes the materials.
+
+   Messy is fine — extraction is the skill's job. After inventory, ask one focused batch of questions covering only gaps that matter (dates, metrics, scope). Working files (`resume.yaml`, renders) go in a user-confirmed workspace; if that workspace is inside a git repo, verify the paths are ignored (offer to add ignores) *before* writing personal data. The `materials/` dir in this repo is a dev-checkout convenience, never a user requirement.
 2. **Field identification.** Infer the target field from materials + stated goal; confirm with the user; load the matching `references/fields/*.md` (or follow `generic.md`'s research procedure for unknown fields).
 3. **JD ingestion (optional but recommended).** If a target posting exists, invoke `jd-analyzer` and tailor against its output. No JD → build a strong general version for the field.
 4. **Evidence drafting.** For each experience: extract claims → demand quantification → apply writing-rules (impact-first bullets, no AI-slop vocabulary, one concrete artifact per claim where possible). Never invent; flag weak sections to the user instead of padding them.
