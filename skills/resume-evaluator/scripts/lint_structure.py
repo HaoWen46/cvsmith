@@ -1,4 +1,11 @@
 #!/usr/bin/env python3
+# /// script
+# requires-python = ">=3.11"
+# dependencies = [
+#     "pypdf>=5.0",
+#     "pdfplumber>=0.11",
+# ]
+# ///
 """L3 — structure lint: is the file physically shaped like something a
 parser handles well?
 

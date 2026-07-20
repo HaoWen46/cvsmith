@@ -1,4 +1,12 @@
 #!/usr/bin/env python3
+# /// script
+# requires-python = ">=3.11"
+# dependencies = [
+#     "pdfplumber>=0.11",
+#     "pdf2image>=1.17",
+#     "pillow>=10.0",
+# ]
+# ///
 """L2 — integrity: does the rendered page show everything the text layer
 claims? The cross-modal check screening vendors run against injection.
 

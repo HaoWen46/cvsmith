@@ -1,4 +1,11 @@
 #!/usr/bin/env python3
+# /// script
+# requires-python = ">=3.11"
+# dependencies = [
+#     "pdf2image>=1.17",
+#     "pillow>=10.0",
+# ]
+# ///
 """Build the fixture PDFs the evaluator tests run against.
 
 Fixtures are generated, not committed: binary PDFs in git rot, while

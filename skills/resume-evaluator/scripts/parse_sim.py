@@ -1,4 +1,10 @@
 #!/usr/bin/env python3
+# /// script
+# requires-python = ">=3.11"
+# dependencies = [
+#     "pypdf>=5.0",
+# ]
+# ///
 """L1 — parse simulation: would an ATS route this resume's content into
 the right fields?
 

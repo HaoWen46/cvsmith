@@ -1,4 +1,10 @@
 #!/usr/bin/env python3
+# /// script
+# requires-python = ">=3.11"
+# dependencies = [
+#     "pypdf>=5.0",
+# ]
+# ///
 """L0 — extraction check: does this PDF have a healthy text layer at all?
 
 If text extraction fails, no downstream intelligence ever sees the
