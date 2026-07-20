@@ -44,7 +44,7 @@ Pre-alpha — scaffolding stage. Roadmap (see the plan for details):
 
 - [x] **M0** — Repo scaffold, CI skeleton, draft data schema
 - [x] **M1** — Render path: `onecol.typ` template + `render.sh` (resume.yaml → verified-parseable PDF)
-- [ ] **M2** — Evaluator scripts (extraction, parse simulation, hidden-text check, structure lint) + broken-PDF fixtures
+- [x] **M2** — Evaluator scripts (extraction, parse simulation, hidden-text check, structure lint) + broken-PDF fixtures
 - [ ] **M3** — The three SKILL.md files + reference library
 - [ ] **M4** — Eval loop (`evals/evals.json`, with-skill vs. baseline runs)
 - [ ] **M5** — Worked example, packaged `.skill` files, v0.1.0

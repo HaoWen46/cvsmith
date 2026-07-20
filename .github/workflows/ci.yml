@@ -79,6 +79,11 @@ jobs:
       - name: Set up uv
         if: steps.detect.outputs.count != '0'
         uses: astral-sh/setup-uv@v5
+      - name: Install Typst
+        if: steps.detect.outputs.count != '0'
+        run: |
+          curl -fsSL "https://github.com/typst/typst/releases/download/v${TYPST_VERSION}/typst-x86_64-unknown-linux-musl.tar.xz" | tar -xJ
+          sudo mv typst-x86_64-unknown-linux-musl/typst /usr/local/bin/
       - name: Run evaluator against fixtures
         if: steps.detect.outputs.count != '0'
         run: |

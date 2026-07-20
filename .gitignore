@@ -20,6 +20,9 @@ build/
 *-workspace/
 feedback.json
 
+# Generated fixture PDFs (rebuild with evals/fixtures/generate.py)
+evals/fixtures/build/
+
 # Personal working area — real career data never belongs in this repo.
 # If you run the skills inside this checkout, keep raw materials and
 # generated resumes in these directories.
