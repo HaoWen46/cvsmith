@@ -23,9 +23,36 @@ or multi-market, ask — it's one question with big consequences.
 | India | 1–2 | a4 | not for tech | sometimes DOB | tech sector: Anglo-style |
 | Singapore / SEA | 1–2 | a4 | declining | occasionally nationality/visa status (practical, not decorative) | "Singapore PR" line is common and useful |
 | Gulf (UAE/SA) | 1–2 | a4 | expected | nationality + visa status expected | practical visa realities; user's call |
-| China | 1 | a4 | common | sometimes | foreign companies: Anglo-style |
+| China | 1 | a4 | common | DOB sometimes; 简历 norms lean concise | foreign/tech companies: Anglo-style; domestic platforms (Boss直聘 etc.) have their own profile formats outside PDF scope |
+| South Korea | 1–2 | a4 | traditional yes; tech/foreign declining | DOB traditionally | chaebol/traditional firms have their own 이력서 forms; startups/foreign: Anglo-style |
 | Japan | — | — | required on forms | on forms | **different documents**: 履歴書 (rirekisho, standardized form) + 職務経歴書 (work history). Out of template scope — say so; foreign/tech companies usually accept an English CV |
 | LATAM | 1–2 | a4/letter varies | varies | varies | multinationals: Anglo-style |
+
+Rows are weighted by where users of an English-language toolkit
+actually apply; a market's absence means "use the fallback below",
+never "unsupported". The table grows on demand like everything else.
+
+## Market not in the table
+
+Do **not** silently default to US style — the US is the outlier on
+several conventions (letter paper, hard no-photo). Instead:
+
+1. **Ask the user.** People usually know their market's norms
+   ("do employers there expect a photo? how many pages is normal?") —
+   one question, and their answer beats a stale web result.
+2. **Research the specific market** (task-scoped, always-fresh tier):
+   local career-center or government employment guidance, recent
+   local recruiter write-ups — checking the landmines specifically:
+   photo, personal data, page count, paper, language of application.
+3. **When inconclusive, or the employer is a multinational/tech
+   company**: use the international default — Anglo-style content
+   rules, A4 paper, no photo or personal data, posting's language.
+   That combination is acceptable nearly everywhere the other
+   conventions are merely traditional.
+
+Say which of the three paths was taken and why; record it in the
+vault's notes so the next application to that market skips the
+research.
 
 Mechanical parse-safety (single column, real text, standard structure)
 holds in every market — multinational employers run the same ATS

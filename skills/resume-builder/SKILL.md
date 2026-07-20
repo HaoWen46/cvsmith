@@ -83,10 +83,11 @@ Career data silently landing in someone's tracked repo is a real harm.
 Infer target field + seniority **and target market** (the job's
 country/region — not the user's) from materials and stated goal;
 confirm all three in one line. The market sets paper size, language,
-page budget, and the photo/personal-data rules — read
-`references/regional.md` whenever the target is outside the US or the
-user is applying across regions (one canonical vault, one projection
-per market; never blend conventions). Then read the matching field
+page budget, and the photo/personal-data rules. US/Canada target →
+**skip `references/regional.md` entirely**; its baseline is already
+this toolkit's default. Any other market, or multi-market plans →
+read it (one canonical vault, one projection per market; never blend
+conventions; it also covers markets it doesn't list). Then read the matching field
 reference:
 
 - AI/ML/LLM/agents roles → `references/fields/ai-ml.md`
