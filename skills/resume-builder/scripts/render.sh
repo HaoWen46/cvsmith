@@ -39,11 +39,13 @@ if [ -z "$OUT" ]; then
   OUT=$(dirname "$DATA")/${base%.*}.pdf
 fi
 
-# The templates pin the vendored font; fail loudly if typst can't see it.
-if ! typst fonts --font-path "$FONTS_DIR" --ignore-system-fonts | grep -q "^Source Sans 3$"; then
-  echo "error: vendored font 'Source Sans 3' not found under $FONTS_DIR" >&2
-  exit 1
-fi
+# The templates pin vendored fonts; fail loudly if typst can't see them.
+for fam in "Source Sans 3" "Inter"; do
+  if ! typst fonts --font-path "$FONTS_DIR" --ignore-system-fonts | grep -q "^$fam$"; then
+    echo "error: vendored font '$fam' not found under $FONTS_DIR" >&2
+    exit 1
+  fi
+done
 
 # Build in a scratch dir: typst's file access is rooted there, so the
 # compile sees exactly the template set + one data file and nothing else.

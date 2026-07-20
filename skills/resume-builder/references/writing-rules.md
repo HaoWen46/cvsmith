@@ -121,6 +121,29 @@ they're *framed* changes, never whether they appear), the anti-slop
 list (slop is failure in every culture), honesty, and parse
 mechanics (machines read every culture's PDFs the same way).
 
+## Two readers, one line — the anti-yapping rule
+
+Every line on the page is read by at most two people: the skimmer
+(HR/recruiter, ~6 seconds, reads position and bold anchors) and the
+prober (interviewer/professor, reads bullets as a list of things to
+ask about). **A line that serves neither reader is yapping — delete
+it**, however true or well-written it is.
+
+- Skim-value lives in: name/identity line, section headers, bolded
+  orgs and titles, the first bullet of the top entry, big numbers.
+- Probe-value lives in: mechanisms ("by moving X to Y"), named
+  artifacts, tag rows, precise scope claims — anything a prober can
+  turn into a question you *want* to be asked.
+- Serves neither: mission statements, adjectives about yourself,
+  restatements of the section header, tool lists nothing evidences,
+  duties everyone in the role has ("attended meetings", "collaborated
+  with team members"), and any sentence whose deletion loses no fact.
+
+The test when trimming: cover the line and ask (a) does the skim
+story change? (b) does the interviewer lose a question? Two noes =
+cut. Density is not the enemy — undifferentiated density is; a dense
+page of probe-bait reads fast *because* every line pays.
+
 ## Section-level guidance
 
 - **Ordering is field-dependent** (see the field file), but the

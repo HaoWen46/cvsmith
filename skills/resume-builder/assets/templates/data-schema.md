@@ -30,6 +30,7 @@ meta:                    # optional; knobs for template + evaluator
   page_budget: 1         # default 1 for students/early-career
   paper: us-letter       # us-letter (default) | a4 — match the target market
   lang: en               # BCP-47-ish code for PDF metadata + hyphenation
+  accent: "#1f3a5f"      # compact template only: accent color (default navy)
 
 basics:                  # required
   name: Jordan Wu
@@ -62,12 +63,16 @@ experience:              # optional as a whole, but entries are structured
     start: 2026-06
     end: present
     group: industry               # optional: research | teaching | industry
+    tags: [evals, tool use]       # optional: 2-4 domain descriptors; renders
+                                  # as a muted tag row — interviewer scent,
+                                  # never a keyword dump
     bullets:
       - Built an eval harness for tool-use regressions, cutting triage
         time for failed runs from hours to minutes across 40+ suites.
 
 projects:                # optional; often the core section for students
   - name: cvsmith
+    summary: agent-skill toolkit for verified resumes   # optional one-liner
     url: https://github.com/HaoWen46/cvsmith            # optional
     stack: [Typst, Python]                              # optional, rendered inline
     start: 2026-07                                      # optional

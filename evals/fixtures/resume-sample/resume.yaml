@@ -33,6 +33,7 @@ experience:
     location: Seattle, WA
     start: 2025-06
     end: 2025-09
+    tags: [RAG evaluation, retrieval latency, prompt-injection red-teaming]
     bullets:
       - Built an offline evaluation harness for a RAG customer-support
         assistant (Python, pytest), scoring 1,200 historical tickets nightly
@@ -47,6 +48,7 @@ experience:
     location: Seattle, WA
     start: 2024-10
     end: 2025-05
+    tags: [GPU cluster scheduling, trace-driven simulation]
     bullets:
       - Implemented a trace-driven simulator for GPU cluster schedulers;
         reproduced 3 published baselines within 2% and surfaced a starvation

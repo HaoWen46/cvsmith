@@ -27,8 +27,11 @@ messy materials ──▶ resume-builder ──▶ resume.yaml ──▶ render.
    system" to "Cut p95 retrieval latency from 480 ms to 210 ms by …".
    The keyword dump became three defensible skill groups.
 3. **Rendered PDF** — [`resume.pdf`](resume.pdf): one page, tagged
-   PDF/UA-1 + PDF/A-2a, single column, vendored fonts. Rebuild it with
-   `skills/resume-builder/scripts/render.sh evals/fixtures/resume-sample/resume.yaml`.
+   PDF/UA-1 + PDF/A-2a, single column, vendored fonts, rendered with
+   the designed `compact` template (accent name, tag rows, dense).
+   Rebuild it with
+   `skills/resume-builder/scripts/render.sh evals/fixtures/resume-sample/resume.yaml -t compact`
+   (or drop `-t compact` for the roomier `onecol` look).
 4. **Target posting** —
    [`ml-intern-posting.md`](../../evals/fixtures/jd-sample/ml-intern-posting.md):
    a realistic posting with buzzwords, a wish-list, culture noise, and

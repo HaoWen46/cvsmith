@@ -2,13 +2,20 @@
 
 ## The pieces
 
-- `assets/templates/onecol.typ` — default template. Exposes one
-  function: `render(data)`. Pure function of the yaml data; fixed
-  section order; real H1/H2 tags in the PDF structure tree.
+- `assets/templates/onecol.typ` — the roomy default: Source Sans 3,
+  centered header, 10pt, generous spacing. Safe, conventional.
+- `assets/templates/compact.typ` — the designed variant: Inter, dense
+  9.2pt, statement name and section headers in one accent color
+  (`meta.accent`, default deep navy), secondary meta in gray,
+  tag rows under entries. Pick it when the user wants a modern,
+  designed look or maximum content density; both templates share the
+  same data contract and identical parse-safety.
+- Both expose one function: `render(data)` — pure functions of the
+  yaml; fixed section order; real H1/H2 tags in the structure tree.
 - `assets/templates/data-schema.md` — the `resume.yaml` contract.
   Read it before writing yaml.
-- `assets/fonts/source-sans-3/` — vendored OFL fonts, so rendering is
-  identical on every machine. Templates pin "Source Sans 3".
+- `assets/fonts/` — vendored OFL fonts (Source Sans 3, Inter), so
+  rendering is identical on every machine.
 - `scripts/render.sh` — the only supported way to compile:
 
 ```sh
@@ -63,6 +70,14 @@ outside the page box; fonts from the vendored set (or extend the font
 check in render.sh); document title/author set. Add the template as
 `assets/templates/<name>.typ` exposing `render(data)` — render.sh and
 CI pick it up automatically by filename.
+
+**Never letter-space (track) headings.** Measured the hard way:
+poppler's word segmentation breaks tracked caps *per font* — Inter
+fractures at ≥0.9pt ("E D U CAT I O N" routes to nothing), while
+some fonts survive 2.4pt. A heading that extracts as fragments makes
+its whole section vanish from ATS routing. Weight + color + caps +
+hairline achieve the same look with zero risk; if you must try
+tracking, the parse simulation is the gate — run it.
 
 ## Troubleshooting
 

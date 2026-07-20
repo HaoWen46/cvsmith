@@ -197,9 +197,11 @@ Post-v0.1 backlog, in rough priority order:
 1. **M4 runs + description optimization** — the biggest honest gap:
    with-skill vs. baseline agent runs over `evals/evals.json`,
    human-reviewed, then trigger-tuning of the three descriptions.
-2. **`compact.typ` / styled second template** — makes the
-   user-conflict "split" offer (parse-safe + human-pretty from one
-   yaml) concrete.
+2. ~~`compact.typ` / styled second template~~ — **done**: Inter-based
+   designed variant (accent name/headers, gray meta, tag rows,
+   `meta.accent` knob), parse-verified; heading letter-spacing found
+   to fracture extraction per-font and banned in typst-guide. The
+   user-conflict "split" offer is now concrete.
 3. **Localization** — month names + L1 heading taxonomy beyond
    English (DE/FR/ES first); until then the toolkit is strongest for
    English-language applications into any market, and says so.
@@ -251,9 +253,12 @@ Post-v0.1 backlog, in rough priority order:
   but re-verification still needs a human or scheduled agent to act.
 - **English-centricity** (months, L1 taxonomy) is stated, not solved —
   backlog #3.
-- **Evaluator self-agreement** — the builder was written by the same
-  doctrine the evaluator scores against; independent-agent M4 runs are
-  also the check that the loop isn't circular flattery.
+- **Evaluator self-agreement** — two layers of defense now: M4's
+  independent-agent runs check the doctrine isn't circular, and the
+  cold-reader protocol (evaluator SKILL.md) moves L4/L5 judgment into
+  a fresh-context subagent so the context that wrote a resume never
+  scores its own skim. Scripts were always immune; judgment now is
+  too, where hosts support subagents.
 
 ## 9. Research base (2026-verified)
 

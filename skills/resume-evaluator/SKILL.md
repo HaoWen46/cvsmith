@@ -56,6 +56,24 @@ were stated" — so the builder can act.
 
 No JD available? Skip L4, say so in the report.
 
+## Judgment layers need a cold reader
+
+L0–L3 are scripts — context can't bias them. L4/L5 are judgment, and
+judgment from the context that *wrote* the resume is compromised: you
+know what every bullet meant to say, so you cannot simulate the
+recruiter who doesn't. **When the host supports subagents, dispatch
+L4/L5 to a fresh-context agent** whose entire input is: the rendered
+PDF (or its page image), the jd-analyzer output if one exists, and
+`references/rubric.md` — no conversation history, no vault, no build
+notes. Its cold read is the product; merge its scores and findings
+into the report, attributed as a cold read.
+
+No subagent support (or reviewing a PDF you didn't build — already
+cold)? Run L4/L5 yourself, and counter familiarity deliberately: skim
+the page image before re-reading any source, and for each bullet ask
+what a stranger would think it says — not what you know it means.
+Say in the report which mode produced the judgment scores.
+
 ## L5 — human simulation (judgment, rubric-guided)
 
 Read `references/rubric.md` §L5. Two passes over the *rendered page*

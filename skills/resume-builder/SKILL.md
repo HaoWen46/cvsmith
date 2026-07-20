@@ -148,9 +148,16 @@ order) — never shrink fonts below 9.5pt or margins below 1.2cm.
 
 Run the `resume-evaluator` skill on the rendered PDF (with the
 jd-analyzer output if step 4 ran). Fix what it reports, re-render,
-re-run until L0–L3 pass clean. Show the user the final report. If the
+re-run until L0–L3 pass clean. Show the user the final report.
+
+You wrote this resume, so your judgment of it is compromised by
+familiarity — **dispatch the evaluator's L4/L5 to a fresh-context
+subagent when the host supports it** (the evaluator's SKILL.md
+defines the cold-reader protocol). Scripts (L0–L3) can run anywhere;
+judgment should come from a reader who wasn't in the room. If the
 evaluator skill isn't installed, run its scripts directly from its
-`scripts/` directory and say the judgment layers (L4/L5) were skipped.
+`scripts/` directory and say the judgment layers were skipped or
+self-run.
 
 **Do not present a PDF to the user as finished before it has passed.**
 
