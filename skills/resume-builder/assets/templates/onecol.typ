@@ -111,17 +111,31 @@
   }
 
   // ── experience ──────────────────────────────────────────────────
+  // Entries may carry group: research | teaching | industry. When any
+  // entry is grouped, each group renders as its own standard-headed
+  // section (academic-CV convention); otherwise one "Experience".
+  let exp-entry(e, first) = entry(spacing: if first { 0pt } else { 8pt })[
+    #row(text(size: 10.2pt, weight: 600, e.organization),
+         daterange(e.at("start", default: none), e.at("end", default: none)))
+    #v(2.4pt, weak: true)
+    #row(emph(e.title), e.at("location", default: none))
+    #v(3pt, weak: true)
+    #list(..e.bullets)
+  ]
   if "experience" in data {
-    heading(level: 2)[Experience]
-    for (i, e) in data.experience.enumerate() {
-      entry(spacing: if i == 0 { 0pt } else { 8pt })[
-        #row(text(size: 10.2pt, weight: 600, e.organization),
-             daterange(e.at("start", default: none), e.at("end", default: none)))
-        #v(2.4pt, weak: true)
-        #row(emph(e.title), e.at("location", default: none))
-        #v(3pt, weak: true)
-        #list(..e.bullets)
-      ]
+    let titles = (research: [Research Experience], teaching: [Teaching Experience],
+                  industry: [Industry Experience])
+    let grouped = data.experience.any(e => "group" in e)
+    let buckets = if grouped {
+      ("research", "teaching", "industry")
+        .map(g => (g, data.experience.filter(e => e.at("group", default: "industry") == g)))
+        .filter(b => b.at(1).len() > 0)
+    } else {
+      (("all", data.experience),)
+    }
+    for (gname, entries) in buckets {
+      heading(level: 2, if grouped { titles.at(gname) } else { [Experience] })
+      for (i, e) in entries.enumerate() { exp-entry(e, i == 0) }
     }
   }
 

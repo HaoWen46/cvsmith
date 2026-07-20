@@ -49,7 +49,11 @@ expect 2+ pages, licenses up top, or a strict chronological format).
 
 ## When the field resists this toolkit
 
-Academic CVs (full publication lists), federal-format resumes, and
-design portfolios are different documents, not long resumes. Say so,
-help with the parts that transfer (evidence extraction, honesty,
-clean typesetting), and don't force the one-page template onto them.
+Grad-school / research-program CVs are covered — use
+`fields/academic.md`, not this procedure. What genuinely resists:
+senior-academic CVs (exhaustive publication/grant/committee lists),
+federal-format resumes (USAJOBS's own multi-page conventions — the
+research procedure above *does* work for these, but expect norms
+opposite to tech's), and design portfolios (a different artifact).
+Say what transfers (evidence extraction, honesty, clean typesetting),
+name what doesn't, and don't force the one-page template onto them.

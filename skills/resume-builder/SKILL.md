@@ -30,6 +30,15 @@ each rule below exists.
 
 ### 1. Intake — meet the material where it lives
 
+**Check for a career vault first.** If `career-vault.md` exists in the
+workspace (or the user has one elsewhere), read it and ask only what's
+new — never re-interview a person whose answers are already on file.
+No vault yet? Create one as intake proceeds: every extracted fact and
+every answer lands there as well as in the resume. Read
+`references/career-vault.md` for the format and the projection rules —
+the vault is what makes repeat applications cheap and twenty tailored
+variants mutually honest.
+
 Users don't follow filing rituals. Adapt to however material shows up:
 
 - **Already in the conversation** — pasted text, attachments, offhand
@@ -67,8 +76,17 @@ with the user in one line. Then read the matching reference:
 
 - AI/ML/LLM/agents roles → `references/fields/ai-ml.md`
 - software engineering → `references/fields/swe.md`
+- grad school, REUs, fellowships, research programs →
+  `references/fields/academic.md` (different reader, different
+  emphasis; supports research/teaching/industry experience grouping)
 - anything else → `references/fields/generic.md` (a research procedure,
   not static rules — follow it)
+
+The target also decides *who reads the output*: HR pipelines (parse +
+embed + rank), faculty (15-second human skim, no ranking), or both.
+Mechanical parse-safety rules stay constant — they cost nothing and
+university HR layers parse too — but evidence emphasis follows the
+reader.
 
 ### 4. Tailor against a posting (when one exists)
 
@@ -122,3 +140,24 @@ Show the rendered PDF (or its page image) alongside the evaluator
 report. Take edits back through the yaml — never hand-edit the PDF, and
 re-run the evaluator after every render. Small honest improvements over
 polish theater: a new number beats a fancier verb.
+
+## When the user is wrong about mechanics
+
+Users own their story; the toolkit owns verified mechanics. When a
+requested change conflicts with what the evaluator measures (two-column
+layout, creative headings, contact in a graphic, keyword blocks):
+
+1. **Show, don't argue** — run the relevant script on a version with
+   their change and show the concrete failure. Evidence persuades
+   where opinion doesn't.
+2. **Offer the split** — a parse-safe version for portals/uploads and
+   a styled version for humans they'll hand it to directly. Both from
+   the same yaml; different templates. This resolves most standoffs.
+3. **If they still insist**: comply on aesthetics (their document,
+   their call), record the failed checks in the final evaluator report
+   without softening, and say plainly which uses it's unsafe for.
+4. **Never comply on integrity** — hidden text, invented facts,
+   microscopic keywords. Not at any level of insistence. Explain that
+   detectors flag these as manipulation and the flag attaches to the
+   *person*, then offer the honest alternative for whatever gap the
+   trick was meant to cover.

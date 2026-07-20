@@ -59,6 +59,7 @@ experience:              # optional as a whole, but entries are structured
     location: San Francisco, CA   # optional
     start: 2026-06
     end: present
+    group: industry               # optional: research | teaching | industry
     bullets:
       - Built an eval harness for tool-use regressions, cutting triage
         time for failed runs from hours to minutes across 40+ suites.
@@ -101,6 +102,15 @@ awards:                  # optional
   everything else (OSS, research not under a formal title, hackathons) goes
   in `projects`. The evaluator's parse simulation checks that both sections
   route under standard headings ("Experience", "Projects").
+- **`experience[].group`** (`research` | `teaching` | `industry`): for
+  academic-track CVs (grad school, REUs, fellowships). When *any* entry
+  carries a group, the template renders one standard-headed section per
+  group — "Research Experience", "Teaching Experience", "Industry
+  Experience", in that order — and ungrouped entries fall into the
+  industry bucket, so group all entries when you group any. All three
+  headings are in the parse simulator's recognized taxonomy. Omit
+  `group` everywhere for a single "Experience" section (the industry
+  default). See `references/fields/academic.md`.
 - **Project right column**: a project entry's right-hand meta shows its
   `url` when present, otherwise its date range — one thing per line keeps
   the skim clean. If both are given, dates are dropped from display (they

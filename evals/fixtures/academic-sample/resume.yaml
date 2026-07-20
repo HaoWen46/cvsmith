@@ -1,0 +1,83 @@
+# Synthetic fixture — "Dana Okafor" does not exist. Exercises grouped
+# experience (research/teaching/industry) for academic-track CVs:
+# grad-school applications, REUs, fellowships.
+
+meta:
+  target_field: academic
+  page_budget: 1
+
+basics:
+  name: Dana Okafor
+  email: dana.okafor@example.com
+  location: Ann Arbor, MI
+  links:
+    - label: GitHub
+      url: https://github.com/danaokafor-demo
+
+education:
+  - institution: University of Michigan
+    degree: B.S.
+    field: Computer Science and Mathematics
+    start: 2022-09
+    end: 2026-05
+    gpa: "3.9/4.0"
+    coursework: [Graduate Machine Learning, Real Analysis, Randomized Algorithms]
+    honors: [James B. Angell Scholar]
+
+experience:
+  - organization: Michigan AI Lab, Prof. E. Winters
+    title: Undergraduate Researcher
+    location: Ann Arbor, MI
+    start: 2024-05
+    end: present
+    group: research
+    bullets:
+      - Designed and ran the evaluation suite for a continual-learning method
+        across 4 benchmark datasets; results reproduced the baseline papers
+        within 1.5% and formed Table 2 of the group's ICML submission.
+      - Implemented data-loading and checkpointing infrastructure (PyTorch)
+        adopted by three other students in the lab.
+  - organization: REU, Cascade State University
+    title: Research Intern (NSF REU)
+    location: Portland, OR
+    start: 2024-06
+    end: 2024-08
+    group: research
+    bullets:
+      - Built graph-sampling estimators for social-network motif counts;
+        final report ranked top 3 of 14 in the cohort.
+  - organization: University of Michigan, EECS Department
+    title: Instructional Aide, Data Structures (EECS 281)
+    location: Ann Arbor, MI
+    start: 2023-09
+    end: present
+    group: teaching
+    bullets:
+      - Led two weekly discussion sections (60 students total) and held
+        office hours; student evaluations 4.8/5 across three semesters.
+      - Rewrote the course's autograder test suite, cutting regrade
+        requests by a third.
+  - organization: Great Lakes Insurance Group
+    title: Software Engineering Intern
+    location: Detroit, MI
+    start: 2023-06
+    end: 2023-08
+    group: industry
+    bullets:
+      - Migrated a claims-report batch job from nightly cron to an
+        event-driven pipeline, cutting report latency from 24 h to 20 min.
+
+publications:
+  - citation: "Okafor, D., Winters, E. (2025). Rehearsal Schedules for
+      Continual Learning. NeurIPS Workshop on Continual Learning (poster)."
+    url: https://example.com/neurips25-rehearsal.pdf
+
+skills:
+  - label: Languages
+    items: [Python, C++, MATLAB]
+  - label: ML
+    items: [PyTorch, JAX, scikit-learn, experiment tracking]
+
+awards:
+  - name: Putnam Competition — top 500
+    date: 2024-12

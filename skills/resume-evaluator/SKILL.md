@@ -107,3 +107,9 @@ template, etc.).
 If a script crashes on a malformed PDF, that *is* a finding: report the
 file as unparseable (what a vendor pipeline would conclude), not the
 harness as broken.
+
+The report never softens to match anyone's preference — not the
+user's, not the builder's. If the user overrode a mechanical
+recommendation and the checks fail, the report says so and names the
+uses the file is unsafe for. A reassuring false PASS is the one output
+this skill must never produce.

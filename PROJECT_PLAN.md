@@ -113,6 +113,13 @@ Skill anatomy follows the canonical conventions: SKILL.md ≤ ~500 lines with YA
 6. **Render.** `scripts/render.sh` compiles with Typst ≥ 0.15, PDF/UA-1 tagging on, fonts embedded, one page for students/early-career.
 7. **Mandatory handoff.** Always finish by running `resume-evaluator` on the output and iterating until it passes. The builder is not "done" at PDF; it's done at *verified* PDF.
 
+**Design decisions added 2026-07-21 (from stress-testing the use-case space):**
+
+- **Career vault** (`references/career-vault.md`): a persistent, user-owned `career-vault.md` — the exhaustive evidence base (FACT/CONTEXT/CUT entries + honesty ledger + Q&A log) from which every resume is a *projection*. Intake accretes into it; per-application files (`resume-<company>-<role>.yaml`) select from it; projections never contain a fact the vault lacks. This makes the skill persistently useful (intake once, apply many) and keeps N tailored variants mutually honest. A file, not agent memory, so the user owns and ports it.
+- **Audience axis, not just field axis**: HR pipelines (parse+embed+rank) vs. faculty readers (grad school, REUs — `fields/academic.md`) vs. both. Mechanical parse-safety is constant; evidence emphasis follows the reader. Schema gained `experience[].group` (research/teaching/industry) rendering as separate standard-headed sections — the academic convention, still router-recognized.
+- **User-conflict protocol** (builder SKILL.md "When the user is wrong about mechanics"): show script evidence, offer a parse-safe + styled split from the same yaml, comply on aesthetics with the failure documented, never comply on integrity. The evaluator's report never softens; a reassuring false PASS is the one forbidden output.
+- **Scope boundary**: in-scope = resume/CV-class documents for getting a human or pipeline to say "interview". Out of scope, said explicitly: statements of purpose, cover letters, portfolios, senior-academic full CVs (v0.2+ candidates at most).
+
 ### 5.2 `resume-evaluator`
 
 **Trigger description (draft):** "Test/score/check any resume PDF — ATS parseability, hidden-text safety, JD alignment, recruiter skim quality. Use whenever the user asks 'is my resume good/ATS-safe', provides a resume for review, or after generating any resume."

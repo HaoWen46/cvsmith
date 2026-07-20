@@ -115,3 +115,26 @@ def test_page_budget_enforced(fixtures):
                               "--page-budget", "0")
     assert code == 1
     assert "page_budget" in failed_ids(report)
+
+
+# ── grouped experience (academic-track CVs) ──────────────────────────
+
+def test_grouped_experience_renders_and_routes(tmp_path):
+    pdf = tmp_path / "academic.pdf"
+    subprocess.run(
+        ["bash", str(REPO / "skills/resume-builder/scripts/render.sh"),
+         str(REPO / "evals/fixtures/academic-sample/resume.yaml"),
+         "-o", str(pdf)],
+        check=True, capture_output=True, text=True)
+
+    text = subprocess.run(["pdftotext", str(pdf), "-"],
+                          capture_output=True, text=True).stdout
+    for heading in ("RESEARCH EXPERIENCE", "TEACHING EXPERIENCE",
+                    "INDUSTRY EXPERIENCE"):
+        assert heading in text, f"grouped section {heading!r} missing"
+
+    code, report = run_script("parse_sim", pdf)
+    assert code == 0, f"academic CV failed routing: {report}"
+    assert "experience" in report["sections"]
+    assert not report["unknown_headings"], \
+        "grouped headings must be router-recognized, not creative"
