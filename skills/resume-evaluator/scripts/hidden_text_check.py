@@ -60,7 +60,7 @@ def crop_min_luminance(img, bbox, scale):
     if px0 >= px1 or py0 >= py1:
         return None
     crop = img.crop((px0, py0, px1, py1))
-    return min(crop.getdata())
+    return crop.getextrema()[0]
 
 
 def main() -> int:

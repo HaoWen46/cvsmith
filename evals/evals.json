@@ -1,5 +1,5 @@
 {
-  "_comment": "M4 eval scaffolding, skill-creator conventions: one block per skill. Prompts are what real users type; assertions are what a grader checks against the run's outputs and transcript. Fixture paths are repo-relative. The with-skill vs baseline run loop consumes these.",
+  "_comment": "M4 eval scaffolding, skill-creator conventions: one block per skill. Prompts are what real users type; assertions are what a grader checks against the run's outputs and transcript. Fixture paths are repo-relative. The with-skill vs baseline run loop consumes these. PROTOCOL (learned in iteration-2): keep eval_metadata/assertions OUT of any directory the run agents can see — agents hunt context and will calibrate against their own rubric (two with-skill runs did exactly that); stage metadata grader-side only.",
   "skills": [
     {
       "skill_name": "resume-builder",

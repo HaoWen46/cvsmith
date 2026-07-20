@@ -40,7 +40,8 @@ HEADINGS = {
                  "technical projects", "open source"},
     "skills": {"skills", "technical skills", "skills & tools", "core skills",
                "technologies"},
-    "publications": {"publications", "papers"},
+    "publications": {"publications", "papers", "publications & awards",
+                     "publications & honors", "awards & publications"},
     "awards": {"awards", "honors", "honors & awards", "awards & honors",
                "achievements"},
     "certifications": {"certifications", "certificates", "licenses"},
@@ -137,6 +138,15 @@ def main() -> int:
                    "heading — screeners score these fields directly")
     else:
         report.add("core_sections", PASS, "experience/projects route correctly")
+        if "experience" not in found:
+            # Projects alone satisfies the gate, but a candidate WITH jobs
+            # whose Experience section fails to route looks work-history-less
+            # to a field router — surface it instead of letting the OR mask it.
+            report.add("experience_missing", WARN,
+                       "no Experience section routed — fine only if the "
+                       "candidate genuinely has no formal work history; if "
+                       "they do, those entries are being misfiled (check the "
+                       "sections map)")
 
     if "education" not in found:
         report.add("education_section", WARN,

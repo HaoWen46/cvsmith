@@ -11,10 +11,10 @@ any scoring matters. READY for equivalent Summer-2026-eligible roles.
 ## Deterministic layers
 | Layer | Result | Notes |
 |---|---|---|
-| L0 extraction | PASS | 1,767 chars, clean encoding, extractor token overlap 1.00 |
+| L0 extraction | PASS | 1,868 chars, clean encoding, extractor token overlap 1.00 |
 | L1 parse sim | PASS | all 6 sections route under standard headings; name/email/dates parse |
-| L2 integrity | PASS | 291 words checked — every one puts ink on its bbox; no tiny/off-page/zero-width text |
-| L3 structure | PASS | 1/1 pages, letter, tagged PDF, fonts embedded, single column |
+| L2 integrity | PASS | 305 words checked — every one puts ink on its bbox; no tiny/off-page/zero-width text |
+| L3 structure | PASS | 1/1 pages, letter, tagged PDF, fonts embedded, single column (compact template) |
 
 ## L4 — JD alignment: 9/10 on evidence, gated at 0 by eligibility
 | # | Requirement | Evidence | Strength |

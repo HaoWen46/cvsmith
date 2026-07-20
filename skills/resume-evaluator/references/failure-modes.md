@@ -114,3 +114,14 @@ reports; when you meet a new mode, add it here with the same shape.
   limitation, not a resume property. Install poppler for full checks.
 - **Right-aligned dates**: not a second column; the L3 detector is
   specifically built to tell them apart.
+- **Raw content-stream order ≠ visual order** on grid rows (dates
+  emitted before/after titles depending on extractor mode): layout-
+  aware extraction and the tag tree both read correctly, token
+  agreement stays 1.0, and L1 parses line-wise. Real but low-severity;
+  not worth breaking the meta column over.
+- **En-dash date ranges** ("Jun 2025 – Sep 2025"): a strictly
+  ASCII-hyphen regex misses these, but every real extractor and L1's
+  range parser handle the en dash, and it's the typographically
+  correct range mark. Kept deliberately; a parser too naive for en
+  dashes fails a dozen other universals first. (Recorded so it isn't
+  relitigated every audit.)

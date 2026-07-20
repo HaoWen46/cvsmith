@@ -114,6 +114,12 @@ Read `references/rubric.md` §L5. Two passes over the *rendered page*
 2. ...
 ```
 
+When an integrity finding (L2) drives the verdict, include a one-line
+"see it yourself" so the user doesn't have to take the report on
+faith: *open the PDF, select all (Cmd/Ctrl-A), copy into a text
+editor — anything that appears there but not on the page is the
+hidden content.* Users act faster on findings they can reproduce.
+
 ## Iteration protocol
 
 When invoked from the builder: report → builder fixes yaml → re-render
