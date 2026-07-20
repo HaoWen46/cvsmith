@@ -1,0 +1,17 @@
+[project]
+name = "cvsmith"
+version = "0.1.0"
+description = "Agent skills that build, tailor, and adversarially test resumes"
+requires-python = ">=3.11"
+# No [build-system]: this repo is not a Python package. uv manages the
+# environment for the evaluator scripts and CI only.
+
+[dependency-groups]
+dev = [
+    "pypdf>=5.0",
+    "pdfplumber>=0.11",
+    "pdf2image>=1.17",
+    "pillow>=10.0",
+    "pyyaml>=6.0",
+    "pytest>=8.0",
+]

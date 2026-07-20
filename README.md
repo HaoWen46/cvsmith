@@ -1,1 +1,51 @@
 # cvsmith
+
+**Agent skills that teach AI agents how to build, tailor, and adversarially test resumes — rendered with Typst, verified the way modern screening stacks actually verify.**
+
+Not a resume generator, not a SaaS checker. cvsmith is a set of portable skills (SKILL.md + references + scripts, Claude Code / Cowork / Agent SDK compatible) that make any capable agent behave like an expert resume engineer with a verification loop: **build → test → iterate**, like TDD for resumes.
+
+## Why
+
+As of 2026, resume screening is an LLM-mediated pipeline: parse → structure → embed against the job description → score → rank. That changes what a good resume tool must do:
+
+- **Parsing is the gate.** If extraction fails, no intelligence ever evaluates the candidate. Single-column, text-layer, tagged PDFs with standard headings are non-negotiable.
+- **Keyword stuffing is dead and harmful.** Modern screeners use semantic matching and flag manipulation. The target is honest semantic coverage of the JD, not token overlap.
+- **Hidden text is detected and punished.** Production detectors cross-check rendered pixels against extracted text. A builder must *prove* it produced nothing that looks like hidden content.
+- **Generic AI prose is a negative signal.** Differentiators are specificity, quantification, and verifiable claims.
+
+The moat is the **evaluator**: a test harness that checks a PDF the same way screening vendors do.
+
+## The skills
+
+| Skill | One-liner |
+|---|---|
+| `resume-builder` | Interview the user, ingest raw materials, draft evidence-based content, render via Typst templates |
+| `resume-evaluator` | Adversarial test harness: parse simulation, hidden-text check, structure lint, JD-alignment scoring, recruiter-skim critique |
+| `jd-analyzer` | Decompose a job posting into ranked requirements, vocabulary, and evidence targets to tailor against |
+
+Design principles, full component specs, and the research base live in [PROJECT_PLAN.md](PROJECT_PLAN.md).
+
+## Status
+
+Pre-alpha — scaffolding stage. Roadmap (see the plan for details):
+
+- [x] **M0** — Repo scaffold, CI skeleton, draft data schema
+- [ ] **M1** — Render path: `onecol.typ` template + `render.sh` (resume.yaml → verified-parseable PDF)
+- [ ] **M2** — Evaluator scripts (extraction, parse simulation, hidden-text check, structure lint) + broken-PDF fixtures
+- [ ] **M3** — The three SKILL.md files + reference library
+- [ ] **M4** — Eval loop (`evals/evals.json`, with-skill vs. baseline runs)
+- [ ] **M5** — Worked example, packaged `.skill` files, v0.1.0
+
+## Requirements
+
+- [Typst](https://typst.app/) ≥ 0.15 (PDF/UA-1 tagged output)
+- [uv](https://docs.astral.sh/uv/) — `uv sync` sets up the Python environment for the evaluator scripts
+- Poppler (`pdftotext`) for extraction checks
+
+## A note on personal data
+
+Real career materials never belong in this repo. If you run the skills inside this checkout, keep raw inputs and generated resumes in `materials/`, `output/`, or `drafts/` — all gitignored. Everything under `evals/fixtures/` and `examples/` is synthetic or sanitized.
+
+## License
+
+[MIT](LICENSE)

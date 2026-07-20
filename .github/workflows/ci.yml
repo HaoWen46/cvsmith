@@ -1,0 +1,88 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+env:
+  TYPST_VERSION: "0.15.1"
+
+jobs:
+  skill-structure:
+    name: Skill structure lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate SKILL.md frontmatter
+        run: |
+          shopt -s nullglob
+          fail=0
+          found=0
+          for f in skills/*/SKILL.md; do
+            found=1
+            echo "checking $f"
+            head -1 "$f" | grep -qx -- '---' || { echo "::error file=$f::missing YAML frontmatter"; fail=1; }
+            grep -q '^name:' "$f" || { echo "::error file=$f::frontmatter missing 'name'"; fail=1; }
+            grep -q '^description:' "$f" || { echo "::error file=$f::frontmatter missing 'description'"; fail=1; }
+            lines=$(wc -l < "$f")
+            if [ "$lines" -gt 500 ]; then
+              echo "::warning file=$f::SKILL.md is $lines lines (>500) — consider moving detail into references/"
+            fi
+          done
+          [ "$found" -eq 0 ] && echo "no skills yet — nothing to lint (M3)"
+          exit $fail
+
+  templates:
+    name: Compile Typst templates
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Detect templates
+        id: detect
+        run: |
+          shopt -s nullglob
+          t=(skills/resume-builder/assets/templates/*.typ)
+          echo "count=${#t[@]}" >> "$GITHUB_OUTPUT"
+          [ ${#t[@]} -eq 0 ] && echo "no templates yet — skipping (M1)"
+      - name: Install Typst
+        if: steps.detect.outputs.count != '0'
+        run: |
+          curl -fsSL "https://github.com/typst/typst/releases/download/v${TYPST_VERSION}/typst-x86_64-unknown-linux-musl.tar.xz" | tar -xJ
+          sudo mv typst-x86_64-unknown-linux-musl/typst /usr/local/bin/
+          typst --version
+      - name: Compile every template against fixtures
+        if: steps.detect.outputs.count != '0'
+        run: |
+          # M1 wires this to real fixture data; until then, compile each
+          # template standalone so syntax errors fail fast.
+          set -e
+          for t in skills/resume-builder/assets/templates/*.typ; do
+            echo "compiling $t"
+            typst compile --pdf-standard ua-1 "$t" /tmp/out.pdf
+            pdftotext /tmp/out.pdf - | head -5
+          done
+
+  evaluator:
+    name: Evaluator scripts on fixtures
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Detect scripts
+        id: detect
+        run: |
+          shopt -s nullglob
+          s=(skills/resume-evaluator/scripts/*.py)
+          echo "count=${#s[@]}" >> "$GITHUB_OUTPUT"
+          [ ${#s[@]} -eq 0 ] && echo "no evaluator scripts yet — skipping (M2)"
+      - name: Set up uv
+        if: steps.detect.outputs.count != '0'
+        uses: astral-sh/setup-uv@v5
+      - name: Run evaluator against fixtures
+        if: steps.detect.outputs.count != '0'
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq poppler-utils
+          uv sync
+          # M2 exit criterion: evaluator catches every planted failure in
+          # evals/fixtures/, zero false positives on the good fixture.
+          uv run pytest evals/ -q
