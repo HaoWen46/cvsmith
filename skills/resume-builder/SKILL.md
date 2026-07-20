@@ -135,8 +135,17 @@ separated: the yaml holds finished prose; templates never rewrite it.
 
 ```sh
 scripts/render.sh path/to/resume.yaml            # -> resume.pdf next to it
-scripts/render.sh resume.yaml -t onecol -o out.pdf
+scripts/render.sh resume.yaml -t compact -o out.pdf
 ```
+
+Three templates ship, one data contract, identical parse-safety —
+only the register varies: `compact` (designed/dense — tech, startups,
+AI/ML), `classic` (serif/conservative — banking, consulting, law,
+government), `onecol` (neutral default — everything else). The
+register cell from step 5 picks the candidate; when it's close, render
+two and show the user both pages — then record the pick as
+`meta.template` in the yaml so re-renders need no flag. Details:
+`references/typst-guide.md` §Choosing a template.
 
 Requires Typst ≥ 0.15 (`brew install typst` / see
 `references/typst-guide.md` for other platforms and troubleshooting).

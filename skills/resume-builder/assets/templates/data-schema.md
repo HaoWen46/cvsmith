@@ -31,6 +31,9 @@ meta:                    # optional; knobs for template + evaluator
   paper: us-letter       # us-letter (default) | a4 — match the target market
   lang: en               # BCP-47-ish code for PDF metadata + hyphenation
   accent: "#1f3a5f"      # compact template only: accent color (default navy)
+  template: compact      # onecol (default) | compact | classic — render.sh
+                         # uses this when no -t flag is given, so each
+                         # projection re-renders with one command
 
 basics:                  # required
   name: Jordan Wu

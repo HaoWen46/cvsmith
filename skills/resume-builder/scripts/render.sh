@@ -13,7 +13,7 @@ usage() { echo "usage: $0 <resume.yaml> [-t template] [-o out.pdf]" >&2; exit 2;
 
 [ $# -ge 1 ] || usage
 DATA=$1; shift
-TEMPLATE=onecol
+TEMPLATE=""
 OUT=""
 while getopts "t:o:" opt; do
   case $opt in
@@ -24,6 +24,13 @@ while getopts "t:o:" opt; do
 done
 
 [ -f "$DATA" ] || { echo "error: data file not found: $DATA" >&2; exit 1; }
+
+# Template precedence: -t flag > meta.template in the yaml > onecol.
+# Projections carry their own template so re-renders stay one command.
+if [ -z "$TEMPLATE" ]; then
+  TEMPLATE=$(awk '$1 == "template:" {print $2; exit}' "$DATA")
+  TEMPLATE=${TEMPLATE:-onecol}
+fi
 
 SCRIPT_DIR=$(cd -- "$(dirname -- "$0")" && pwd)
 SKILL_DIR=$(dirname "$SCRIPT_DIR")
@@ -40,7 +47,7 @@ if [ -z "$OUT" ]; then
 fi
 
 # The templates pin vendored fonts; fail loudly if typst can't see them.
-for fam in "Source Sans 3" "Inter"; do
+for fam in "Source Sans 3" "Inter" "Source Serif 4"; do
   if ! typst fonts --font-path "$FONTS_DIR" --ignore-system-fonts | grep -q "^$fam$"; then
     echo "error: vendored font '$fam' not found under $FONTS_DIR" >&2
     exit 1

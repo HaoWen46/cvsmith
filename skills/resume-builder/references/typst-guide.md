@@ -2,16 +2,36 @@
 
 ## The pieces
 
-- `assets/templates/onecol.typ` — the roomy default: Source Sans 3,
-  centered header, 10pt, generous spacing. Safe, conventional.
+- `assets/templates/onecol.typ` — the neutral default: Source Sans 3,
+  centered header, 10pt, generous spacing. Safe anywhere.
 - `assets/templates/compact.typ` — the designed variant: Inter, dense
   9.2pt, statement name and section headers in one accent color
-  (`meta.accent`, default deep navy), secondary meta in gray,
-  tag rows under entries. Pick it when the user wants a modern,
-  designed look or maximum content density; both templates share the
-  same data contract and identical parse-safety.
-- Both expose one function: `render(data)` — pure functions of the
-  yaml; fixed section order; real H1/H2 tags in the structure tree.
+  (`meta.accent`, default deep navy), secondary meta in gray, tag
+  rows under entries.
+- `assets/templates/classic.typ` — the conservative variant: Source
+  Serif 4, centered, monochrome, strictly conventional; no accent, no
+  tag rows on purpose.
+- All three expose `render(data)`, share the full data contract, and
+  have identical parse-safety (every template must pass the same
+  battery — style is the only axis that varies).
+
+## Choosing a template
+
+The register decides, then the user confirms:
+
+| Target register | Template |
+|---|---|
+| Tech/startup, AI/ML, modern product companies; users wanting density or a designed look | `compact` |
+| Banking, consulting, law, government, traditional industries — anywhere deviation itself signals | `classic` |
+| Unknown field, mixed/volume applications, academic, or no signal | `onecol` |
+
+Offer the choice visually when it matters: render the same yaml
+through two candidates (one command each) and show both pages — users
+pick in seconds, and it's their document. Record the pick as
+`meta.template` in the projection so every later re-render is
+one command with no flag. Per-market projections may differ
+(`compact` for the startup, `classic` for the bank) — same vault,
+same facts, different music.
 - `assets/templates/data-schema.md` — the `resume.yaml` contract.
   Read it before writing yaml.
 - `assets/fonts/` — vendored OFL fonts (Source Sans 3, Inter), so
