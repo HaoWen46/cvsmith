@@ -121,11 +121,12 @@ awards:                  # optional
   headings are in the parse simulator's recognized taxonomy. Omit
   `group` everywhere for a single "Experience" section (the industry
   default). See `references/fields/academic.md`.
-- **Project right column**: a project entry's right-hand meta shows its
-  `url` when present, otherwise its date range — one thing per line keeps
-  the skim clean. If both are given, dates are dropped from display (they
-  stay in the data), so prefer `url` for living projects and dates for
-  finished ones.
+- **Project right column**: in `onecol` and `classic` a project entry's
+  right-hand meta shows its `url` when present, otherwise its date range
+  — one slot per entry keeps the skim clean, so prefer `url` for living
+  projects and dates for finished ones. `compact` has two meta slots by
+  design (url on the name row, dates on the tag row) and renders both
+  when both are given — no information is dropped there.
 - **`skills`**: groups keep the section honest — 2–4 groups, each a short
   list the person can defend in an interview. The JD-alignment layer scores
   semantic coverage from bullets first; `skills` is a secondary signal.

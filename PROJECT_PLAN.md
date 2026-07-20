@@ -189,14 +189,14 @@ The workflows live in the SKILL.md files. What must stay consistent
 | M1 render path (`onecol.typ`, `render.sh`, fixture) | **done** — 1 page, tagged, extraction-clean |
 | M2 evaluator harness (4 scripts, planted-failure fixtures, tests) | **done** — every plant caught, zero false positives |
 | M3 the three SKILL.md files + reference library | **done** — 3 skills, 13 references |
-| M4 eval loop | **scaffold done** (`evals.json`); with-skill vs. baseline runs + human review pending — *the skills have not yet been tested end-to-end by independent agents* |
-| M5 release | **example done**; `.skill` packaging + v0.1.0 tag pending (after M4 runs) |
+| M4 eval loop | **done** — 18 independent-agent runs, 2 iterations (Fable 5: 15/15 vs 10/15; Sonnet 5: 26/26 vs 21/26). Three repo bugs found by the runs, fixed. Contamination lesson recorded (eval metadata stays grader-side). Description trigger-optimization remains a backlog item |
+| M5 release | **done** — v0.1.0 tagged; `.skill` packages on GitHub Releases; three templates; worked example |
 
 Post-v0.1 backlog, in rough priority order:
 
-1. **M4 runs + description optimization** — the biggest honest gap:
-   with-skill vs. baseline agent runs over `evals/evals.json`,
-   human-reviewed, then trigger-tuning of the three descriptions.
+1. **Description trigger-optimization** — the one M4 piece still open:
+   the skill-creator's trigger-eval loop over the three descriptions
+   (needs `claude -p`; run when convenient).
 2. ~~`compact.typ` / styled second template~~ — **done**: Inter-based
    designed variant (accent name/headers, gray meta, tag rows,
    `meta.accent` knob), parse-verified; heading letter-spacing found

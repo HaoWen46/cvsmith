@@ -38,16 +38,22 @@ skills/resume-builder/scripts/render.sh path/to/resume.yaml
 Output is a tagged PDF/UA-1 + PDF/A-2a file rendered with vendored fonts
 (identical on every machine), smoke-checked for a healthy text layer.
 
+## Install
+
+Grab the `.skill` files from the
+[latest release](https://github.com/HaoWen46/cvsmith/releases) and add
+them to your agent's skills (Claude Code: save under `~/.claude/skills/`
+or use your client's skill-import), or clone this repo and point your
+agent at `skills/`. Each skill is self-contained — fonts vendored,
+scripts carrying inline dependencies (`uv run` just works).
+
 ## Status
 
-Pre-alpha — scaffolding stage. Roadmap (see the plan for details):
+**v0.1.0** — all milestones complete:
 
-- [x] **M0** — Repo scaffold, CI skeleton, draft data schema
-- [x] **M1** — Render path: `onecol.typ` template + `render.sh` (resume.yaml → verified-parseable PDF)
-- [x] **M2** — Evaluator scripts (extraction, parse simulation, hidden-text check, structure lint) + broken-PDF fixtures
-- [x] **M3** — The three SKILL.md files + reference library
-- [ ] **M4** — Eval loop (`evals/evals.json` written; with-skill vs. baseline runs + review pending)
-- [ ] **M5** — Worked example done ([examples/ai-ml-intern](examples/ai-ml-intern)); packaging + v0.1.0 pending
+- [x] **M0–M3** — Scaffold, render path, evaluator harness, the three skills + references
+- [x] **M4** — Eval loop: 18 independent-agent runs across two model tiers (Fable 5 and Sonnet 5 executors). With-skill swept both iterations — 100% of assertions vs 67%/81% for baselines; three repo bugs were found *by* the runs and fixed
+- [x] **M5** — Worked example ([examples/ai-ml-intern](examples/ai-ml-intern)), three templates spanning the register axis, packaged `.skill` releases
 
 ## Requirements
 
