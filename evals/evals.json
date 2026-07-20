@@ -1,0 +1,145 @@
+{
+  "_comment": "M4 eval scaffolding, skill-creator conventions: one block per skill. Prompts are what real users type; assertions are what a grader checks against the run's outputs and transcript. Fixture paths are repo-relative. The with-skill vs baseline run loop consumes these.",
+  "skills": [
+    {
+      "skill_name": "resume-builder",
+      "evals": [
+        {
+          "id": 1,
+          "prompt": "ok here's my old resume and a bunch of messy notes (attached). i'm applying to ML internships for summer 2027 and my resume is definitely not good enough. can you rebuild it properly? i'm at UW, graduating june 2026... actually make that what the files say",
+          "files": [
+            "evals/fixtures/materials-sample/old_resume.txt",
+            "evals/fixtures/materials-sample/project_notes.md"
+          ],
+          "expected_output": "A rendered one-page PDF built from the materials, plus an evaluator report showing L0-L3 pass",
+          "assertions": [
+            "A PDF was rendered via render.sh (not hand-written or ad-hoc typst compile) and passes all four evaluator scripts with exit 0",
+            "Every employer, date, metric, and project in the resume traces to the provided materials; nothing was invented (no new orgs, no new numbers)",
+            "The keyword-dump skills list from old_resume.txt was NOT carried over wholesale; skills are grouped and defensible",
+            "Objective/summary fluff ('passionate', 'leveraging cutting-edge') from the old resume does not appear",
+            "The specific numbers from project_notes.md (1200 tickets, 3 regressions, 480->210ms, 41 cases, 1.4k stars, WER 18.2->11.6) appear in bullets",
+            "The evaluator was run before the resume was presented as done, and its report was shown"
+          ]
+        },
+        {
+          "id": 2,
+          "prompt": "i need a resume and i literally have nothing, never made one. cs junior at a state school, i've had one part-time job at a grocery store and i do some coding on the side. help",
+          "files": [],
+          "expected_output": "A structured interview first, then an honest resume from the answers, with thin areas flagged rather than padded",
+          "assertions": [
+            "The agent interviewed before drafting (asked for education dates, job details, project specifics) instead of inventing a profile",
+            "No fabricated experience, orgs, metrics, or projects appear that the user did not state",
+            "The grocery job is presented honestly with real responsibilities rather than inflated into 'operations management'",
+            "Thin sections are flagged to the user with concrete suggestions for what would strengthen them",
+            "If a PDF was rendered it passes the four evaluator scripts"
+          ]
+        },
+        {
+          "id": 3,
+          "prompt": "attached my resume data file and a job posting i really want. tailor my resume to it and tell me honestly where i fall short",
+          "files": [
+            "evals/fixtures/resume-sample/resume.yaml",
+            "evals/fixtures/jd-sample/ml-intern-posting.md"
+          ],
+          "expected_output": "jd-analyzer style decomposition, a tailored render, and a frank gap statement",
+          "assertions": [
+            "The posting was decomposed into ranked must-haves before tailoring (jd-analyzer invoked or its workflow followed)",
+            "Tailoring reframed/reordered existing evidence toward the posting's requirements without inventing new claims",
+            "JD vocabulary is mirrored only where the resume has real evidence for it",
+            "The graduation-date gate (Dec 2027 or later vs Jun 2026 in the data) was caught and surfaced to the user",
+            "Output PDF passes the four evaluator scripts"
+          ]
+        }
+      ]
+    },
+    {
+      "skill_name": "resume-evaluator",
+      "evals": [
+        {
+          "id": 1,
+          "prompt": "is my resume actually ATS-safe? i keep reading scary things about resume screening. can you check it properly? (attached)",
+          "files": ["evals/fixtures/build/good.pdf"],
+          "expected_output": "Full battery run, fixed-format report, READY verdict",
+          "assertions": [
+            "All four scripts (extract_text, parse_sim, hidden_text_check, lint_structure) were actually executed — the report cites their real results, not vibes",
+            "The report follows the fixed template: verdict, deterministic-layer table, L4 skipped with reason (no JD), L5 with both passes, ranked fix list",
+            "Deterministic layers were not eyeballed: no claims about extraction/hidden text without the script output backing them",
+            "Verdict is READY (this fixture passes everything)"
+          ]
+        },
+        {
+          "id": 2,
+          "prompt": "a resume-writing service made this for my cousin, something feels off about it. can you check it? (attached)",
+          "files": ["evals/fixtures/build/white_text.pdf"],
+          "expected_output": "NOT READY with the hidden text exposed as the headline finding",
+          "assertions": [
+            "hidden_text_check was run and its invisible_text failure is the headline finding",
+            "The hidden content itself is quoted/surfaced as evidence",
+            "The report explains the consequence accurately (manipulation flag, not a minor formatting issue) without moralizing at the cousin",
+            "The fix is to remove the hidden text entirely — no suggestion to 'hide it better'"
+          ]
+        },
+        {
+          "id": 3,
+          "prompt": "recruiter said my resume 'didn't parse well' in their system?? it looks totally fine on my screen. what's wrong with it (attached)",
+          "files": ["evals/fixtures/build/twocol.pdf"],
+          "expected_output": "The looks-fine-vs-parses-badly gap explained via the column detection finding",
+          "assertions": [
+            "lint_structure's single_column failure is identified as the cause",
+            "The explanation addresses the user's confusion directly: visual fine-ness vs machine reading order",
+            "A rebuild to single column is recommended (builder skill offered), not cosmetic patches",
+            "extract_text --dump or equivalent evidence shows how the machine sees the file"
+          ]
+        }
+      ]
+    },
+    {
+      "skill_name": "jd-analyzer",
+      "evals": [
+        {
+          "id": 1,
+          "prompt": "found this internship posting, what are they actually looking for? feels like a lot of buzzwords (attached)",
+          "files": ["evals/fixtures/jd-sample/ml-intern-posting.md"],
+          "expected_output": "Fixed-format analysis: ranked must-haves with evidence targets, decoded level, vocabulary map, culture noise separated",
+          "assertions": [
+            "Output follows the fixed format from SKILL.md (must-have table, nice-to-haves, vocabulary map, culture noise, notes)",
+            "Evaluation/evals is ranked at or near must-have #1 (title-adjacent, repeated, specific) — not just listed",
+            "The 'About you' self-starter/passionate paragraph is classified as culture noise with no resume action",
+            "The graduation-date and work-authorization gates are surfaced as binary gates",
+            "Evidence targets describe the shape of proof (metrics, artifacts), not rephrased keywords"
+          ]
+        },
+        {
+          "id": 2,
+          "prompt": "here's my resume data and a posting — am i actually qualified for this or am i wasting my time? be honest (both attached)",
+          "files": [
+            "evals/fixtures/resume-sample/resume.yaml",
+            "evals/fixtures/jd-sample/ml-intern-posting.md"
+          ],
+          "expected_output": "Per-requirement gap analysis with an honest go/no-go",
+          "assertions": [
+            "Every must-have is matched against the resume's actual evidence (strong/weak/absent per requirement)",
+            "The graduation-date gate (Jun 2026 vs 'Dec 2027 or later') is caught as the decisive issue, not buried under skill matching",
+            "The answer is honest about the gate while noting the skills evidence is otherwise strong",
+            "No advice to fudge dates or misrepresent enrollment status"
+          ]
+        },
+        {
+          "id": 3,
+          "prompt": "comparing two internships i'm excited about, this one (attached) and this other posting i'll paste: [identical posting but titled 'AI Infrastructure Intern', minimum quals swap LLM-applications for 'CUDA, GPU profiling, distributed training', preferred adds Kubernetes]. which fits me better? my data file attached too",
+          "files": [
+            "evals/fixtures/jd-sample/ml-intern-posting.md",
+            "evals/fixtures/resume-sample/resume.yaml"
+          ],
+          "expected_output": "Two separate analyses plus a comparison, not a blended average",
+          "assertions": [
+            "Each posting is analyzed separately before any comparison",
+            "The comparison identifies shared must-haves vs per-posting deltas",
+            "The recommendation maps the user's strongest evidence (evals, RAG latency work) to the posting that wants it",
+            "No single mushy 'tailor for both at once' target is produced"
+          ]
+        }
+      ]
+    }
+  ]
+}

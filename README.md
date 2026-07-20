@@ -46,8 +46,8 @@ Pre-alpha — scaffolding stage. Roadmap (see the plan for details):
 - [x] **M1** — Render path: `onecol.typ` template + `render.sh` (resume.yaml → verified-parseable PDF)
 - [x] **M2** — Evaluator scripts (extraction, parse simulation, hidden-text check, structure lint) + broken-PDF fixtures
 - [x] **M3** — The three SKILL.md files + reference library
-- [ ] **M4** — Eval loop (`evals/evals.json`, with-skill vs. baseline runs)
-- [ ] **M5** — Worked example, packaged `.skill` files, v0.1.0
+- [ ] **M4** — Eval loop (`evals/evals.json` written; with-skill vs. baseline runs + review pending)
+- [ ] **M5** — Worked example done ([examples/ai-ml-intern](examples/ai-ml-intern)); packaging + v0.1.0 pending
 
 ## Requirements
 
