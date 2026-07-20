@@ -80,7 +80,7 @@ skills:
     items: [Linux, Docker, GitHub Actions, Postgres]
 
 publications:
-  - citation: "Casey, S., Okafor, D., and Lin, M. (2025). Preemption-Aware
+  - citation: "Okafor, D., Casey, S., and Lin, M. (2025). Preemption-Aware
       Scheduling for Shared GPU Clusters. HotCloud Workshop."
     url: https://example.com/hotcloud25-preemption.pdf
 

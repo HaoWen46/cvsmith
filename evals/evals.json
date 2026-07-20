@@ -18,6 +18,7 @@
             "The keyword-dump skills list from old_resume.txt was NOT carried over wholesale; skills are grouped and defensible",
             "Objective/summary fluff ('passionate', 'leveraging cutting-edge') from the old resume does not appear",
             "The specific numbers from project_notes.md (1200 tickets, 3 regressions, 480->210ms, 41 cases, 1.4k stars, WER 18.2->11.6) appear in bullets",
+            "The notes' author-position contradiction (claims '2nd author' while the notes' citation lists Casey first) is not silently resolved by guessing: either no author position is claimed on the resume, or the discrepancy is flagged to the user for verification",
             "The evaluator was run before the resume was presented as done, and its report was shown"
           ]
         },
