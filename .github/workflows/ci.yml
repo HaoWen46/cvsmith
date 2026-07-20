@@ -44,7 +44,7 @@ jobs:
           shopt -s nullglob
           t=(skills/resume-builder/assets/templates/*.typ)
           echo "count=${#t[@]}" >> "$GITHUB_OUTPUT"
-          [ ${#t[@]} -eq 0 ] && echo "no templates yet — skipping (M1)"
+          if [ ${#t[@]} -eq 0 ]; then echo "no templates yet — skipping (M1)"; fi
       - name: Install Typst
         if: steps.detect.outputs.count != '0'
         run: |
@@ -75,7 +75,7 @@ jobs:
           shopt -s nullglob
           s=(skills/resume-evaluator/scripts/*.py)
           echo "count=${#s[@]}" >> "$GITHUB_OUTPUT"
-          [ ${#s[@]} -eq 0 ] && echo "no evaluator scripts yet — skipping (M2)"
+          if [ ${#s[@]} -eq 0 ]; then echo "no evaluator scripts yet — skipping (M2)"; fi
       - name: Set up uv
         if: steps.detect.outputs.count != '0'
         uses: astral-sh/setup-uv@v5
