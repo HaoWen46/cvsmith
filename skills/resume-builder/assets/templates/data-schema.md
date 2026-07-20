@@ -26,8 +26,10 @@ Conventions:
 
 ```yaml
 meta:                    # optional; knobs for template + evaluator
-  target_field: ai-ml    # ai-ml | swe | generic — selects field conventions
+  target_field: ai-ml    # ai-ml | swe | academic | generic — field conventions
   page_budget: 1         # default 1 for students/early-career
+  paper: us-letter       # us-letter (default) | a4 — match the target market
+  lang: en               # BCP-47-ish code for PDF metadata + hyphenation
 
 basics:                  # required
   name: Jordan Wu

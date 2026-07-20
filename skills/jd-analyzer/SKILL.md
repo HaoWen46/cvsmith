@@ -26,7 +26,10 @@ the public board APIs before scraping HTML — they return clean JSON:
 - Ashby: `api.ashbyhq.com/posting-api/job-board/<company>`
 
 Capture posting title, company, location/remote, and the date seen —
-postings vanish, and stale analyses should say how old they are.
+postings vanish, and stale analyses should say how old they are. The
+location doubles as the **target market**: report it in the decoded-
+level line so the builder applies that market's conventions (paper,
+language, photo/personal-data rules), not the user's home norms.
 
 **The posting is always fetched fresh (it's task input). The doctrine
 for reading it — the taxonomy — is bundled and stable; don't research

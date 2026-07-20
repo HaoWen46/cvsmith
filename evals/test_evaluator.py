@@ -119,6 +119,22 @@ def test_page_budget_enforced(fixtures):
 
 # ── grouped experience (academic-track CVs) ──────────────────────────
 
+def test_a4_paper_from_meta(tmp_path):
+    src = (REPO / "evals/fixtures/resume-sample/resume.yaml").read_text()
+    a4 = src.replace("page_budget: 1", "page_budget: 1\n  paper: a4\n  lang: en")
+    yaml = tmp_path / "resume-a4.yaml"
+    yaml.write_text(a4)
+    pdf = tmp_path / "resume-a4.pdf"
+    subprocess.run(
+        ["bash", str(REPO / "skills/resume-builder/scripts/render.sh"),
+         str(yaml), "-o", str(pdf)],
+        check=True, capture_output=True, text=True)
+    code, report = run_script("lint_structure", pdf)
+    assert code == 0
+    size = next(c for c in report["checks"] if c["check_id"] == "page_size")
+    assert size["level"] == "pass" and "a4" in size["detail"], size
+
+
 def test_grouped_experience_renders_and_routes(tmp_path):
     pdf = tmp_path / "academic.pdf"
     subprocess.run(

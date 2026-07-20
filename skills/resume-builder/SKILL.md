@@ -78,10 +78,16 @@ If that location is inside a git repository, check the paths are
 ignored (`git check-ignore`) and offer to add ignores *before* writing.
 Career data silently landing in someone's tracked repo is a real harm.
 
-### 3. Identify the field, load its conventions
+### 3. Identify the field, market, and level
 
-Infer target field + seniority from materials and stated goal; confirm
-with the user in one line. Then read the matching reference:
+Infer target field + seniority **and target market** (the job's
+country/region — not the user's) from materials and stated goal;
+confirm all three in one line. The market sets paper size, language,
+page budget, and the photo/personal-data rules — read
+`references/regional.md` whenever the target is outside the US or the
+user is applying across regions (one canonical vault, one projection
+per market; never blend conventions). Then read the matching field
+reference:
 
 - AI/ML/LLM/agents roles → `references/fields/ai-ml.md`
 - software engineering → `references/fields/swe.md`

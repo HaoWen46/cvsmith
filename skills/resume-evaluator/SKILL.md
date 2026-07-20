@@ -39,6 +39,9 @@ JSON lists per-check `pass`/`warn`/`fail` with details). Page budget:
   the machine sees is what the page shows.
 - A `warn` is not a `fail`: report it, weigh it, don't block on it
   (e.g. untagged PDFs from other tools still parse).
+- Scope note for non-English CVs: L0/L2/L3 are language-agnostic;
+  L1's heading taxonomy is English-only — say so in the report rather
+  than scoring localized headings as routing failures.
 
 ## L4 — JD alignment (judgment, rubric-guided)
 

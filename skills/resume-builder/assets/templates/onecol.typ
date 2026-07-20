@@ -51,10 +51,13 @@
 
 #let render(data) = {
   let b = data.basics
+  let m = data.at("meta", default: (:))
 
   set document(title: b.name + " — Resume", author: b.name)
-  set page(paper: "us-letter", margin: (x: 1.45cm, top: 1.25cm, bottom: 1.25cm))
-  set text(font: "Source Sans 3", size: 10pt, fill: ink, lang: "en", hyphenate: false)
+  set page(paper: m.at("paper", default: "us-letter"),
+           margin: (x: 1.45cm, top: 1.25cm, bottom: 1.25cm))
+  set text(font: "Source Sans 3", size: 10pt, fill: ink,
+           lang: m.at("lang", default: "en"), hyphenate: false)
   set par(justify: false, leading: 0.56em, spacing: 0.56em)
   set list(indent: 0.55em, body-indent: 0.5em, spacing: 0.5em,
            marker: text(size: 0.8em, fill: muted, "\u{2022}"))
