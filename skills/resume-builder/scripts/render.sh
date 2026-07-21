@@ -87,4 +87,16 @@ if command -v pdfinfo >/dev/null; then
   fi
 fi
 
+# Opt-in bullet-line discipline: meta.bullet_lines caps rendered lines
+# per bullet, measured from the PDF's geometry (the render is the truth;
+# character counts are only a pencil sketch). Violations fail the build.
+blimit=$(awk '$1 == "bullet_lines:" {print $2; exit}' "$DATA")
+if [ -n "${blimit:-}" ]; then
+  if command -v uv >/dev/null; then
+    uv run --script "$SCRIPT_DIR/check_bullets.py" "$OUT" --max-lines "$blimit" || exit 1
+  else
+    echo "warning: meta.bullet_lines set but uv not found — bullet check skipped" >&2
+  fi
+fi
+
 echo "rendered: $OUT"

@@ -121,6 +121,26 @@ they're *framed* changes, never whether they appear), the anti-slop
 list (slop is failure in every culture), honesty, and parse
 mechanics (machines read every culture's PDFs the same way).
 
+## The one-line discipline (optional, measured)
+
+Some registers reward every bullet fitting exactly one rendered line:
+uniform rhythm, zero orphan words, maximum skim speed. It's a choice,
+not a law — evidence-dense bullets legitimately run two lines, and a
+number must never be deleted to make weight.
+
+When the user (or the register) wants it, don't eyeball it — opt in
+with `meta.bullet_lines: 1` and the render itself enforces it:
+`render.sh` measures rendered lines per bullet from the PDF geometry
+(`scripts/check_bullets.py`, also runnable standalone for a report)
+and fails the build naming each violator. Character counts are only a
+pencil sketch (~100–115 chars/line in compact, ~95–105 in onecol —
+font and margins decide, not the count); the render is the truth.
+
+Fixing a violator, in order: cut filler words → split into two
+bullets (each self-sufficient) → tighten phrasing around the number.
+If the facts genuinely need two lines, unset the knob for that
+projection rather than sacrificing a fact.
+
 ## Two readers, one line — the anti-yapping rule
 
 Every line on the page is read by at most two people: the skimmer

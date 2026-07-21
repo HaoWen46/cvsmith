@@ -34,6 +34,9 @@ meta:                    # optional; knobs for template + evaluator
   template: compact      # onecol (default) | compact | classic — render.sh
                          # uses this when no -t flag is given, so each
                          # projection re-renders with one command
+  bullet_lines: 1        # optional: cap rendered lines per bullet;
+                         # render.sh measures the PDF and fails on
+                         # violations (scripts/check_bullets.py)
 
 basics:                  # required
   name: Jordan Wu

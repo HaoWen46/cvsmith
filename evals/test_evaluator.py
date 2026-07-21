@@ -135,6 +135,42 @@ def test_a4_paper_from_meta(tmp_path):
     assert size["level"] == "pass" and "a4" in size["detail"], size
 
 
+def test_bullet_check_measures_and_enforces(tmp_path):
+    check = REPO / "skills/resume-builder/scripts/check_bullets.py"
+    pdf = tmp_path / "sample.pdf"
+    subprocess.run(
+        ["bash", str(REPO / "skills/resume-builder/scripts/render.sh"),
+         str(REPO / "evals/fixtures/resume-sample/resume.yaml"),
+         "-t", "compact", "-o", str(pdf)],
+        check=True, capture_output=True, text=True)
+
+    proc = subprocess.run([sys.executable, str(check), str(pdf), "--json"],
+                          capture_output=True, text=True)
+    assert proc.returncode == 0
+    report = json.loads(proc.stdout)
+    assert len(report["bullets"]) >= 10, "should find every bullet"
+    assert any(b["lines"] >= 2 for b in report["bullets"]), \
+        "fixture is known to wrap some bullets in compact"
+
+    proc = subprocess.run([sys.executable, str(check), str(pdf), "--max-lines", "1"],
+                          capture_output=True, text=True)
+    assert proc.returncode == 1, "one-line budget must fail on wrapped bullets"
+
+
+def test_render_sh_enforces_bullet_lines(tmp_path):
+    src = (REPO / "evals/fixtures/resume-sample/resume.yaml").read_text()
+    strict = src.replace("page_budget: 1", "page_budget: 1\n  bullet_lines: 1")
+    yaml = tmp_path / "strict.yaml"
+    yaml.write_text(strict)
+    proc = subprocess.run(
+        ["bash", str(REPO / "skills/resume-builder/scripts/render.sh"),
+         str(yaml), "-t", "compact", "-o", str(tmp_path / "strict.pdf")],
+        capture_output=True, text=True)
+    assert proc.returncode != 0, \
+        "render.sh must fail the build when bullet_lines is violated"
+    assert "bullet" in (proc.stdout + proc.stderr).lower()
+
+
 def test_grouped_experience_renders_and_routes(tmp_path):
     pdf = tmp_path / "academic.pdf"
     subprocess.run(
