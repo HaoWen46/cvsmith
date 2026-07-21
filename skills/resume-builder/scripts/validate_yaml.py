@@ -203,6 +203,13 @@ class Validator:
                 self.flag("shapes", level,
                           f"{path}.{k}: expected a string, got {tn(val)}")
 
+    def nonblank(self, e: dict, path: str, *keys) -> None:
+        for k in keys:
+            if isinstance(val := e.get(k), str) and not val.strip():
+                self.flag("empties", FAIL,
+                          f"{path}.{k}: blank — the entry renders with this "
+                          "field silently missing; fill it or drop the entry")
+
     def url_of(self, e: dict, path: str, k: str = "url") -> None:
         if isinstance(u := e.get(k), str) and (junk := tracking_params(u)):
             self.flag("urls", FAIL,
@@ -429,6 +436,7 @@ def validate(data: dict) -> Validator:
             v.nulls(e, p)
             v.require(e, p, ("institution", "degree", "field"))
             v.str_of(e, p, "institution", "degree", "field", "location")
+            v.nonblank(e, p, "institution", "degree", "field")
             v.date_of(e, p, "start", "end")
             v.str_list(e, p, "coursework")
             v.str_list(e, p, "honors")
@@ -440,6 +448,7 @@ def validate(data: dict) -> Validator:
             v.nulls(e, p)
             v.require(e, p, ("organization", "title", "bullets"))
             v.str_of(e, p, "organization", "title", "location")
+            v.nonblank(e, p, "organization", "title")
             v.date_of(e, p, "start", "end")
             v.str_list(e, p, "bullets")
             v.str_list(e, p, "tags")
@@ -456,6 +465,7 @@ def validate(data: dict) -> Validator:
             v.nulls(e, p)
             v.require(e, p, ("name", "bullets"))
             v.str_of(e, p, "name", "summary", "url")
+            v.nonblank(e, p, "name")
             v.url_of(e, p)
             v.date_of(e, p, "start", "end")
             v.str_list(e, p, "bullets")
@@ -468,6 +478,7 @@ def validate(data: dict) -> Validator:
             v.nulls(e, p)
             v.require(e, p, ("label", "items"))
             v.str_of(e, p, "label")
+            v.nonblank(e, p, "label")
             v.str_list(e, p, "items")
 
     # ── publications ─────────────────────────────────────────────────
@@ -477,6 +488,7 @@ def validate(data: dict) -> Validator:
             v.nulls(e, p)
             v.require(e, p, ("citation",))
             v.str_of(e, p, "citation", "url")
+            v.nonblank(e, p, "citation")
             v.url_of(e, p)
 
     # ── awards ───────────────────────────────────────────────────────
@@ -486,6 +498,7 @@ def validate(data: dict) -> Validator:
             v.nulls(e, p)
             v.require(e, p, ("name",))
             v.str_of(e, p, "name")
+            v.nonblank(e, p, "name")
             v.date_of(e, p, "date")
 
     if not any(k in data for k in CONTENT_SECTIONS):

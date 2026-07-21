@@ -190,6 +190,71 @@ def test_render_sh_enforces_bullet_lines(tmp_path):
     assert "bullet" in (proc.stdout + proc.stderr).lower()
 
 
+# ── failed gates must not clobber the last good pdf ──────────────────
+
+def render_to(yaml: Path, pdf: Path) -> subprocess.CompletedProcess:
+    return subprocess.run(
+        ["bash", str(REPO / "skills/resume-builder/scripts/render.sh"),
+         str(yaml), "-o", str(pdf)],
+        capture_output=True, text=True)
+
+
+def test_failed_render_preserves_last_good_pdf(tmp_path):
+    # A gate failure must leave the previous good PDF untouched at -o —
+    # clobbering it turns "build failed" into "artifact destroyed".
+    pdf = tmp_path / "resume.pdf"
+    proc = render_to(REPO / "evals/fixtures/resume-sample/resume.yaml", pdf)
+    assert proc.returncode == 0, proc.stderr
+    good = pdf.read_bytes()
+
+    src = (REPO / "evals/fixtures/resume-sample/resume.yaml").read_text()
+    bad = src.replace("page_budget: 1", "page_budget: 1\n  bullet_lines: 1")
+    bad = bad.replace(
+        "    bullets:\n      - Built an offline evaluation harness",
+        "    bullets:\n      - CLOBBERCANARY " + "overlong filler " * 20
+        + "end.\n      - Built an offline evaluation harness")
+    assert "CLOBBERCANARY" in bad
+    yaml = tmp_path / "clobber.yaml"
+    yaml.write_text(bad)
+
+    proc = render_to(yaml, pdf)
+    assert proc.returncode != 0, "bullet_lines: 1 must fail this render"
+    assert pdf.read_bytes() == good, \
+        "failed render replaced the previous good PDF"
+    text = subprocess.run(["pdftotext", str(pdf), "-"],
+                          capture_output=True, text=True).stdout
+    assert "CLOBBERCANARY" not in text
+
+
+def test_failed_smoke_gate_preserves_last_good_pdf(tmp_path):
+    # Same guarantee for the extraction smoke gate: a header-only render
+    # (<200 extracted chars) must not overwrite a seeded good PDF.
+    pdf = tmp_path / "resume.pdf"
+    proc = render_to(REPO / "evals/fixtures/resume-sample/resume.yaml", pdf)
+    assert proc.returncode == 0, proc.stderr
+    good = pdf.read_bytes()
+
+    minimal = tmp_path / "minimal.yaml"
+    minimal.write_text("basics:\n"
+                       "  name: Sam Casey\n"
+                       "  email: sam.casey@example.com\n")
+    proc = render_to(minimal, pdf)
+    assert proc.returncode != 0, "header-only render must fail the smoke gate"
+    assert "suspiciously small" in proc.stderr
+    assert pdf.read_bytes() == good, \
+        "failed smoke gate replaced the previous good PDF"
+
+
+def test_successful_render_leaves_no_temp_files(tmp_path):
+    pdf = tmp_path / "resume.pdf"
+    proc = render_to(REPO / "evals/fixtures/resume-sample/resume.yaml", pdf)
+    assert proc.returncode == 0, proc.stderr
+    assert "rendered:" in proc.stdout
+    assert pdf.is_file()
+    assert not list(tmp_path.glob(".render-*")), \
+        "compile temp files must not survive a successful render"
+
+
 def test_grouped_experience_renders_and_routes(tmp_path):
     pdf = tmp_path / "academic.pdf"
     subprocess.run(

@@ -185,6 +185,71 @@ def test_blank_email_fails(tmp_path):
     assert "basics.email" in f[0]["detail"]
 
 
+def test_blank_organization_fails(tmp_path):
+    # "" satisfies presence + isinstance(str) in every entry section; the
+    # entry renders with the employer silently missing — a title floating
+    # over an orphaned date line
+    bad = mutated(tmp_path, "resume-sample",
+                  "organization: Meridian Labs", 'organization: ""')
+    code, report = run_validator(bad)
+    assert code == 1
+    f = fails(report)
+    assert len(f) == 1, f"expected exactly the planted violation: {f}"
+    assert f[0]["check_id"] == "empties"
+    assert "experience[0].organization" in f[0]["detail"]
+    assert "missing" in f[0]["detail"], \
+        "the silent-loss consequence must be named"
+
+
+def test_whitespace_only_degree_fails(tmp_path):
+    bad = mutated(tmp_path, "resume-sample", "degree: B.S.", 'degree: "   "')
+    code, report = run_validator(bad)
+    assert code == 1
+    f = fails(report)
+    assert len(f) == 1, f"expected exactly the planted violation: {f}"
+    assert f[0]["check_id"] == "empties"
+    assert "education[0].degree" in f[0]["detail"]
+
+
+def test_all_nine_blankable_identity_fields_fail(tmp_path):
+    # one blank per guarded identity field across all six entry sections
+    yml = textwrap.dedent("""\
+        basics:
+          name: Test Person
+          email: test@example.com
+        education:
+          - institution: ""
+            degree: ""
+            field: ""
+        experience:
+          - organization: ""
+            title: ""
+            bullets: [Did a thing.]
+        projects:
+          - name: ""
+            bullets: [Built a thing.]
+        skills:
+          - label: ""
+            items: [Python]
+        publications:
+          - citation: ""
+        awards:
+          - name: ""
+        """)
+    path = tmp_path / "resume.yaml"
+    path.write_text(yml)
+    code, report = run_validator(path)
+    assert code == 1
+    f = [c for c in fails(report) if c["check_id"] == "empties"]
+    paths = ("education[0].institution", "education[0].degree",
+             "education[0].field", "experience[0].organization",
+             "experience[0].title", "projects[0].name", "skills[0].label",
+             "publications[0].citation", "awards[0].name")
+    assert len(f) == len(paths), f"expected all nine blanks flagged: {f}"
+    for p in paths:
+        assert any(p in c["detail"] for c in f), f"{p} not flagged: {f}"
+
+
 def test_tracking_param_url_fails(tmp_path):
     # data-schema.md promises tracking-parameter URLs are a lint error
     bad = mutated(

@@ -79,8 +79,16 @@ fi
 
 # Build in a scratch dir: typst's file access is rooted there, so the
 # compile sees exactly the template set + one data file and nothing else.
+# Compile lands in a dot-temp beside $OUT (same filesystem, so the final
+# mv is atomic — $BUILD may be another fs); the gates read the temp and
+# $OUT is replaced only after every gate passes, so a failed build never
+# destroys the previous good PDF.
 BUILD=$(mktemp -d)
 trap 'rm -rf "$BUILD"' EXIT
+# mktemp gives the temp (and so the final PDF) mode 600 — deliberate:
+# rendered resumes carry the same personal data as their projections.
+TMP_OUT=$(mktemp "$(dirname "$OUT")/.render-XXXXXX")
+trap 'rm -rf "$BUILD"; rm -f "$TMP_OUT"' EXIT
 cp "$TEMPLATES_DIR"/*.typ "$BUILD"/
 cp "$DATA" "$BUILD"/data.yaml
 cat > "$BUILD"/main.typ <<EOF
@@ -88,12 +96,13 @@ cat > "$BUILD"/main.typ <<EOF
 #render(yaml("data.yaml"))
 EOF
 
-typst compile --pdf-standard ua-1,a-2a --font-path "$FONTS_DIR" --ignore-system-fonts \
-  "$BUILD"/main.typ "$OUT"
+# -f pdf: mktemp can't carry a .pdf suffix, so name-based inference is off.
+typst compile -f pdf --pdf-standard ua-1,a-2a --font-path "$FONTS_DIR" --ignore-system-fonts \
+  "$BUILD"/main.typ "$TMP_OUT"
 
 # L0 smoke: a resume whose text layer is tiny will never survive parsing.
 if command -v pdftotext >/dev/null; then
-  chars=$(pdftotext "$OUT" - | tr -d '[:space:]' | wc -c | tr -d ' ')
+  chars=$(pdftotext "$TMP_OUT" - | tr -d '[:space:]' | wc -c | tr -d ' ')
   if [ "$chars" -lt 200 ]; then
     echo "error: extracted text layer is suspiciously small ($chars chars)" >&2
     exit 1
@@ -103,7 +112,7 @@ else
 fi
 
 if command -v pdfinfo >/dev/null; then
-  pages=$(pdfinfo "$OUT" | awk '/^Pages:/ {print $2}')
+  pages=$(pdfinfo "$TMP_OUT" | awk '/^Pages:/ {print $2}')
   budget=$(meta_val page_budget)
   if [ -n "${budget:-}" ] && [ "$pages" -gt "$budget" ]; then
     echo "warning: $pages pages exceeds page_budget $budget" >&2
@@ -118,14 +127,15 @@ fi
 blimit=$(meta_val bullet_lines)
 if [ -n "${blimit:-}" ]; then
   if command -v uv >/dev/null; then
-    uv run --script "$SCRIPT_DIR/check_bullets.py" "$OUT" --max-lines "$blimit" || exit 1
+    uv run --script "$SCRIPT_DIR/check_bullets.py" "$TMP_OUT" --max-lines "$blimit" || exit 1
   else
     echo "error: meta.bullet_lines is set but uv not found — install it: https://docs.astral.sh/uv/" >&2
     exit 1
   fi
 else
-  uv run --script "$SCRIPT_DIR/check_bullets.py" "$OUT" \
+  uv run --script "$SCRIPT_DIR/check_bullets.py" "$TMP_OUT" \
     || echo "warning: bullet measurement failed — wrap state unknown" >&2
 fi
 
+mv -f "$TMP_OUT" "$OUT"
 echo "rendered: $OUT"
