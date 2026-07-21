@@ -18,6 +18,13 @@ For each **must-have** requirement, classify the resume's evidence:
   outcome, or only a skills-list token)
 - **absent** — nothing routes to this requirement
 
+Rows the analyzer lists under Gates are go/no-go facts, not evidence
+targets — exclude them from the /10 coverage score. A gate the resume
+contradicts (e.g. a stated graduation date outside the gate) is
+reported as a named go/no-go finding at the top of the verdict — the
+score still measures tailoring quality, but the report may not read
+as a pass.
+
 Scoring bands:
 
 - 9–10: every must-have strong or convincingly weak; nice-to-haves
@@ -75,7 +82,9 @@ interview. Flag:
   mechanism ("improved reliability" — how?)
 - **Vagueness**: bullets with neither number nor artifact; skills
   listed but never evidenced in bullets
-- **AI slop**: anti-slop-list vocabulary, uniform bullet rhythm,
+- **AI slop**: slop vocabulary (spearheaded, leveraged, passionate,
+  results-driven, "proven track record", empty adverbs like
+  seamlessly — and their kin), uniform bullet rhythm,
   interchangeable-candidate phrasing (could this line appear on 500
   other resumes unchanged?)
 - **Probe points**: for each major claim, what would the interviewer

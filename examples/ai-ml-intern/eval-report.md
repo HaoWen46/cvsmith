@@ -4,9 +4,10 @@ Evaluated 2026-07-21 against jd-analysis.md (Cascadia AI ML intern).
 
 ## Verdict
 **NOT READY — for this specific posting** — the resume itself is clean
-(all deterministic layers pass, evidence is strong), but the posting's
-graduation gate ("Dec 2027 or later" vs. Sam's Jun 2026) fails before
-any scoring matters. READY for equivalent Summer-2026-eligible roles.
+(all deterministic layers pass, evidence scores 9/10), but the
+posting's graduation gate ("Dec 2027 or later" vs. Sam's Jun 2026)
+fails before scoring matters. READY for equivalent
+Summer-2026-eligible roles.
 
 ## Deterministic layers
 | Layer | Result | Notes |
@@ -16,15 +17,21 @@ any scoring matters. READY for equivalent Summer-2026-eligible roles.
 | L2 integrity | PASS | 305 words checked — every one puts ink on its bbox; no tiny/off-page/zero-width text |
 | L3 structure | PASS | 1/1 pages, letter, tagged PDF, fonts embedded, single column (compact template) |
 
-## L4 — JD alignment: 9/10 on evidence, gated at 0 by eligibility
+## L4 — JD alignment: 9/10
+
+**Go/no-go finding (named first, excluded from the score):** the
+posting's graduation gate ("Dec 2027 or later") fails against the
+resume's Sep 2022 – Jun 2026 — a calendar fact no tailoring changes.
+The US work-authorization gate is unconfirmed (a form question, not a
+resume line). The score below measures tailoring quality against the
+scoreable must-haves.
+
 | # | Requirement | Evidence | Strength |
 |---|---|---|---|
 | 1 | LLM evaluation | eval harness bullet: 1,200 tickets nightly, 3 regressions caught | **strong** |
 | 2 | LLM application work | RAG latency bullet: p95 480→210 ms via cache warmup + HNSW | **strong** |
 | 3 | Python + testing | "(Python, pytest)" load-bearing in the harness bullet | **strong** |
 | 4 | Measurement mindset | WER 18.2→11.6% on held-out set; baselines reproduced within 2% | **strong** |
-| 5 | Graduation Dec 2027+ | Education: Sep 2022 – Jun 2026 | **gate fails** |
-| 6 | US work authorization | not stated on resume (normal); user must confirm | unknown |
 
 Nice-to-haves: HNSW (strong), OSS with 1.4k stars + 27 contributors
 (strong, linked), workshop publication (strong, linked), Rust

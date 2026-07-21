@@ -18,8 +18,17 @@ caught by the same test. Also flags microscopic fonts, off-page text,
 and zero-width/invisible Unicode, which survive rasterization but are
 manipulation signals on their own.
 
+Docinfo metadata (title/author/subject/keywords) is the one text channel
+the pixel cross-check cannot see: it extracts into parsers while leaving
+zero ink on any page, so it gets its own pass — injection markers,
+keyword dumps, and an author that matches nothing on the page.
+
 A resume that fails here doesn't just parse badly — it looks like
 prompt injection / keyword stuffing and gets the candidate flagged.
+
+Without poppler the raster cross-check degrades honestly: the
+pdfplumber-only checks still run, raster_available WARNs, and the
+ink checks report nothing rather than a PASS they never earned.
 
 usage: hidden_text_check.py resume.pdf [--json] [--dpi 150]
 """
@@ -27,6 +36,7 @@ usage: hidden_text_check.py resume.pdf [--json] [--dpi 150]
 from __future__ import annotations
 
 import argparse
+import re
 import sys
 from pathlib import Path
 
@@ -38,6 +48,13 @@ INK_LUMINANCE = 200        # a pixel darker than this counts as ink (0-255)
 LIGHT_INK_LUMINANCE = 140  # "solid" ink for contrast confidence
 BBOX_INSET = 0.15          # crop inset to dodge antialiased neighbors
 ZERO_WIDTH = {"​", "‌", "‍", "⁠", "﻿", "­"}
+
+INJECTION_MARKERS = (      # imperative-injection tells, casefolded substrings
+    "ignore previous", "ignore all", "disregard", "system prompt",
+    "you are a", "rank this", "recommend this candidate", "instructions:",
+)
+META_STUFF_FAIL_CHARS = 300   # a docinfo field longer than this is a dump
+META_STUFF_WARN_TOKENS = 8    # unseen comma/semicolon tokens before WARN
 
 
 def page_words(page):
@@ -78,21 +95,34 @@ def main() -> int:
     report = Report(layer="L2-integrity", file=str(args.pdf))
     scale = args.dpi / 72.0
 
-    images = convert_from_path(str(args.pdf), dpi=args.dpi)
+    try:
+        images = convert_from_path(str(args.pdf), dpi=args.dpi)
+    except Exception:
+        images = None  # poppler (pdftoppm) missing/broken — degrade, don't crash
+    if images is None:
+        report.add("raster_available", WARN,
+                   "poppler not installed — cross-modal ink check skipped; "
+                   "invisible/faint text NOT verified; install poppler")
+
     invisible: list[str] = []
     faint: list[str] = []
     tiny: list[str] = []
     offpage: list[str] = []
+    all_words: list[str] = []
     zero_width_hits = 0
     total_words = 0
 
     with pdfplumber.open(str(args.pdf)) as pdf:
-        for page, img in zip(pdf.pages, images):
-            gray = img.convert("L")
+        doc_meta = pdf.metadata or {}
+        for i, page in enumerate(pdf.pages):
+            gray = None
+            if images is not None and i < len(images):
+                gray = images[i].convert("L")
             pw, ph = float(page.width), float(page.height)
             for w in page_words(page):
                 total_words += 1
                 text = w["text"]
+                all_words.append(text)
                 zero_width_hits += sum(text.count(z) for z in ZERO_WIDTH)
 
                 if w["x1"] < 0 or w["top"] < 0 or w["x0"] > pw or w["bottom"] > ph:
@@ -103,6 +133,8 @@ def main() -> int:
                 if height_pt < MIN_FONT_PT and len(text.strip()) > 1:
                     tiny.append(text)
 
+                if gray is None:
+                    continue
                 lum = crop_min_luminance(gray, (w["x0"], w["top"], w["x1"], w["bottom"]), scale)
                 if lum is None:
                     continue
@@ -114,20 +146,21 @@ def main() -> int:
     report.metrics["words_checked"] = total_words
     report.metrics["dpi"] = args.dpi
 
-    if invisible:
-        sample = " ".join(invisible[:25])
-        report.add("invisible_text", FAIL,
-                   f"{len(invisible)} extracted word(s) leave no ink on the "
-                   f"page (white/hidden text). Hidden content starts: {sample!r}")
-        report.extra["invisible_words"] = invisible
-    else:
-        report.add("invisible_text", PASS,
-                   "every extracted word puts ink on its own bbox")
+    if images is not None:  # no PASS line for a check that did not run
+        if invisible:
+            sample = " ".join(invisible[:25])
+            report.add("invisible_text", FAIL,
+                       f"{len(invisible)} extracted word(s) leave no ink on the "
+                       f"page (white/hidden text). Hidden content starts: {sample!r}")
+            report.extra["invisible_words"] = invisible
+        else:
+            report.add("invisible_text", PASS,
+                       "every extracted word puts ink on its own bbox")
 
-    if faint:
-        report.add("faint_text", WARN,
-                   f"{len(faint)} word(s) are near-background luminance "
-                   f"(low-contrast gray): {' '.join(faint[:10])!r}")
+        if faint:
+            report.add("faint_text", WARN,
+                       f"{len(faint)} word(s) are near-background luminance "
+                       f"(low-contrast gray): {' '.join(faint[:10])!r}")
 
     if tiny:
         report.add("microscopic_text", FAIL,
@@ -150,6 +183,53 @@ def main() -> int:
                    "text layer — classic keyword-cloaking artifact")
     else:
         report.add("zero_width_chars", PASS, "no invisible Unicode")
+
+    # ── docinfo metadata: text that leaves no ink on any page ────────
+    page_text = " ".join(all_words).casefold()
+    checks_before_meta = len(report.checks)
+
+    for field, raw in doc_meta.items():
+        if raw is None:
+            continue
+        value = raw if isinstance(raw, str) else str(raw)
+        low = value.casefold()
+
+        hits = [m for m in INJECTION_MARKERS if m in low]
+        if hits:
+            report.add("metadata_injection", FAIL,
+                       f"docinfo {field} carries injection marker(s) "
+                       f"{', '.join(repr(h) for h in hits)}: {value!r}")
+
+        tokens = [t.strip() for t in re.split(r"[,;]", value) if t.strip()]
+        unseen = [t for t in tokens if t.casefold() not in page_text]
+        if len(value) > META_STUFF_FAIL_CHARS:
+            detail = (f"docinfo {field} is {len(value)} chars "
+                      f"(> {META_STUFF_FAIL_CHARS}) — bulk keyword dump: "
+                      f"{value[:120]!r}…")
+            if unseen:
+                detail += f" ({len(unseen)} token(s) never appear on the page)"
+            report.add("metadata_stuffing", FAIL, detail)
+        elif len(unseen) >= META_STUFF_WARN_TOKENS:
+            report.add("metadata_stuffing", WARN,
+                       f"docinfo {field} carries {len(unseen)} token(s) absent "
+                       f"from the page text: {', '.join(unseen[:12])!r} — "
+                       "keyword-stuffing pattern (escalate if these match JD "
+                       "vocabulary)")
+
+    author = doc_meta.get("Author")
+    if author is not None:
+        author_s = author if isinstance(author, str) else str(author)
+        name_tokens = [t.casefold()
+                       for t in re.findall(r"[A-Za-z]+", author_s) if len(t) >= 3]
+        if name_tokens and not any(t in page_text for t in name_tokens):
+            report.add("metadata_identity", WARN,
+                       f"docinfo Author {author_s!r} shares no name token with "
+                       "the page text — metadata identity doesn't match the "
+                       "visible resume")
+
+    if len(report.checks) == checks_before_meta:
+        report.add("metadata", PASS,
+                   "metadata clean (title/author/subject/keywords)")
 
     return report.emit(args.json)
 

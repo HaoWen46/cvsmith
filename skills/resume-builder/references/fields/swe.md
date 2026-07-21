@@ -41,7 +41,10 @@ roles when no more specific guide applies.
 
 ## Entry ordering
 
-Experienced: Experience → Projects (optional) → Education → Skills.
+Field convention for experienced profiles is education-last; the
+templates render Education first (the student/early-career default
+this toolkit targets) and don't support reordering — tell the user
+rather than implying otherwise.
 Students/new grads: Education → Experience → Projects → Skills.
 Awards/Publications only when they carry real weight in this field
 (ICPC, major hackathons, papers — yes; attendance certificates — no).

@@ -25,10 +25,21 @@ done
 
 [ -f "$DATA" ] || { echo "error: data file not found: $DATA" >&2; exit 1; }
 
+# Read a scalar from the yaml's meta: block only — scoped so a folded
+# prose line elsewhere can never hijack a knob, and sanitized so quoted
+# values and CRLF files (pasted from Windows/web) behave like bare ones.
+meta_val() {
+  awk -v k="$1:" '
+    seen && $1 == k { gsub(/["'\''\r]/, "", $2); print $2; exit }
+    /^meta:/ { seen=1 }
+    seen && /^[^ #]/ && !/^meta:/ { exit }
+  ' "$DATA"
+}
+
 # Template precedence: -t flag > meta.template in the yaml > onecol.
 # Projections carry their own template so re-renders stay one command.
 if [ -z "$TEMPLATE" ]; then
-  TEMPLATE=$(awk '$1 == "template:" {print $2; exit}' "$DATA")
+  TEMPLATE=$(meta_val template)
   TEMPLATE=${TEMPLATE:-onecol}
 fi
 
@@ -53,6 +64,16 @@ for fam in "Source Sans 3" "Inter" "Source Serif 4"; do
     exit 1
   fi
 done
+
+# Schema validation before compile: a typoed optional key or section
+# name renders a clean-looking PDF with content silently missing —
+# the one failure the smoke checks can't see. Clear yaml paths beat
+# cryptic typst errors for the required-key class too.
+if command -v uv >/dev/null; then
+  uv run --script "$SCRIPT_DIR/validate_yaml.py" "$DATA" || exit 1
+else
+  echo "warning: uv not found — schema validation skipped" >&2
+fi
 
 # Build in a scratch dir: typst's file access is rooted there, so the
 # compile sees exactly the template set + one data file and nothing else.
@@ -81,7 +102,7 @@ fi
 
 if command -v pdfinfo >/dev/null; then
   pages=$(pdfinfo "$OUT" | awk '/^Pages:/ {print $2}')
-  budget=$(awk '$1 == "page_budget:" {print $2; exit}' "$DATA")
+  budget=$(meta_val page_budget)
   if [ -n "${budget:-}" ] && [ "$pages" -gt "$budget" ]; then
     echo "warning: $pages pages exceeds page_budget $budget" >&2
   fi
@@ -90,7 +111,7 @@ fi
 # Opt-in bullet-line discipline: meta.bullet_lines caps rendered lines
 # per bullet, measured from the PDF's geometry (the render is the truth;
 # character counts are only a pencil sketch). Violations fail the build.
-blimit=$(awk '$1 == "bullet_lines:" {print $2; exit}' "$DATA")
+blimit=$(meta_val bullet_lines)
 if [ -n "${blimit:-}" ]; then
   if command -v uv >/dev/null; then
     uv run --script "$SCRIPT_DIR/check_bullets.py" "$OUT" --max-lines "$blimit" || exit 1

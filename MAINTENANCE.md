@@ -28,7 +28,8 @@ run. When re-verification finds nothing changed, still bump both dates
 | Screening-pipeline behavior (semantic matching, manipulation flags, hidden-text detection stats) | resume-builder `references/screening-2026.md` | 12 mo | search recent vendor docs (Workday/Greenhouse/Ashby release notes), arXiv for injection-detection papers, Jobscan/ATS-research posts |
 | Hot evidence & market direction for AI/ML | resume-builder `references/fields/ai-ml.md` | 6 mo (each recruiting season: ~Feb, ~Aug) | Indeed Hiring Lab, BLS JOLTS, a scan of 20 current JD postings for the skill vocabulary actually asked |
 | Recruiting-season calendar, ghost-posting signals | jd-analyzer `references/requirement-taxonomy.md` | 12 mo | new-grad hiring guides, recruiter-community write-ups |
-| Board API endpoints (Greenhouse/Lever/Ashby) | resume-builder `references/tools-and-sources.md` | opportunistic (they break loudly) | curl one known company per endpoint |
+| Board API endpoints (Greenhouse/Lever/Ashby) | jd-analyzer `SKILL.md` (§1 Ingest) | opportunistic (they break loudly) | curl one known company per endpoint |
+| Regional conventions (photo/personal-data/page norms) | resume-builder `references/regional.md` | 24 mo | spot-check 3 drifting cells (DACH photo, Korea/Singapore photo decline, Singapore personal-data) against current local career-center or government employment guidance |
 
 ## Tool updates (pinned, deliberate)
 

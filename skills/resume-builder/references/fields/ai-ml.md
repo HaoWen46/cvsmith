@@ -57,9 +57,11 @@ shifts with the field's tooling seasons; hence the short window.)
 ## Entry ordering for this field
 
 Students/new grads: Education → Experience → Projects → Skills →
-Publications (if any) → Awards. Research-track (PhD-adjacent) profiles:
-Education → Publications → Research Experience → Projects → Skills.
-Industry-track with internships: Experience before Projects.
+Publications (if any) → Awards. Research-track (PhD-adjacent): lead
+with education and research-group experience; note the template
+renders Publications last — for faculty-audience applications use
+`fields/academic.md`. Industry-track with internships: Experience
+before Projects.
 
 ## Degree/coursework conventions
 

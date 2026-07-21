@@ -1,7 +1,7 @@
-# resume.yaml — data schema (draft v0.1)
+# resume.yaml — data schema (v0.1)
 
 The contract between the three parts of cvsmith. The **builder** writes this
-file, the **templates** (`onecol.typ`, `compact.typ`) are pure functions of it,
+file, the **templates** (`onecol.typ`, `compact.typ`, `classic.typ`) are pure functions of it,
 and the **evaluator** checks that what the template rendered routes back into
 these same fields when parsed. Content and presentation stay fully separated:
 nothing in this file describes layout, and nothing in a template invents
@@ -70,8 +70,9 @@ experience:              # optional as a whole, but entries are structured
     end: present
     group: industry               # optional: research | teaching | industry
     tags: [evals, tool use]       # optional: 2-4 domain descriptors; renders
-                                  # as a muted tag row — interviewer scent,
-                                  # never a keyword dump
+                                  # as a muted tag row (compact only; onecol
+                                  # and classic omit tags by design — pick
+                                  # compact when tags carry weight)
     bullets:
       - Built an eval harness for tool-use regressions, cutting triage
         time for failed runs from hours to minutes across 40+ suites.
@@ -107,10 +108,14 @@ awards:                  # optional
 - **`meta.target_field`** routes the builder to the matching
   `references/fields/*.md` file and tells the evaluator which field
   conventions to score against. It never changes rendering.
-- **`basics.links`**: templates render the label as the visible text with the
-  URL as both hyperlink target and printed text where field conventions
-  expect it (papers, portfolios). Bare tracking-parameter URLs are a lint
-  error upstream.
+- **`basics.links`**: templates print the URL itself — shortened for
+  display (scheme stripped; `compact` also strips `www.`) — as both the
+  visible text and the hyperlink target, so the URL survives as
+  extractable text for screeners. `label` names the link in the data
+  file for the builder and user; no template renders it. Bare
+  tracking-parameter URLs are a lint error upstream.
+- **`projects[].stack`**: rendered inline by `onecol` and as the tag row
+  by `compact`; `classic` omits it by design (monochrome discipline).
 - **`experience` vs `projects`**: paid/formal roles go in `experience`;
   everything else (OSS, research not under a formal title, hackathons) goes
   in `projects`. The evaluator's parse simulation checks that both sections
@@ -141,5 +146,9 @@ awards:                  # optional
   output exceeds the budget; template choice stays explicit.
 - Certifications / languages-spoken sections: add on first real demand
   rather than speculatively.
-- Schema validation: a small `validate_schema.py` under the evaluator's
-  scripts, or JSON Schema shipped next to this file. Decide in M2.
+- ~~Schema validation~~ Decided: `scripts/validate_yaml.py`, run by
+  render.sh before every compile. Builder-side beat the evaluator-side
+  option because the evaluator's contract is the PDF (it never sees
+  the yaml), while the silent-loss class this catches — a typoed
+  optional key or section name rendering a clean page with content
+  missing — must die before the render, not after.

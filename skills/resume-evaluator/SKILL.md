@@ -13,8 +13,9 @@ fixed-format report with a ranked fix list.
 **Deterministic layers are scripts only — never eyeball them.** Your
 eyes cannot see a missing text layer, a scrambled extraction order, or
 white text; the scripts exist because vision is the wrong instrument.
-Conversely, L4/L5 are judgment — scripts can't do them; you run those
-with your own reading.
+Conversely, L4/L5 are judgment — scripts can't do them; they need a
+reader, and *which* reader matters (see "Judgment layers need a cold
+reader" before scoring either).
 
 ## Running the battery
 
@@ -43,19 +44,6 @@ JSON lists per-check `pass`/`warn`/`fail` with details). Page budget:
   L1's heading taxonomy is English-only — say so in the report rather
   than scoring localized headings as routing failures.
 
-## L4 — JD alignment (judgment, rubric-guided)
-
-Only when a job posting / jd-analyzer output exists. Read
-`references/rubric.md` §L4, then score how well the resume's *evidence*
-covers the posting's ranked requirements: per-requirement coverage
-(strong evidence / weak evidence / absent), natural vocabulary overlap,
-and misallocated space (strong evidence for things the JD doesn't ask).
-Name the gaps precisely — "no evidence against requirement 2
-(distributed systems); the queueing bullet could carry it if scale
-were stated" — so the builder can act.
-
-No JD available? Skip L4, say so in the report.
-
 ## Judgment layers need a cold reader
 
 L0–L3 are scripts — context can't bias them. L4/L5 are judgment, and
@@ -73,6 +61,19 @@ cold)? Run L4/L5 yourself, and counter familiarity deliberately: skim
 the page image before re-reading any source, and for each bullet ask
 what a stranger would think it says — not what you know it means.
 Say in the report which mode produced the judgment scores.
+
+## L4 — JD alignment (judgment, rubric-guided)
+
+Only when a job posting / jd-analyzer output exists. Read
+`references/rubric.md` §L4, then score how well the resume's *evidence*
+covers the posting's ranked requirements: per-requirement coverage
+(strong evidence / weak evidence / absent), natural vocabulary overlap,
+and misallocated space (strong evidence for things the JD doesn't ask).
+Name the gaps precisely — "no evidence against requirement 2
+(distributed systems); the queueing bullet could carry it if scale
+were stated" — so the builder can act.
+
+No JD available? Skip L4, say so in the report.
 
 ## L5 — human simulation (judgment, rubric-guided)
 
@@ -133,7 +134,8 @@ template, etc.).
 
 If a script crashes on a malformed PDF, that *is* a finding: report the
 file as unparseable (what a vendor pipeline would conclude), not the
-harness as broken.
+harness as broken — *unless* the traceback names a missing tool
+(poppler): that is an environment gap, never a file verdict.
 
 The report never softens to match anyone's preference — not the
 user's, not the builder's. If the user overrode a mechanical

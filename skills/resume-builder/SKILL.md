@@ -1,6 +1,6 @@
 ---
 name: resume-builder
-description: Build, rewrite, tailor, or improve a resume/CV and render it as an ATS-safe tagged PDF. Use whenever the user wants a resume created or updated, asks to tailor one to a job posting, mentions applying to jobs/internships/grad programs, or shares career materials (old resume, LinkedIn export, transcript, project list) — even if they never say the word "resume". Also use when someone asks "turn my experience into a CV" or wants their resume converted to a cleaner format.
+description: Build, rewrite, tailor, or improve a resume/CV and render it as an ATS-safe tagged PDF. Use whenever the user wants a resume created or updated, asks to tailor one to a job posting, mentions applying to jobs/internships/grad programs, or shares career materials (old resume, LinkedIn export, transcript, project list) — even if they never say the word "resume". Also use when someone asks "turn my experience into a CV" or wants their resume converted to a cleaner format. Also use when the user wants to start or update their career vault (career-vault.md) — recording a new role, project, or number for future applications.
 ---
 
 # resume-builder
@@ -10,9 +10,7 @@ rendered with Typst as a tagged PDF that survives 2026 screening
 pipelines — then prove it survives them.
 
 **The loop is build → test → iterate.** A resume is not done when the
-PDF exists; it is done when `resume-evaluator` passes it. Anyone can
-generate a resume; the value here is the verification loop and the
-honesty discipline.
+PDF exists; it is done when `resume-evaluator` passes it.
 
 Non-negotiables, because screening stacks now detect all three:
 - **Never fabricate** — no invented employers, titles, dates, metrics,
@@ -43,10 +41,16 @@ extractors.
 workspace (or the user has one elsewhere), read it and ask only what's
 new — never re-interview a person whose answers are already on file.
 No vault yet? Create one as intake proceeds: every extracted fact and
-every answer lands there as well as in the resume. Read
+every answer lands there as well as in the resume. Hold the vault's
+first disk write until the step-2 workspace gate — it is the most
+sensitive file this skill produces. Read
 `references/career-vault.md` for the format and the projection rules —
 the vault is what makes repeat applications cheap and twenty tailored
-variants mutually honest.
+variants mutually honest. Vault on file and a new posting in hand:
+intake collapses to "what's new since <updated>?" — reuse the
+confirmed workspace and jump to step 4 (steps 3 and 5 still re-derive
+market and register from the new posting, never from the last
+application).
 
 Users don't follow filing rituals. Adapt to however material shows up:
 
@@ -73,21 +77,24 @@ level. Don't interrogate; don't ask for what you already have.
 
 ### 2. Workspace — before writing anything personal
 
-Confirm where working files (`resume.yaml`, rendered PDFs) will live.
+Confirm where working files (`career-vault.md`, yaml projections,
+jd-analysis output, rendered PDFs) will live.
 If that location is inside a git repository, check the paths are
 ignored (`git check-ignore`) and offer to add ignores *before* writing.
 Career data silently landing in someone's tracked repo is a real harm.
 
 ### 3. Identify the field, market, and level
 
-Infer target field + seniority **and target market** (the job's
-country/region — not the user's) from materials and stated goal;
-confirm all three in one line. The market sets paper size, language,
-page budget, and the photo/personal-data rules. US/Canada target →
-**skip `references/regional.md` entirely**; its baseline is already
-this toolkit's default. Any other market, or multi-market plans →
-read it (one canonical vault, one projection per market; never blend
-conventions; it also covers markets it doesn't list). Then read the matching field
+Identify target field + seniority **and target market** (the job's
+country/region — not the user's). Posting on hand? Run step 4 first
+and take market and level from its decoded-level line; field you
+still infer from the posting and materials. No posting? Infer all
+three from materials and stated goal. Confirm all three in one line.
+The market sets paper size, language, page budget, and the
+photo/personal-data rules. US/Canada target → **skip
+`references/regional.md` entirely**; its baseline is already this
+toolkit's default. Any other market, or multi-market plans → read it
+(it also covers markets it doesn't list). Then read the matching field
 reference:
 
 - AI/ML/LLM/agents roles → `references/fields/ai-ml.md`
@@ -108,8 +115,13 @@ reader.
 
 If the user has a target job posting, invoke the `jd-analyzer` skill on
 it and keep its output file: it becomes the tailoring target now and
-the evaluator's scoring rubric later. No posting → build a strong
-general version for the field; say so and move on.
+the evaluator's scoring rubric later. If an analysis file for this
+posting already exists from an earlier session, check its seen-date
+before tailoring against it: the posting is task input (fetched fresh
+at use), so if the date is weeks old, re-fetch the source first —
+gone means warn the user the role may be closed; changed means
+re-analyze. No posting → build a strong general version for the
+field; say so and move on.
 
 ### 5. Draft evidence, not prose
 
@@ -119,25 +131,41 @@ employer-type cell you're writing for, out loud. The default
 energetic-tech tone is a *choice*, and for a German bank or a UK
 ministry it's the wrong one.
 
-Know your budgets before drafting, not after: measure the template's
-line capacity (`scripts/check_bullets.py` self-calibrates from any
-render) and plan the space division — bullets per entry, chars per
-bullet — so the first render confirms rather than discovers. When a
-check does fail, the failure carries information: escalate per the
-writing-rules ladder; re-rendering unchanged text is not an attempt.
-For each
-experience: extract claims from the material, demand quantification
-(ask the user for numbers rather than inventing ranges), attach a
-concrete artifact where possible (repo, paper, launched thing). Apply
-the bullet formula; run the AI-slop checklist. If a section is thin,
-tell the user it's thin and what would strengthen it — do not pad.
+Know your budgets before drafting, not after: pick the template
+candidate now (the register cell decides — typst-guide §Choosing a
+template; step 7 still confirms with the user), then calibrate —
+render a throwaway skeleton yaml written per data-schema.md (basics,
+one entry, three deliberately overlong bullets) through
+`scripts/render.sh -t <candidate>` and run `scripts/check_bullets.py`
+on the PDF for measured line capacity; three bullets, not one, so the
+wrapped-line medians have enough votes. Plan the space division —
+bullets per entry, chars per bullet — so the first real render
+confirms rather than discovers. When a check does fail, the failure
+carries information: escalate per the writing-rules ladder;
+re-rendering unchanged text is not an attempt.
 
-### 6. Content → `resume.yaml`
+For each experience: extract claims from the material, demand
+quantification (ask the user for numbers rather than inventing
+ranges), attach a concrete artifact where possible (repo, paper,
+launched thing). Apply the bullet formula; run the AI-slop checklist.
+If a section is thin, tell the user it's thin and what would
+strengthen it — do not pad.
+
+### 6. Content → the data file
 
 Write the data file per `assets/templates/data-schema.md` (read it
 first — dates are `YYYY-MM` strings, absence means "don't render",
 strings with `:` need quoting). Content and presentation stay fully
 separated: the yaml holds finished prose; templates never rewrite it.
+Tailoring to a posting? Name the file `resume-<company>-<role>.yaml`
+next to the vault so applications accumulate instead of overwriting;
+a general version is plain `resume.yaml`.
+
+render.sh validates the file against the schema first — fix its
+findings before reading any typst error. When drafting from a vault,
+also run `scripts/check_projection.py resume.yaml career-vault.md` —
+a missing hard fact means the vault gets the fact, with the user's
+answer, before the yaml keeps it.
 
 ### 7. Render
 
@@ -147,12 +175,11 @@ scripts/render.sh resume.yaml -t compact -o out.pdf
 ```
 
 Three templates ship, one data contract, identical parse-safety —
-only the register varies: `compact` (designed/dense — tech, startups,
-AI/ML), `classic` (serif/conservative — banking, consulting, law,
-government), `onecol` (neutral default — everything else). The
-register cell from step 5 picks the candidate; when it's close, render
-two and show the user both pages — then record the pick as
-`meta.template` in the yaml so re-renders need no flag. Details:
+`compact` (designed/dense — tech, startups, AI/ML), `classic`
+(serif/conservative — banking, consulting, law, government), `onecol`
+(neutral default). Confirm step 5's candidate with the user and
+record the pick as `meta.template` in the yaml so re-renders need no
+flag; selection detail and the show-both-pages flow:
 `references/typst-guide.md` §Choosing a template.
 
 Requires Typst ≥ 0.15 (`brew install typst` / see
@@ -169,12 +196,15 @@ re-run until L0–L3 pass clean. Show the user the final report.
 
 You wrote this resume, so your judgment of it is compromised by
 familiarity — **dispatch the evaluator's L4/L5 to a fresh-context
-subagent when the host supports it** (the evaluator's SKILL.md
-defines the cold-reader protocol). Scripts (L0–L3) can run anywhere;
-judgment should come from a reader who wasn't in the room. If the
-evaluator skill isn't installed, run its scripts directly from its
-`scripts/` directory and say the judgment layers were skipped or
-self-run.
+subagent when the host supports it** (cold-reader protocol: the
+evaluator's SKILL.md). If the evaluator skill isn't installed, run
+its scripts directly from its `scripts/` directory and say the
+judgment layers were skipped or self-run. If neither the skill nor
+its scripts are reachable (this skill installed standalone), say so
+plainly and hand over the PDF labeled UNVERIFIED — render.sh's smoke
+check is not the battery, and L0–L3 are never judged by eye; offer to
+install `resume-evaluator` (ships beside this skill in the cvsmith
+releases) before the user submits anywhere.
 
 **Do not present a PDF to the user as finished before it has passed.**
 
@@ -182,8 +212,12 @@ self-run.
 
 Show the rendered PDF (or its page image) alongside the evaluator
 report. Take edits back through the yaml — never hand-edit the PDF, and
-re-run the evaluator after every render. Small honest improvements over
-polish theater: a new number beats a fancier verb.
+re-run the evaluator after every render. Any new fact surfaced
+mid-loop — a number the user supplies, an artifact, a correction —
+enters the vault first, then the yaml (corrections supersede per the
+vault's CUT rule); the projection invariant holds during iteration,
+not just at intake. Small honest improvements over polish theater: a
+new number beats a fancier verb.
 
 ## When the user is wrong about mechanics
 

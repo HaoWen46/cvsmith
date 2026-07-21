@@ -66,7 +66,9 @@ repeating dead-end edits across sessions.
   output. Projections never contain a fact the vault lacks: if
   tailoring needs a new fact, it enters the vault first (with the
   user's answer), then the yaml. That invariant is what keeps twenty
-  tailored resumes honest at once.
+  tailored resumes honest at once — and it's mechanically checkable:
+  `scripts/check_projection.py <projection.yaml> career-vault.md`
+  verifies every hard fact (numbers, dates, URLs) traces to the vault.
 - **The evaluator's L4** can then be trusted: gaps it finds are real
   gaps in the vault, not artifacts of a forgetful session.
 

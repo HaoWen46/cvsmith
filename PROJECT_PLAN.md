@@ -219,6 +219,10 @@ Post-v0.1 backlog, in rough priority order:
    analyze → draft → verify).
 7. **Typst Universe** — maybe publish the template standalone; not a
    v0.1 concern.
+8. **`meta.section_order` (allowlisted)** — drivers: academic
+   publications-early, experienced education-last; only if real usage
+   hits the limitation (field guides now state the fixed order
+   honestly instead of implying reorder support).
 
 ## 7. Toolchain & operations
 

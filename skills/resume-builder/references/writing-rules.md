@@ -132,11 +132,13 @@ Work budget-first, not retry-first — the loop is the safety net, not
 the method:
 
 1. **Measure the budget before drafting.** Render anything through the
-   target template once and run `scripts/check_bullets.py` on it: the
-   summary line reports *measured capacity* (wrapped bullets'
-   first lines are full lines, so the tool calibrates itself to the
-   actual template + font + margins — e.g. compact ≈ 112 chars,
-   tighter layouts 130+). No table to trust, nothing to go stale.
+   target template once (before content exists, a schema-minimal
+   skeleton with three deliberately overlong bullets — see SKILL.md
+   step 5) and run `scripts/check_bullets.py` on it: the summary line
+   reports *measured capacity* (wrapped bullets' first lines are full
+   lines, so the tool calibrates itself to the actual template + font
+   + margins — e.g. compact ≈ 112 chars, tighter layouts 130+). No
+   table to trust, nothing to go stale.
 2. **Plan the division.** Before writing bullets, allocate: how many
    bullets per entry fit the page budget, strongest entry gets the
    most. Then draft each bullet to capacity minus ~8 chars of
@@ -150,7 +152,7 @@ the method:
    identical failure means the *strategy* is wrong, not the luck.
    The ladder: (1) cut filler words; (2) still over → change
    structure — split into two self-sufficient bullets, or move
-   stack/context into the tag row; (3) still over → the allocation
+   stack/context into the tag row (compact); (3) still over → the allocation
    was wrong: fewer bullets for that entry, or unset the knob for
    this projection. Never delete a number to make weight.
 

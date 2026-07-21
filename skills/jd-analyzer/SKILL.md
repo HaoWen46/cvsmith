@@ -27,8 +27,8 @@ the public board APIs before scraping HTML — they return clean JSON:
 
 Capture posting title, company, location/remote, and the date seen —
 postings vanish, and stale analyses should say how old they are. The
-location doubles as the **target market**: report it in the decoded-
-level line so the builder applies that market's conventions (paper,
+location doubles as the **target market**: record it on the Market
+header line so the builder applies that market's conventions (paper,
 language, photo/personal-data rules), not the user's home norms.
 
 **The posting is always fetched fresh (it's task input). The doctrine
@@ -80,13 +80,22 @@ evaluator knows what "covered" means.
 ### 6. Write the output file
 
 Save next to the user's other working files (same workspace rules as
-the builder: confirm location; keep out of tracked repos). Always this
-structure:
+the builder: confirm location; keep out of tracked repos). Name it
+`jd-<company>-<role>.md`, mirroring the vault projection
+`resume-<company>-<role>.yaml`, so analysis/resume pairs match
+mechanically and a later session never overwrites one posting's
+analysis with another's. Always this structure:
 
 ```markdown
 # JD analysis: <title> @ <company>
 Source: <url or "pasted">, seen <date>
+Market: <posting location → target market, e.g. "Seattle, WA (hybrid) → US">
 Decoded level: <one line>
+Register signal: <employer type + posting's own tone, one line — one
+sample of the builder's register cell>
+
+## Gates (binary — confirm before tailoring)
+<credential/legal/date gates go here, never in the ranked table>
 
 ## Must-haves (ranked)
 | # | Requirement | JD's words | Evidence target |

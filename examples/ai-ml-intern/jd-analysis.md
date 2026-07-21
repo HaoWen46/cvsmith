@@ -1,7 +1,16 @@
 # JD analysis: Machine Learning Engineering Intern @ Cascadia AI
 Source: evals/fixtures/jd-sample/ml-intern-posting.md (synthetic), seen 2026-07-21
+Market: Seattle, WA (hybrid) → US
 Decoded level: true intern-level — "own a project end-to-end" with senior
 engineers, code review, and eval gates around it; scope words match the title.
+Register signal: LLM-product startup, energetic-concrete tone ("catch
+regressions before customers do") — one sample of the US-tech register cell.
+
+## Gates (binary — confirm before tailoring)
+- **Graduating Dec 2027 or later** ("pursuing a BS/MS… graduating Dec 2027
+  or later") — enrollment status; cannot be tailored.
+- **US work authorization, no sponsorship** — not a resume line in US
+  convention; the application form asks. Confirm before investing effort.
 
 ## Must-haves (ranked)
 | # | Requirement | JD's words | Evidence target |
@@ -10,8 +19,6 @@ engineers, code review, and eval gates around it; scope words match the title.
 | 2 | Hands-on LLM application work (RAG/agents/fine-tuning) | "retrieval/RAG, agents, fine-tuning, or evaluation" | a shipped/researched LLM pipeline bullet with a measured quality or latency outcome |
 | 3 | Strong Python + testing | "Strong Python; comfort with testing frameworks (pytest or similar)" | Python + pytest doing load-bearing work inside a real bullet |
 | 4 | Measurement mindset | "baselines, held-out sets, and regression tests" | any before→after metric on a held-out/baseline framing |
-| 5 | **Gate:** graduating Dec 2027 or later | "graduating Dec 2027 or later" | binary — enrollment status, cannot be tailored |
-| 6 | **Gate:** US work authorization, no sponsorship | "authorized to work in the US" | binary |
 
 ## Nice-to-haves
 | Requirement | Evidence target |

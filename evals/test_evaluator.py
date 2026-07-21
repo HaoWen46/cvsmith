@@ -148,7 +148,7 @@ def test_bullet_check_measures_and_enforces(tmp_path):
                           capture_output=True, text=True)
     assert proc.returncode == 0
     report = json.loads(proc.stdout)
-    assert len(report["bullets"]) >= 10, "should find every bullet"
+    assert len(report["bullets"]) >= 6, "should find every true bullet (7 in fixture; en-dash pseudo-markers excluded)"
     assert any(b["lines"] >= 2 for b in report["bullets"]), \
         "fixture is known to wrap some bullets in compact"
     assert report["measured_capacity_chars"] > 60, \

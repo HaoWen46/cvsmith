@@ -150,6 +150,7 @@
       entry(spacing: if i == 0 { 0pt } else { 8pt })[
         #row({
           text(size: 10.2pt, weight: 600, p.name)
+          if "summary" in p [ — #p.summary]
           if "stack" in p [ #h(2pt)#text(fill: muted, "\u{00b7}")#h(2pt) #text(size: 9.2pt, fill: muted, p.stack.join(", "))]
         }, if "url" in p { link(p.url)[#short-url(p.url)] } else { dates })
         #v(3pt, weak: true)

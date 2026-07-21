@@ -14,6 +14,22 @@
 - All three expose `render(data)`, share the full data contract, and
   have identical parse-safety (every template must pass the same
   battery — style is the only axis that varies).
+- `assets/templates/data-schema.md` — the `resume.yaml` contract.
+  Read it before writing yaml.
+- `assets/fonts/` — vendored OFL fonts (Source Sans 3, Inter, Source
+  Serif 4), so rendering is identical on every machine.
+- `scripts/render.sh` — the only supported way to compile:
+
+```sh
+scripts/render.sh resume.yaml                 # -> resume.pdf next to the yaml
+scripts/render.sh resume.yaml -t onecol -o /path/out.pdf
+```
+
+It validates the yaml against the schema, compiles with
+`--pdf-standard ua-1,a-2a` (tagged PDF/UA-1 + PDF/A-2a),
+`--ignore-system-fonts` (vendored fonts only), then smoke-checks the
+text layer and the page budget. Don't call `typst compile` directly
+for real output — you'd lose the standards flags and checks.
 
 ## Choosing a template
 
@@ -32,21 +48,6 @@ pick in seconds, and it's their document. Record the pick as
 one command with no flag. Per-market projections may differ
 (`compact` for the startup, `classic` for the bank) — same vault,
 same facts, different music.
-- `assets/templates/data-schema.md` — the `resume.yaml` contract.
-  Read it before writing yaml.
-- `assets/fonts/` — vendored OFL fonts (Source Sans 3, Inter), so
-  rendering is identical on every machine.
-- `scripts/render.sh` — the only supported way to compile:
-
-```sh
-scripts/render.sh resume.yaml                 # -> resume.pdf next to the yaml
-scripts/render.sh resume.yaml -t onecol -o /path/out.pdf
-```
-
-It compiles with `--pdf-standard ua-1,a-2a` (tagged PDF/UA-1 +
-PDF/A-2a), `--ignore-system-fonts` (vendored fonts only), then smoke-
-checks the text layer and the page budget. Don't call `typst compile`
-directly for real output — you'd lose the standards flags and checks.
 
 ## Requirements
 

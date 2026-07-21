@@ -11,7 +11,7 @@ place — governed, not sprayed.
 | Tier | Decay | Examples | Policy |
 |---|---|---|---|
 | 1 — Mechanics | years | parsing physics, single-column, honesty discipline, bullet formula | bundled in references; **never** researched at runtime |
-| 2 — Slow-cycle facts | ~6–12 months | vendor screening behavior, detection stats, which evidence is "hot", recruiting-season calendar | bundled with `Last verified:` / `Verify by:` stamps; re-verified **on schedule by the repo** (see MAINTENANCE.md), not per query |
+| 2 — Slow-cycle facts | ~6–24 months | vendor screening behavior, detection stats, which evidence is "hot", recruiting-season calendar, regional conventions | bundled with `Last verified:` / `Verify by:` stamps; re-verified **on schedule by the repo** (see MAINTENANCE.md), not per query |
 | 3 — Task-scoped facts | per task | the posting itself, the company's stack/team/blog, this role's comp, this board's data | **always fetched fresh at use** — this is task input, not research spam |
 
 **When to research, in one rule:** fetch tier-3 always; touch tier-2
@@ -40,6 +40,12 @@ still between them.
   keys and uploads a person's data to a third party: user consent
   first, and record the failure in failure-modes.md so the local
   simulation learns it.
+- These extractors serve the verification loop only — intake never
+  goes through them. A deterministic resume-to-yaml parser is an
+  adjudicated non-tool: it would reproduce exactly the parse failures
+  this stage exists to simulate, and a wrong mechanical draft poisons
+  the vault; the agent reading the source document natively is the
+  better instrument.
 
 ### Semantic matching (L4)
 - Deliberately **judgment, not a local embedding score**. A
@@ -50,11 +56,11 @@ still between them.
   their matcher (tier-2 fact; it would go through MAINTENANCE.md).
 
 ### JD ingestion (tier-3: always fetch fresh)
-- Given a company name, postings often live on public board APIs —
-  fetch the JSON instead of scraping HTML:
-  - Greenhouse: `https://boards-api.greenhouse.io/v1/boards/<company>/jobs?content=true`
-  - Lever: `https://api.lever.co/v0/postings/<company>?mode=json`
-  - Ashby: `https://api.ashbyhq.com/posting-api/job-board/<company>`
+- Given a company name, postings often live on public board APIs
+  (Greenhouse/Lever/Ashby) that return clean JSON instead of
+  scrape-hostile HTML. Posting fetch is jd-analyzer's job and its
+  SKILL.md carries the current endpoints — invoke that skill (or
+  follow its Ingest step) rather than re-deriving URLs here.
 - Login-walled/JS-only pages (LinkedIn, Workday tenants): ask the
   user to paste — built into jd-analyzer already.
 

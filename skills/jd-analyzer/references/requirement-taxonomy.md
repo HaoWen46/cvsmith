@@ -52,6 +52,13 @@ Exception: when a culture line encodes a real constraint — "on-call
 rotation", "50% travel", "in-office 5 days" — it's not noise, it's a
 fact for the user's go/no-go, not for the resume. Put it in notes.
 
+Before shelving culture-noise lines, harvest their one live signal:
+register. The employer type and the posting's own temperature
+(energetic-startup vs. sober-institutional vs. formal-conservative)
+are free by-products of reading them — record both in the analysis
+header's Register signal line. That is one sample of the builder's
+register cell, not the cell itself.
+
 ## Seniority decoding
 
 Ignore the title; read the scope:

@@ -70,7 +70,11 @@ def main() -> int:
                 for i, row in enumerate(rows):
                     top = min(w["top"] for w in row)
                     bot = max(w["bottom"] for w in row)
-                    if mark["top"] < bot and mark["bottom"] > top:
+                    # positional guard: a real marker sits at/left of its
+                    # row's body text — an en dash inside a date range or a
+                    # wrapped bullet is mid-line and must not start an item
+                    if mark["top"] < bot and mark["bottom"] > top \
+                            and mark["x1"] <= row[0]["x0"] + X_TOL:
                         return i
                 return None
 
@@ -142,7 +146,7 @@ def main() -> int:
               f"Draft to ≈{capacity - 8} chars for headroom. The render is "
               "deterministic — re-rendering unchanged text is not an attempt. "
               "Escalate: (1) cut filler words; (2) still over → change structure "
-              "(split the bullet, move stack/context to the tag row); (3) still "
+              "(split the bullet; move stack/context to the tag row (compact)); (3) still "
               "over → the allocation is wrong (fewer bullets here, or drop "
               "meta.bullet_lines) — never delete a number to make weight.",
               file=sys.stderr)

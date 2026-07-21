@@ -22,16 +22,19 @@ research programs, fellowships, research-assistant openings.
 ## Structure: separate research from teaching from industry
 
 Use the schema's experience `group` key (`research` / `teaching` /
-`industry`). When any entry is grouped, the template renders separate
-sections — "Research Experience", "Teaching Experience", "Industry
-Experience" — in that order, which is the academic convention. All
-entries should carry a group when any does; ungrouped entries fall
-into the industry bucket.
+`industry`): the template renders one standard-headed section per
+group, in that order — the academic convention. Grouping mechanics and
+edge cases (what happens to ungrouped entries, when grouping becomes
+all-or-nothing) are specified in `assets/templates/data-schema.md`,
+the authoritative statement, which you read anyway at the yaml step.
 
-Section order for academic targets: Education → Research Experience →
-Publications → Teaching Experience → Industry Experience → Skills →
-Awards. (The template fixes order; what you control is which sections
-exist and what carries weight.)
+The template's actual academic-mode order: Education → Research
+Experience → Teaching Experience → Industry Experience → Projects →
+Skills → Publications → Awards. (The template fixes order; what you
+control is which sections exist and what carries weight.) Note
+publications-after-Skills deviates from academic-CV convention — say
+so to the user, and offset by citing key papers inline in Research
+Experience bullets.
 
 ## What counts as evidence (strongest first)
 

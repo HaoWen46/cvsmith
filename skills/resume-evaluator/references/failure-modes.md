@@ -75,6 +75,18 @@ reports; when you meet a new mode, add it here with the same shape.
   characters sometimes arrive *accidentally* via copy-paste from web
   pages; still remove them (detectors don't ask about intent).
 
+### Metadata stuffing / injection
+- **Symptom**: `metadata_injection` or `metadata_stuffing` FAIL (or a
+  `metadata_identity` WARN when the author matches nothing on the page).
+- **Reality**: docinfo/XMP fields extract into parsers while leaving
+  zero ink on any page — the raster cross-check is structurally blind
+  to them, which is why they get their own pass. Keyword dumps in
+  `Keywords` are a template-mill artifact; imperative phrases aimed at
+  AI screeners are injection.
+- **Fix**: re-export with honest title/author and empty keywords, or
+  rebuild — cvsmith templates emit exactly name-derived title/author
+  and nothing else.
+
 ## Structure failures (L3)
 
 ### Multi-column layout
@@ -112,6 +124,10 @@ reports; when you meet a new mode, add it here with the same shape.
   is always tagged — treat the warn as a rebuild nudge, not a defect.
 - **pdftotext missing** (`extractor_agreement` WARN): environment
   limitation, not a resume property. Install poppler for full checks.
+- **Raster unavailable** (`raster_available` WARN): environment
+  limitation — poppler absent, so L2's ink cross-check did not run
+  (invisible/faint text unverified). Install poppler; never convert
+  this into a file verdict.
 - **Right-aligned dates**: not a second column; the L3 detector is
   specifically built to tell them apart.
 - **Raw content-stream order ≠ visual order** on grid rows (dates
