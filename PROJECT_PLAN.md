@@ -198,12 +198,19 @@ Post-v0.1 backlog, in rough priority order:
 
 1. **Description trigger-optimization** — deferred from M4 to
    post-v0.1. Blocked from agent sessions (`claude -p` gets 401 when
-   nested); run from a normal terminal when convenient. The 20-query
+   nested); run from a normal terminal when convenient. The 22-query
    eval set is already written at
    `m4-workspace/trigger-eval-resume-builder.json`;
    the command is the skill-creator's
    `python -m scripts.run_loop --eval-set <that file> --skill-path
    skills/resume-builder --model <session model> --max-iterations 3`.
+   Proxy result 2026-07-21 (after the scoped-description rewrite): a
+   blind fresh-context harness — 3 independent judges per query, seeing
+   only the message + the three skill descriptions — scored 22/22 with
+   every vote unanimous, including correct first-skill routing (JD
+   tailoring → jd-analyzer first; check-only → evaluator). Results in
+   `m4-workspace/trigger-eval-results-2026-07-21.json`. The run_loop
+   from a real terminal remains the sanctioned closure.
 2. ~~`compact.typ` / styled second template~~ — **done**: Inter-based
    designed variant (accent name/headers, gray meta, tag rows,
    `meta.accent` knob), parse-verified; heading letter-spacing found
