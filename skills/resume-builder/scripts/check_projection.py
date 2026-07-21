@@ -11,12 +11,18 @@ Projections never contain a fact the vault lacks (career-vault.md,
 Protocol). This script enforces the token-level shadow of that
 invariant: every numeric token, date, and URL in the projection
 appears somewhere in the vault. Presence, not meaning — tokens are
-not bound to the claims they sit in, so a bullet that recombines
-genuine vault numbers passes: vault "480 ms -> 210 ms", resume
-"210 ms -> 480 ms" — both tokens exist, the reversal is invisible
-here (an ordered-pair heuristic was rejected: it false-fails
-legitimate rephrasings). Direction and pairing stay on the human
-review. Org/title/name wording is legitimately reframed per
+not bound to the claims they sit in. One slice of meaning IS bound:
+ordered pairs carrying an explicit direction marker ("480 ms ->
+210 ms", "from 480 ms to 210 ms") are compared against vault lines
+holding both numbers. Same-order vault marker = verified; vault
+markers all reversed = FAIL; no vault marker = WARN for manual
+review (a global ordered-pair heuristic was rejected: it false-fails
+legitimate rephrasings — only the vault's own markers are trusted to
+contradict). The unverifiable residue — pairs whose vault support
+carries no direction marker, plus unpaired numbers — stays
+bag-of-tokens, on the human review; an audit note counts it out
+loud whenever directional pairs exist.
+Org/title/name wording is legitimately reframed per
 application, so drift there only WARNs — but a drifted value is
 still swept for numeric tokens, which FAIL like content numbers.
 
@@ -34,6 +40,14 @@ What is checked, and how leniently:
   urls      url fields (and any URL pasted into a content string),
             compared after stripping scheme, leading www., and the
             trailing slash. Miss = FAIL.
+  pairs     ordered numeric pairs in content strings with an explicit
+            direction marker: X -> Y / X → Y / X ⇒ Y, or
+            "from X ... to Y" inside one string (~40-char window, no
+            sentence boundary). Vault line with both numbers and a
+            same-order marker = verified; vault markers only in the
+            reversed order = FAIL; both numbers co-occur but no
+            marker = WARN (manual review). Pairs whose numbers
+            already failed presence are not double-reported.
   identity  name / organization / institution / title / degree not
             found verbatim = WARN (formatting drift is legitimate);
             numeric tokens in a drifted value are checked like
@@ -97,6 +111,26 @@ def number_in(token: str, haystack: str) -> bool:
     return re.search(
         rf"(?<!\d)(?<!\d\.){re.escape(token)}(?!\d)(?!\.\d)",
         haystack) is not None
+
+
+NUM = r"\d+(?:\.\d+)?"
+# X -> Y with only unit/space chars (no digits) between number and arrow
+ARROW_PAIR = re.compile(
+    rf"({NUM})[^\d]{{0,20}}?(?:->|→|⇒)[^\d]{{0,20}}?({NUM})")
+# "from X ... to Y": numbers anchored to their keywords; the gap may
+# hold units or digits (p95) but never a sentence boundary (. or ;)
+FROM_TO_PAIR = re.compile(
+    rf"\bfrom\b[^\d.;]{{0,12}}({NUM})[^.;]{{0,40}}?"
+    rf"\bto\b[^\d.;]{{0,12}}({NUM})")
+
+
+def directional_pairs(norm: str) -> list[tuple[str, str]]:
+    """Ordered numeric pairs carrying an explicit direction marker,
+    from one normalized string. Pairing never crosses string values."""
+    pairs = []
+    for rex in (ARROW_PAIR, FROM_TO_PAIR):
+        pairs.extend(m.groups() for m in rex.finditer(norm))
+    return pairs
 
 
 def date_candidates(y: int, m: int) -> list[str]:
@@ -201,6 +235,41 @@ def main() -> int:
     if n_clean:
         add("numbers", PASS, f"{n_tokens} numeric token(s) verified against the vault")
 
+    # ── metric direction: resume markers vs the vault's own markers ──
+    vault_lines = [normalize(line) for line in vault_raw.splitlines()]
+    pairs = []
+    for path, text in found["content"]:
+        for x, y in directional_pairs(normalize(text)):
+            if number_in(x, haystack) and number_in(y, haystack):
+                pairs.append((path, text, x, y))  # presence misses FAILed above
+    n_verified = n_manual = 0
+    for path, text, x, y in pairs:
+        vault_marked: set[tuple[str, str]] = set()
+        for line in vault_lines:
+            if number_in(x, line) and number_in(y, line):
+                vault_marked.update(directional_pairs(line))
+        if (x, y) in vault_marked:
+            n_verified += 1
+        elif (y, x) in vault_marked:
+            add("metric_direction", FAIL,
+                f"{path}: resume states {x} -> {y}; the vault's own marker "
+                f"says {y} -> {x} — reversed improvement — "
+                f"\"{excerpt(text, x)}\"")
+        else:
+            n_manual += 1
+            add("metric_direction", WARN,
+                f"{path}: pair {x} -> {y} listed for manual review — no "
+                f"vault direction marker co-occurs with both numbers, so "
+                f"direction cannot be machine-verified")
+    notes = []
+    if pairs:
+        n_reversed = len(pairs) - n_verified - n_manual
+        notes.append(
+            f"metric pairs: {len(pairs)} directional pair(s) found — "
+            f"{n_verified} verified against vault markers, "
+            f"{n_manual} need manual review"
+            + (f", {n_reversed} reversed" if n_reversed else ""))
+
     # ── dates ────────────────────────────────────────────────────────
     n_dates = 0
     d_clean = True
@@ -285,9 +354,11 @@ def main() -> int:
         "vault": str(args.vault),
         "verdict": FAIL if failed else PASS,
         "checks": checks,
+        "notes": notes,
         "metrics": {"numbers_checked": n_tokens, "dates_checked": n_dates,
                     "urls_checked": len(url_items),
-                    "identity_checked": len(found["identity"])},
+                    "identity_checked": len(found["identity"]),
+                    "metric_pairs_checked": len(pairs)},
     }
     if args.as_json:
         print(json.dumps(report, indent=2, ensure_ascii=False))
@@ -296,6 +367,8 @@ def main() -> int:
         print(f"[projection] {args.resume.name} ⇄ {args.vault.name}")
         for c in checks:
             print(f"  {icon[c['level']]}  {c['check_id']}: {c['detail']}")
+        for note in notes:
+            print(f"  note  {note}")
         print(f"  => {'FAIL' if failed else 'PASS'}")
 
     if failed:

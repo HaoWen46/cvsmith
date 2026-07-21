@@ -44,13 +44,14 @@ claim, not just the listed marketing pages.
 
 ## Release checklist
 
-1. Package each skill into `dist/` with the skill-creator's
-   `package_skill.py`
-   (`~/.claude/plugins/marketplaces/claude-plugins-official/plugins/skill-creator/skills/skill-creator/scripts/package_skill.py`)
-   — it validates frontmatter and excludes `__pycache__`/evals.
+1. Package each skill into `dist/`: `uv run scripts/package_release.py`
+   — repo-local, stdlib-only; excludes `__pycache__`/evals and
+   sanity-checks frontmatter (CI's skill-structure job does the
+   richer validation).
 2. Verify each `.skill` zip's `scripts/` contains every script its
-   SKILL.md references.
-3. Tag; `gh release create` with the three `.skill` assets.
+   SKILL.md references — the packager enforces this and deletes any
+   zip that fails, so a clean exit 0 *is* the verification.
+3. Tag; `gh release create` with the `.skill` assets.
 
 ## Why not re-verify per query (recorded so it isn't relitigated)
 

@@ -251,19 +251,85 @@ def test_identity_reword_with_supported_number_warns_only(tmp_path):
     assert not ids_at(report, "fail")
 
 
-# ── the known gap: tokens are checked for presence, not direction ────
+# ── metric direction: explicit markers are compared, order matters ───
 
-@pytest.mark.xfail(
-    reason="bag-of-tokens check: both numbers exist in the vault, so a "
-           "reversed metric passes — token presence cannot bind numbers "
-           "to direction (documented gap, see check_projection.py)",
-    strict=False)
-def test_reversed_metric_should_fail(tmp_path):
+def test_reversed_metric_fails(tmp_path):
+    # the vault's own marker says 480 -> 210; the resume flips it
     code, report = run_check(*write_pair(
         tmp_path,
         resume=RESUME + "      - Brought build time 210 s -> 480 s.\n",
         vault=VAULT + "- FACT: brought build time 480 s -> 210 s\n"))
-    assert code == 1, "reversed direction is a fabrication the checker misses"
+    assert code == 1, "a reversed vault marker is fabrication, not reframing"
+    assert "metric_direction" in ids_at(report, "fail")
+    fails = details_at(report, "fail")
+    assert "210" in fails and "480" in fails and "reversed" in fails
+
+
+def test_same_order_pair_is_verified(tmp_path):
+    code, report = run_check(*write_pair(
+        tmp_path,
+        resume=RESUME + "      - Brought build time 480 s -> 210 s.\n",
+        vault=VAULT + "- FACT: brought build time 480 s -> 210 s\n"))
+    assert code == 0, f"same-order pair vs the vault's own marker: {report}"
+    assert not ids_at(report, "fail")
+    assert "metric_direction" not in ids_at(report, "warn")
+    assert any("1 verified" in note for note in report["notes"]), \
+        "the audit note must count the pair as verified"
+
+
+def test_cross_form_marker_is_verified(tmp_path):
+    # vault states the direction in prose, resume as an arrow — same order
+    code, report = run_check(*write_pair(
+        tmp_path,
+        resume=RESUME + "      - Cut p95 latency 480 ms → 210 ms.\n",
+        vault=VAULT + "- FACT: cut p95 latency from 480 ms to 210 ms\n"))
+    assert code == 0, f"cross-form same-direction pair false-failed: {report}"
+    assert not ids_at(report, "fail")
+    assert "metric_direction" not in ids_at(report, "warn")
+    assert any("1 verified" in note for note in report["notes"])
+
+
+def test_unmarked_vault_pair_warns_for_manual_review(tmp_path):
+    # both numbers share a vault line, but nothing there marks a direction
+    resume, vault = write_pair(
+        tmp_path,
+        resume=RESUME + "      - Cut tail latency 480 ms → 210 ms.\n",
+        vault=VAULT + "- FACT: tail latency measured at 480 ms and 210 ms\n")
+    code, report = run_check(resume, vault)
+    assert code == 0, "an unmarked vault pair is unverifiable, not wrong"
+    assert "metric_direction" in ids_at(report, "warn")
+    assert not ids_at(report, "fail")
+    assert any("need manual review" in note for note in report["notes"]), \
+        "the audit note is the visible surface of the limitation"
+    # the note must reach the human-readable output too
+    proc = subprocess.run(
+        [sys.executable, str(CHECK), str(resume), str(vault)],
+        capture_output=True, text=True)
+    assert proc.returncode == 0
+    assert "metric pairs:" in proc.stdout
+
+
+def test_no_directional_pairs_no_audit_note(tmp_path):
+    resume, vault = write_pair(tmp_path)
+    code, report = run_check(resume, vault)
+    assert code == 0
+    assert report["notes"] == []
+    proc = subprocess.run(
+        [sys.executable, str(CHECK), str(resume), str(vault)],
+        capture_output=True, text=True)
+    assert "metric pairs" not in proc.stdout
+
+
+def test_from_to_does_not_pair_across_sentences(tmp_path):
+    # "from 3 … . … to 210" spans a sentence boundary — not a pair
+    code, report = run_check(*write_pair(
+        tmp_path,
+        resume=RESUME + "      - Scaled from 3 services. Brought p99 down "
+                        "to 210 ms.\n",
+        vault=VAULT + "- FACT: p99 latency 210 ms across 3 services\n"))
+    assert code == 0
+    assert report["notes"] == []
+    assert "metric_direction" not in ids_at(report, "warn")
 
 
 # ── contract edges ───────────────────────────────────────────────────
