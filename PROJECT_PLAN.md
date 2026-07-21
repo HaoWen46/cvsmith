@@ -194,9 +194,13 @@ The workflows live in the SKILL.md files. What must stay consistent
 
 Post-v0.1 backlog, in rough priority order:
 
-1. **Description trigger-optimization** — the one M4 piece still open:
-   the skill-creator's trigger-eval loop over the three descriptions
-   (needs `claude -p`; run when convenient).
+1. **Description trigger-optimization** — the one M4 piece still open.
+   Blocked from agent sessions (`claude -p` gets 401 when nested); run
+   from a normal terminal when convenient. The 20-query eval set is
+   already written at `m4-workspace/trigger-eval-resume-builder.json`;
+   the command is the skill-creator's
+   `python -m scripts.run_loop --eval-set <that file> --skill-path
+   skills/resume-builder --model <session model> --max-iterations 3`.
 2. ~~`compact.typ` / styled second template~~ — **done**: Inter-based
    designed variant (accent name/headers, gray meta, tag rows,
    `meta.accent` knob), parse-verified; heading letter-spacing found

@@ -31,7 +31,7 @@
   else { s + " \u{2013} " + e }
 }
 
-#let short-url(u) = u.replace("https://", "").replace("http://", "").trim("/")
+#let short-url(u) = u.replace("https://", "").replace("http://", "").replace("www.", "").trim("/")
 
 #let render(data) = {
   let b = data.basics
@@ -76,10 +76,12 @@
   {
     let sep = [#h(6pt)#text(fill: muted, "\u{00b7}")#h(6pt)]
     let items = ()
-    if "location" in b { items.push([#b.location]) }
-    items.push(link("mailto:" + b.email)[#b.email])
-    if "phone" in b { items.push([#b.phone]) }
-    for l in b.at("links", default: ()) { items.push(link(l.url)[#short-url(l.url)]) }
+    // box() keeps each contact item unbreakable: the line wraps between
+    // items at a separator, never mid-URL or mid-name.
+    if "location" in b { items.push(box[#b.location]) }
+    items.push(box(link("mailto:" + b.email)[#b.email]))
+    if "phone" in b { items.push(box[#b.phone]) }
+    for l in b.at("links", default: ()) { items.push(box(link(l.url)[#short-url(l.url)])) }
     text(size: 8.8pt, fill: muted, items.join(sep))
   }
 
