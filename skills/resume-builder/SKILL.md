@@ -117,7 +117,15 @@ Read `references/writing-rules.md` before writing any bullet — and
 apply its Register section first: name the industry × market ×
 employer-type cell you're writing for, out loud. The default
 energetic-tech tone is a *choice*, and for a German bank or a UK
-ministry it's the wrong one. For each
+ministry it's the wrong one.
+
+Know your budgets before drafting, not after: measure the template's
+line capacity (`scripts/check_bullets.py` self-calibrates from any
+render) and plan the space division — bullets per entry, chars per
+bullet — so the first render confirms rather than discovers. When a
+check does fail, the failure carries information: escalate per the
+writing-rules ladder; re-rendering unchanged text is not an attempt.
+For each
 experience: extract claims from the material, demand quantification
 (ask the user for numbers rather than inventing ranges), attach a
 concrete artifact where possible (repo, paper, launched thing). Apply

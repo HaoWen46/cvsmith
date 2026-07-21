@@ -151,6 +151,10 @@ def test_bullet_check_measures_and_enforces(tmp_path):
     assert len(report["bullets"]) >= 10, "should find every bullet"
     assert any(b["lines"] >= 2 for b in report["bullets"]), \
         "fixture is known to wrap some bullets in compact"
+    assert report["measured_capacity_chars"] > 60, \
+        "self-calibrated capacity must come from full first lines"
+    assert all(b["over_by_chars"] > 0 for b in report["bullets"]
+               if b["lines"] > 1), "wrapped bullets must carry cut guidance"
 
     proc = subprocess.run([sys.executable, str(check), str(pdf), "--max-lines", "1"],
                           capture_output=True, text=True)

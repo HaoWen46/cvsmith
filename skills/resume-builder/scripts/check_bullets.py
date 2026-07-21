@@ -89,8 +89,13 @@ def main() -> int:
                         count += 1
                     else:
                         break
+                all_words = []
+                for j in range(i, i + count):
+                    all_words.extend(w["text"] for w in rows[j])
                 text = " ".join(w["text"] for w in rows[i])
                 items.append({"page": pageno, "lines": count,
+                              "chars": len(" ".join(all_words)),
+                              "first_line_chars": len(text),
                               "bullet": text[:70] + ("…" if len(text) > 70 else "")})
 
     if not items:
@@ -102,26 +107,45 @@ def main() -> int:
     for b in items:
         dist[b["lines"]] = dist.get(b["lines"], 0) + 1
 
+    # Self-calibration: a wrapped bullet's first line is a FULL line, so
+    # wrapped items measure this template's true capacity for their glyph
+    # mix. With no wrapped items, capacity is at least the longest fit.
+    wrapped = [b for b in items if b["lines"] > 1]
+    if wrapped:
+        capacity = int(statistics.median(b["first_line_chars"] for b in wrapped))
+        cap_note = f"measured capacity ≈ {capacity} chars/line"
+    else:
+        capacity = max(b["chars"] for b in items)
+        cap_note = f"capacity ≥ {capacity} chars/line (nothing wrapped to measure)"
+    for b in items:
+        b["over_by_chars"] = max(0, b["chars"] - capacity) if b["lines"] > 1 else 0
+
     if args.json:
         print(json.dumps({"bullets": items, "distribution": dist,
+                          "measured_capacity_chars": capacity,
                           "max_lines": args.max_lines,
                           "violations": over}, indent=2, ensure_ascii=False))
     else:
         print(f"[bullets] {args.pdf.name}: {len(items)} bullets — "
               + ", ".join(f"{n} line{'s' if n > 1 else ''}: {c}"
-                          for n, c in sorted(dist.items())))
+                          for n, c in sorted(dist.items()))
+              + f" · {cap_note}")
         show = over if args.max_lines else [b for b in items if b["lines"] > 1]
         for b in show:
             flag = "XX" if args.max_lines and b["lines"] > args.max_lines else "!!"
-            print(f"  {flag}  {b['lines']} lines: {b['bullet']}")
+            print(f"  {flag}  {b['lines']} lines ({b['chars']} chars, cut ≳{b['over_by_chars']}): {b['bullet']}")
         if args.max_lines and not over:
             print(f"  ok  every bullet fits in {args.max_lines} line(s)")
 
     if over:
-        print(f"\n{len(over)} bullet(s) exceed the {args.max_lines}-line "
-              "budget — tighten or split them (never delete a number to "
-              "make weight; if the facts truly need the space, drop "
-              "meta.bullet_lines instead)", file=sys.stderr)
+        print(f"\n{len(over)} bullet(s) exceed the {args.max_lines}-line budget. "
+              f"Draft to ≈{capacity - 8} chars for headroom. The render is "
+              "deterministic — re-rendering unchanged text is not an attempt. "
+              "Escalate: (1) cut filler words; (2) still over → change structure "
+              "(split the bullet, move stack/context to the tag row); (3) still "
+              "over → the allocation is wrong (fewer bullets here, or drop "
+              "meta.bullet_lines) — never delete a number to make weight.",
+              file=sys.stderr)
         return 1
     return 0
 

@@ -128,18 +128,35 @@ uniform rhythm, zero orphan words, maximum skim speed. It's a choice,
 not a law — evidence-dense bullets legitimately run two lines, and a
 number must never be deleted to make weight.
 
-When the user (or the register) wants it, don't eyeball it — opt in
-with `meta.bullet_lines: 1` and the render itself enforces it:
-`render.sh` measures rendered lines per bullet from the PDF geometry
-(`scripts/check_bullets.py`, also runnable standalone for a report)
-and fails the build naming each violator. Character counts are only a
-pencil sketch (~100–115 chars/line in compact, ~95–105 in onecol —
-font and margins decide, not the count); the render is the truth.
+Work budget-first, not retry-first — the loop is the safety net, not
+the method:
 
-Fixing a violator, in order: cut filler words → split into two
-bullets (each self-sufficient) → tighten phrasing around the number.
-If the facts genuinely need two lines, unset the knob for that
-projection rather than sacrificing a fact.
+1. **Measure the budget before drafting.** Render anything through the
+   target template once and run `scripts/check_bullets.py` on it: the
+   summary line reports *measured capacity* (wrapped bullets'
+   first lines are full lines, so the tool calibrates itself to the
+   actual template + font + margins — e.g. compact ≈ 112 chars,
+   tighter layouts 130+). No table to trust, nothing to go stale.
+2. **Plan the division.** Before writing bullets, allocate: how many
+   bullets per entry fit the page budget, strongest entry gets the
+   most. Then draft each bullet to capacity minus ~8 chars of
+   headroom (proportional fonts make any count approximate — that's
+   why verification still exists).
+3. **Verify once** — `meta.bullet_lines: 1` makes `render.sh` measure
+   the PDF and fail the build naming each violator with its overshoot
+   ("138 chars, cut ≳26").
+4. **Escalate on failure — never retry unchanged.** The render is
+   deterministic: re-rendering the same text is a no-op, and a second
+   identical failure means the *strategy* is wrong, not the luck.
+   The ladder: (1) cut filler words; (2) still over → change
+   structure — split into two self-sufficient bullets, or move
+   stack/context into the tag row; (3) still over → the allocation
+   was wrong: fewer bullets for that entry, or unset the knob for
+   this projection. Never delete a number to make weight.
+
+The same failure-carries-information rule governs every check in this
+toolkit: a page_budget overflow escalates through the typst-guide cut
+order, not through re-rendering hope.
 
 ## Two readers, one line — the anti-yapping rule
 
