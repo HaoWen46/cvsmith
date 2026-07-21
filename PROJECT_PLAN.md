@@ -3,7 +3,7 @@
 **Agent skills that teach AI agents how to build, tailor, and adversarially test resumes — rendered with Typst, verified with the same classes of checks 2026 screening stacks run.**
 
 Living doc: architecture, principles, status, and roadmap. Workflow
-detail lives in the three `SKILL.md` files (source of truth); this file
+detail lives in the four `SKILL.md` files (source of truth); this file
 holds what spans them. History lives in git, not here.
 Last updated: 2026-07-21.
 
@@ -91,7 +91,7 @@ with a verification loop.
 
 ## 3. Deliverables
 
-Three skills, one repo; installable individually as `.skill` packages
+Four skills, one repo; installable individually as `.skill` packages
 or used from a checkout.
 
 | Skill | One-liner |
@@ -99,11 +99,15 @@ or used from a checkout.
 | `resume-builder` | Vault-first intake → evidence drafting → `resume.yaml` → Typst render → mandatory evaluator loop |
 | `resume-evaluator` | Adversarial harness: L0–L3 deterministic scripts + L4 JD-alignment + L5 recruiter-skim judgment, fixed report |
 | `jd-analyzer` | Posting → ranked must-haves with evidence targets, decoded seniority, vocabulary map, market |
+| `application-tracker` | Ledger beside the vault: prepared vs. applied, outcome capture, funnel reads |
 
 `jd-analyzer` stays separate on purpose: building is per-person,
 tailoring is per-application, and the evaluator consumes the analyzer's
-output as its L4 rubric. Small skills with clean interfaces compose
-better and trigger more precisely.
+output as its L4 rubric. `application-tracker` owns the post-send seam
+— logging what was actually sent where, outcomes, and callback-rate
+reads — so the builder can hand off cleanly once a resume is done.
+Small skills with clean interfaces compose better and trigger more
+precisely.
 
 ## 4. Repository layout (current)
 
@@ -134,9 +138,13 @@ cvsmith/
 │   │   ├── references/{rubric.md, failure-modes.md}
 │   │   └── scripts/{_report.py, extract_text.py, parse_sim.py,
 │   │               hidden_text_check.py, lint_structure.py}   # PEP 723, standalone via uv run
-│   └── jd-analyzer/
-│       ├── SKILL.md                  # decompose · decode level+market · evidence targets · output format
-│       └── references/requirement-taxonomy.md
+│   ├── jd-analyzer/
+│   │   ├── SKILL.md                  # decompose · decode level+market · evidence targets · output format
+│   │   └── references/requirement-taxonomy.md
+│   └── application-tracker/
+│       ├── SKILL.md                  # pull-based ledger capture · funnel reads · honest handoffs
+│       └── references/application-ledger.md   # ledger format + doctrine (moved from resume-builder)
+├── scripts/package_release.py        # release packager (stdlib; contract-checks .skill zips)
 ├── evals/
 │   ├── evals.json                    # 3 prompts + graded assertions per skill (M4)
 │   ├── test_evaluator.py             # 15 tests: planted failures caught, zero false positives
@@ -149,8 +157,8 @@ cvsmith/
 ```
 
 Skill anatomy is canonical: frontmatter `name` + pushy `description`
-(the only always-in-context cost, ~230 words across all three), body
-loads on trigger (≤ ~180 lines each), references load only behind
+(the only always-in-context cost, a few hundred words across all four),
+body loads on trigger (≤ ~180 lines each), references load only behind
 explicit conditions (e.g. US target → regional.md never loads).
 
 ## 5. Cross-component contracts
@@ -181,7 +189,10 @@ The workflows live in the SKILL.md files. What must stay consistent
 - **Sibling dependency** — builder invokes evaluator (and jd-analyzer
   when a posting exists); when a sibling skill isn't installed, run
   its scripts directly / follow its workflow and say which judgment
-  layers were skipped.
+  layers were skipped. Same pattern post-send: the builder offers the
+  prepared-row log in application-tracker's ledger format and, when
+  the tracker isn't installed, appends to the ledger directly using
+  that format.
 
 ## 6. Status & roadmap
 
@@ -190,7 +201,7 @@ The workflows live in the SKILL.md files. What must stay consistent
 | M0 scaffold (repo, CI, schema draft) | **done** |
 | M1 render path (`onecol.typ`, `render.sh`, fixture) | **done** — 1 page, tagged, extraction-clean |
 | M2 evaluator harness (4 scripts, planted-failure fixtures, tests) | **done** — every plant caught, zero false positives |
-| M3 the three SKILL.md files + reference library | **done** — 3 skills, 13 references |
+| M3 the first three SKILL.md files + reference library | **done** — 3 skills, 13 references |
 | M4 eval loop | **done** — 18 independent-agent runs, 2 iterations (Fable 5: 15/15 vs 10/15; Sonnet 5: 26/26 vs 21/26). Three repo bugs found by the runs, fixed. Contamination lesson recorded (eval metadata stays grader-side). Description trigger-optimization remains a backlog item |
 | M5 release | **done** — v0.1.0 tagged; `.skill` packages on GitHub Releases; three templates; worked example |
 
@@ -225,11 +236,14 @@ Post-v0.1 backlog, in rough priority order:
 5. **Field files on demand** — finance/consulting/etc. get literal
    guides only when real usage shows the generic+register procedure
    falling short.
-6. **v0.2+ scope candidates** — cover letters, LinkedIn profile text,
-   interview-prep from the vault (the architecture extends: intake →
-   analyze → draft → verify). Outcome tracking/handoff already
-   shipped as the application ledger (resume-builder
-   `references/application-ledger.md`).
+6. **v0.2+ scope candidates** — highest-value next expansion (review
+   round 3): an **interview-preparation skill**, driven by the career
+   vault's FACT lines and Q&A log plus the ledger's stage data — it
+   picks up exactly where application-tracker's handoff stops today.
+   Cover letters and LinkedIn profile text remain candidates (the
+   architecture extends: intake → analyze → draft → verify). Outcome
+   tracking/handoff already shipped as the application ledger
+   (application-tracker `references/application-ledger.md`).
 7. **Typst Universe** — maybe publish the template standalone; not a
    v0.1 concern.
 8. **`meta.section_order` (allowlisted)** — drivers: academic

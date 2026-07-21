@@ -213,6 +213,9 @@ template ships with, or margins below its shipped margins.
 Run the `resume-evaluator` skill on the rendered PDF (with the
 jd-analyzer output if step 4 ran). Fix what it reports, re-render,
 re-run until L0–L3 pass clean. Show the user the final report.
+`check_projection` also prints a directional metric-pair audit —
+confirm each pair it lists for manual review against the vault before
+shipping.
 
 This applies to *every* later edit, not just the first build: folding
 in an answer, a cold-read fix, or a cut re-runs the same render and
@@ -237,12 +240,14 @@ releases) before the user submits anywhere.
 ### 9. After the send
 
 When a projection ships for a real application, offer — in one line —
-to log channel + sent version in `application-ledger.md` beside the
-vault. Respect a no. When the user later mentions an outcome ("got a
-screen at X", "Y rejected me", "never heard back from Z"), update the
-row and confirm in one clause. Never open a bookkeeping session.
-Format, funnel reads, and the handoff doctrine:
-`references/application-ledger.md`.
+to log a **prepared** row (channel + sent version) in
+`application-ledger.md` beside the vault; the row turns applied only
+when the user confirms submission, never at render. Respect a no.
+Outcome updates and funnel reads are the `application-tracker`
+skill's job (installed beside this skill); if it is absent, read and
+append the ledger directly using its format — same degradation
+pattern as the evaluator. Format and doctrine ship with
+application-tracker: its `references/application-ledger.md`.
 
 ## Iterating with the user
 

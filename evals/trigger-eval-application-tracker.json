@@ -1,0 +1,86 @@
+[
+ {
+  "query": "just applied to the notion backend swe role, hit submit like 10 minutes ago. put it on the board",
+  "should_trigger": true
+ },
+ {
+  "query": "recruiter screen with figma yesterday went fine i think?? she said i'd hear back within a week. note that down somewhere",
+  "should_trigger": true
+ },
+ {
+  "query": "welp. stripe rejection email this morning. 'we've decided to move forward with other candidates' lol. mark it dead",
+  "should_trigger": true
+ },
+ {
+  "query": "it's been 3 weeks of total silence since my databricks phone screen. i think i've been ghosted, update that one accordingly",
+  "should_trigger": true
+ },
+ {
+  "query": "which resume version did i send to nvidia? phone screen is tuesday and i can't remember if it was the systems one or the ML one",
+  "should_trigger": true
+ },
+ {
+  "query": "how's my job search actually going? feels bad but give me real numbers — how many apps out, how many screens, where things are dying",
+  "should_trigger": true
+ },
+ {
+  "query": "GOT AN OFFER FROM RAMP!! official email just landed with the comp numbers. log it before i start screaming",
+  "should_trigger": true
+ },
+ {
+  "query": "what should i be following up on this week? i don't want applications silently dying because i forgot to ping a recruiter",
+  "should_trigger": true
+ },
+ {
+  "query": "datadog just scheduled my onsite for next friday, 4 rounds. can you record that wherever we track this stuff",
+  "should_trigger": true
+ },
+ {
+  "query": "wait, did i actually submit the snowflake application or did we just tailor the resume for it? i genuinely cannot remember",
+  "should_trigger": true
+ },
+ {
+  "query": "batch update time: rejected from meta, plaid phone screen moved to thursday, and roblox advanced me to the hiring manager round",
+  "should_trigger": true
+ },
+ {
+  "query": "fired off 6 apps over the weekend — anthropic, scale, sierra, cursor, vercel, linear — all with the infra version of my resume",
+  "should_trigger": true
+ },
+ {
+  "query": "the recruiter at that fintech startup promised me a takehome 10 days ago and never sent it. what do we even mark that status as",
+  "should_trigger": true
+ },
+ {
+  "query": "can you tailor my resume for this uber JD? posting attached, current resume is in my vault",
+  "should_trigger": false
+ },
+ {
+  "query": "give my resume pdf a once-over for typos and spacing weirdness, don't rewrite anything, just tell me what's off",
+  "should_trigger": false
+ },
+ {
+  "query": "what is this airbnb posting actually asking for? the requirements section is 30 bullets of buzzword soup",
+  "should_trigger": false
+ },
+ {
+  "query": "help me prep for the system design round at coinbase next week — wanna mock a rate limiter question. it's already on the tracker",
+  "should_trigger": false
+ },
+ {
+  "query": "what do new grad swes actually make at series B startups in SF right now? just researching before i apply anywhere",
+  "should_trigger": false
+ },
+ {
+  "query": "honestly debating whether to leave tech entirely. not about any specific application, i just need to think out loud",
+  "should_trigger": false
+ },
+ {
+  "query": "the ramp offer is already logged from last week — now help me figure out how to negotiate the base up",
+  "should_trigger": false
+ },
+ {
+  "query": "write me a cover letter for the attached figma posting, my resume is done and tailored already",
+  "should_trigger": false
+ }
+]

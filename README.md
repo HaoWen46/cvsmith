@@ -6,7 +6,7 @@ Not a resume generator, not a SaaS checker. cvsmith is a set of portable skills 
 
 ## Why
 
-As of 2026, most high-volume resume screening runs some version of an LLM-mediated pipeline — parse → structure → embed against the job description → score → rank — though vendors differ in mechanism (Workday's HiredScore grades against requisition requirements, Greenhouse matches recruiter-weighted criteria, Ashby explicitly doesn't score or rank). cvsmith targets the strictest common denominator, which changes what a good resume tool must do:
+As of 2026, most high-volume resume screening runs some version of an LLM-mediated pipeline — parse → structure → embed against the job description → score → rank — though vendors differ in mechanism (Workday's HiredScore grades against requisition requirements, Greenhouse matches recruiter-weighted criteria, Ashby checks per-criterion and surfaces a sortable fit percentage). cvsmith targets the strictest common denominator, which changes what a good resume tool must do:
 
 - **Parsing is the gate.** If extraction fails, no intelligence ever evaluates the candidate. Single-column, text-layer, tagged PDFs with standard headings are cvsmith's non-negotiables — the conservative choice that survives every vendor's parser.
 - **Keyword stuffing is dead and harmful.** Modern screeners use semantic matching and flag manipulation. The target is honest semantic coverage of the JD, not token overlap.
@@ -22,6 +22,7 @@ The moat is the **evaluator**: a test harness that runs a PDF through the same c
 | `resume-builder` | Interview the user, ingest raw materials, draft evidence-based content, render via Typst templates |
 | `resume-evaluator` | Adversarial test harness: parse simulation, hidden-text check, structure lint, JD-alignment scoring, recruiter-skim critique |
 | `jd-analyzer` | Decompose a job posting into ranked requirements, vocabulary, and evidence targets to tailor against |
+| `application-tracker` | Track applications and outcomes in a ledger beside the vault — prepared vs. applied kept distinct so callback rates stay honest |
 
 Design principles, full component specs, and the research base live in [PROJECT_PLAN.md](PROJECT_PLAN.md).
 
@@ -54,7 +55,7 @@ evaluator passing.
 
 **v0.1.0** — all milestones complete:
 
-- [x] **M0–M3** — Scaffold, render path, evaluator harness, the three skills + references
+- [x] **M0–M3** — Scaffold, render path, evaluator harness, the first three skills + references
 - [x] **M4** — Eval loop: 18 agent runs across two model tiers (Fable 5 and Sonnet 5 executors), one run per eval/condition — directional, not statistical. With-skill swept both iterations (100% of assertions vs 67%/81% for baselines), though some assertions check the skill's own contract, and two with-skill runs saw grading metadata (scores stand on objective checks). Three repo bugs were found *by* the runs and fixed
 - [x] **M5** — Worked example ([examples/ai-ml-intern](examples/ai-ml-intern)), three templates spanning the register axis, packaged `.skill` releases
 

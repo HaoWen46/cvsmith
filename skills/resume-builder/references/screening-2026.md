@@ -10,13 +10,18 @@ trust this file over general recollection.
 
 ## The pipeline
 
-Nearly every mid-to-large employer runs some version of:
+Plan for the high-volume case. When a mid-to-large employer screens
+at volume, assume some version of:
 
 ```
 PDF → text extraction → section/field structuring → match vs. job
 description (embedding / grading / criteria checks, by vendor) →
 rank or triage → (maybe) human skim of the top slice
 ```
+
+Automation depth varies — some layers are admin-enabled options, not
+defaults (Ashby's criteria review is one; see the docs cited below) —
+but the conservative model is the one worth engineering for.
 
 - Major ATS layers moved past keyword boolean search, but **not to
   one mechanism**: Workday/HiredScore grades candidates against the
