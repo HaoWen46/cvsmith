@@ -22,12 +22,17 @@ rank or triage → (maybe) human skim of the top slice
   one mechanism**: Workday/HiredScore grades candidates against the
   requisition's requirements; Greenhouse's Real Talent matches
   against recruiter-weighted criteria; Ashby evaluates per-criterion
-  and explicitly does not score or rank. The common denominator:
-  every mechanism reads parsed text against JD requirements, so
-  parse-safety and honest requirement coverage pay off regardless of
-  stack. (†)
+  (meets / does not meet) and surfaces an AI criteria-met percentage
+  recruiters can sort by
+  (docs.ashbyhq.com/ai-assisted-application-review, seen 2026-07).
+  The common denominator is stronger than the variety suggests: all
+  three expose a rank or sort over parsed text scored against JD
+  requirements, so parse-safety and honest requirement coverage pay
+  off regardless of stack. (†)
 - Recruiters see a *ranked slice*, not the pile. A human typically
-  spends ~6 seconds on a first skim of resumes that survive ranking.
+  spends ~6–8 seconds on a first skim of resumes that survive ranking
+  (Ladders eye-tracking: 6.0s in 2012, 7.4s in the 2018 follow-up).
+  (†) "Six-second skim" stays the label; the range is the fact.
 - Cost pressure means the machine layers are decisive for high-volume
   roles: if parsing or scoring fails, no human ever compensates.
 

@@ -85,14 +85,17 @@ level. Don't interrogate; don't ask for what you already have.
 ### 2. Workspace — before writing anything personal
 
 Confirm where working files (`career-vault.md`, yaml projections,
-jd-analysis output, rendered PDFs) will live.
+jd-analysis output, rendered PDFs, `application-ledger.md`) will live.
 If that location is inside a git repository, check the paths are
 ignored (`git check-ignore`) and offer to add ignores *before* writing.
 Career data silently landing in someone's tracked repo is a real harm.
 Two more checks while confirming: if the location sits inside a
 cloud-synced folder (iCloud/Drive/Dropbox), say so — gitignore does
 not stop a sync client from uploading the vault; and after the first
-write, `chmod 600` the vault and its projections on POSIX systems.
+write, `chmod 600` the vault, its projections, rendered PDFs, and
+evaluator/cold-read output on POSIX systems — the whole workspace
+carries the same personal data. The copy actually sent with an
+application is unaffected.
 
 ### 3. Identify the field, market, and level
 
@@ -202,8 +205,8 @@ Requires Typst ≥ 0.15 (`brew install typst` / see
 `references/typst-guide.md` for other platforms and troubleshooting).
 One page for students and early-career; the script warns on budget
 overflow. If it overflows, cut content by priority (typst-guide has the
-order) — never shrink type below 9.5pt (compact ships at a
-deliberate 9.2pt — never shrink it further) or margins below 1.2cm.
+order) — never squeeze a fit by shrinking type below the sizes the
+template ships with, or margins below its shipped margins.
 
 ### 8. Verify — mandatory, not optional
 
@@ -230,6 +233,16 @@ install `resume-evaluator` (ships beside this skill in the cvsmith
 releases) before the user submits anywhere.
 
 **Do not present a PDF to the user as finished before it has passed.**
+
+### 9. After the send
+
+When a projection ships for a real application, offer — in one line —
+to log channel + sent version in `application-ledger.md` beside the
+vault. Respect a no. When the user later mentions an outcome ("got a
+screen at X", "Y rejected me", "never heard back from Z"), update the
+row and confirm in one clause. Never open a bookkeeping session.
+Format, funnel reads, and the handoff doctrine:
+`references/application-ledger.md`.
 
 ## Iterating with the user
 

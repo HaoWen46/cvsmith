@@ -165,9 +165,10 @@ order, not through re-rendering hope.
 ## Two readers, one line — the anti-yapping rule
 
 Every line on the page is read by at most two people: the skimmer
-(HR/recruiter, ~6 seconds, reads position and bold anchors) and the
-prober (interviewer/professor, reads bullets as a list of things to
-ask about). **A line that serves neither reader is yapping — delete
+(HR/recruiter, the six-second skim — screening-2026.md sources the
+range — reads position and bold anchors) and the prober
+(interviewer/professor, reads bullets as a list of things to ask
+about). **A line that serves neither reader is yapping — delete
 it**, however true or well-written it is.
 
 - Skim-value lives in: name/identity line, section headers, bolded

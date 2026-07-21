@@ -1,0 +1,90 @@
+[
+  {
+    "query": "can you rebuild my resume? it's in ~/Downloads/resume_2025_final_v3.pdf and i'm applying to backend internships this fall. it got me zero callbacks last cycle",
+    "should_trigger": true
+  },
+  {
+    "query": "i'm a junior in CS and i've never made a CV. i have a hackathon project and a boba shop job. where do i even start",
+    "should_trigger": true
+  },
+  {
+    "query": "here's the JD for a Stripe new-grad role i really want. can you make my resume fit it better? my current one is attached",
+    "should_trigger": true
+  },
+  {
+    "query": "my linkedin is a mess but i exported it as pdf. turn this into something i can actually send to recruiters?",
+    "should_trigger": true
+  },
+  {
+    "query": "applying to REUs this winter — need my cv updated with my new lab work under prof. tanaka. old version is in my Documents folder somewhere",
+    "should_trigger": true
+  },
+  {
+    "query": "convert my resume to a cleaner format, the google docs one looks amateur. i'm targeting fintech pm roles",
+    "should_trigger": true
+  },
+  {
+    "query": "my friend said my cv reads like chatgpt wrote it lol. can u fix the wording so it sounds like an actual engineer",
+    "should_trigger": true
+  },
+  {
+    "query": "i got laid off last month and my resume is 4 years stale. help me get it ready for senior SRE applications, i have my old one plus a brag doc",
+    "should_trigger": true
+  },
+  {
+    "query": "grad school apps due in 6 weeks, need a CV that separates my research from my TA work properly. i have everything in a messy notion page",
+    "should_trigger": true
+  },
+  {
+    "query": "is my resume ATS-safe? i keep hearing screening bots reject everything. just check it, don't rewrite it. attached",
+    "should_trigger": false
+  },
+  {
+    "query": "what is this job posting actually asking for? feels like buzzword soup. link: greenhouse.io/acme/jobs/4432",
+    "should_trigger": false
+  },
+  {
+    "query": "write me a cover letter for the attached posting, my resume is already done and tailored",
+    "should_trigger": false
+  },
+  {
+    "query": "can you review my friend's resume pdf and tell me what's wrong with it? don't change anything, she just wants feedback",
+    "should_trigger": false
+  },
+  {
+    "query": "help me prep for the behavioral interview at datadog next week, i already submitted my application",
+    "should_trigger": false
+  },
+  {
+    "query": "make my linkedin profile summary punchier. not the resume, just the linkedin about section",
+    "should_trigger": false
+  },
+  {
+    "query": "i need a resume template in latex for my personal website's downloads page, just a generic template not my own resume",
+    "should_trigger": false
+  },
+  {
+    "query": "compare these two job offers for me — comp, growth, wlb. offer letters attached",
+    "should_trigger": false
+  },
+  {
+    "query": "extract the text from resume.pdf and put it in a spreadsheet with one row per job",
+    "should_trigger": false
+  },
+  {
+    "query": "our startup is hiring, can you write the job description for a founding ML engineer role",
+    "should_trigger": false
+  },
+  {
+    "query": "翻译我的简历成英文 — here's my chinese resume pdf, i'm applying to싱가포르 startups",
+    "should_trigger": true
+  },
+  {
+    "query": "just wrapped an internship at datadog, can you add it to my career vault before i forget the numbers",
+    "should_trigger": true
+  },
+  {
+    "query": "not applying anywhere right now but i want to log this side project somewhere so my next resume update is easy",
+    "should_trigger": true
+  }
+]

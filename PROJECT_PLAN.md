@@ -199,8 +199,8 @@ Post-v0.1 backlog, in rough priority order:
 1. **Description trigger-optimization** — deferred from M4 to
    post-v0.1. Blocked from agent sessions (`claude -p` gets 401 when
    nested); run from a normal terminal when convenient. The 22-query
-   eval set is already written at
-   `m4-workspace/trigger-eval-resume-builder.json`;
+   eval set is tracked at `evals/trigger-eval-resume-builder.json`
+   (the old m4-workspace copy is gitignored — cloners lacked it);
    the command is the skill-creator's
    `python -m scripts.run_loop --eval-set <that file> --skill-path
    skills/resume-builder --model <session model> --max-iterations 3`.
@@ -209,8 +209,9 @@ Post-v0.1 backlog, in rough priority order:
    only the message + the three skill descriptions — scored 22/22 with
    every vote unanimous, including correct first-skill routing (JD
    tailoring → jd-analyzer first; check-only → evaluator). Results in
-   `m4-workspace/trigger-eval-results-2026-07-21.json`. The run_loop
-   from a real terminal remains the sanctioned closure.
+   `m4-workspace/trigger-eval-results-2026-07-21.json`
+   (maintainer-local, gitignored). The run_loop from a real terminal
+   remains the sanctioned closure.
 2. ~~`compact.typ` / styled second template~~ — **done**: Inter-based
    designed variant (accent name/headers, gray meta, tag rows,
    `meta.accent` knob), parse-verified; heading letter-spacing found
@@ -226,7 +227,9 @@ Post-v0.1 backlog, in rough priority order:
    falling short.
 6. **v0.2+ scope candidates** — cover letters, LinkedIn profile text,
    interview-prep from the vault (the architecture extends: intake →
-   analyze → draft → verify).
+   analyze → draft → verify). Outcome tracking/handoff already
+   shipped as the application ledger (resume-builder
+   `references/application-ledger.md`).
 7. **Typst Universe** — maybe publish the template standalone; not a
    v0.1 concern.
 8. **`meta.section_order` (allowlisted)** — drivers: academic
@@ -288,11 +291,14 @@ Jobscan "How AI Resume Screening Works" (Jul 2026) · ATS Verification
 (Jun 2026) · arXiv 2605.28999 "Measuring Real-World Prompt Injection in
 LLM Resume Screening" (May 2026) · Indeed Hiring Lab labor update (Jan
 2026) · Metaintro new-grad market analysis (Apr 2026) · CNBC
-entry-level AI-skills report (Apr 2026) · Typst 0.15 release (Jun
-2026). Vendor primary sources for mechanism claims: Greenhouse Real
-Talent product page
+entry-level AI-skills report (Apr 2026) · Ladders recruiter
+eye-tracking study (6.0s in 2012; 7.4s in the 2018 follow-up) ·
+Typst 0.15 release (Jun 2026). Vendor primary sources for mechanism
+claims: Greenhouse Real Talent product page
 (https://www.greenhouse.com/uk/product-features/greenhouse-real-talent)
-· Ashby "AI-Assisted Application Review in Practice"
+· Ashby product docs
+(https://docs.ashbyhq.com/ai-assisted-application-review) and blog
+"AI-Assisted Application Review in Practice"
 (https://www.ashbyhq.com/blog/recruiting/ai-assisted-application-review-in-practice)
 · Workday "AI for Talent" HiredScore datasheet (workday.com).
 Perishable claims from these are frozen into stamped references

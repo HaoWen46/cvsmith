@@ -19,13 +19,15 @@ Verify by: YYYY-MM
 `.github/scripts/check_freshness.py` scans every `skills/**/references/*.md`:
 past-due stamps warn on normal CI runs and fail the monthly scheduled
 run. When re-verification finds nothing changed, still bump both dates
-— "recently confirmed" is information.
+— "recently confirmed" is information. The script verifies dates only;
+re-verification must consult the primary docs that could falsify each
+claim, not just the listed marketing pages.
 
 ## What to re-verify, where, how
 
 | Claim cluster | Lives in | Cadence | How to check |
 |---|---|---|---|
-| Screening-pipeline behavior (semantic matching, manipulation flags, hidden-text detection stats) | resume-builder `references/screening-2026.md` | 12 mo | search recent vendor docs (Workday/Greenhouse/Ashby release notes; primary pages: https://www.greenhouse.com/uk/product-features/greenhouse-real-talent · https://www.ashbyhq.com/blog/recruiting/ai-assisted-application-review-in-practice · Workday "AI for Talent" HiredScore datasheet on workday.com), arXiv for injection-detection papers, Jobscan/ATS-research posts |
+| Screening-pipeline behavior (semantic matching, manipulation flags, hidden-text detection stats) | resume-builder `references/screening-2026.md` | 12 mo | search recent vendor docs (Workday/Greenhouse/Ashby release notes; primary pages: https://www.greenhouse.com/uk/product-features/greenhouse-real-talent · https://docs.ashbyhq.com/ai-assisted-application-review (product docs — primary over the Ashby blog) · https://www.ashbyhq.com/blog/recruiting/ai-assisted-application-review-in-practice · Workday "AI for Talent" HiredScore datasheet on workday.com), arXiv for injection-detection papers, Jobscan/ATS-research posts |
 | Hot evidence & market direction for AI/ML | resume-builder `references/fields/ai-ml.md` | 6 mo (each recruiting season: ~Feb, ~Aug) | Indeed Hiring Lab, BLS JOLTS, a scan of 20 current JD postings for the skill vocabulary actually asked |
 | Recruiting-season calendar, ghost-posting signals | jd-analyzer `references/requirement-taxonomy.md` | 12 mo | new-grad hiring guides, recruiter-community write-ups |
 | Board API endpoints (Greenhouse/Lever/Ashby) | jd-analyzer `SKILL.md` (§1 Ingest) | opportunistic (they break loudly) | curl one known company per endpoint |
@@ -39,6 +41,16 @@ run. When re-verification finds nothing changed, still bump both dates
 - Typst: bump `TYPST_VERSION` in ci.yml when release notes touch PDF
   export/tagging; re-run the suite; re-render `examples/` PDFs.
 - Fonts are vendored and never drift.
+
+## Release checklist
+
+1. Package each skill into `dist/` with the skill-creator's
+   `package_skill.py`
+   (`~/.claude/plugins/marketplaces/claude-plugins-official/plugins/skill-creator/skills/skill-creator/scripts/package_skill.py`)
+   — it validates frontmatter and excludes `__pycache__`/evals.
+2. Verify each `.skill` zip's `scripts/` contains every script its
+   SKILL.md references.
+3. Tag; `gh release create` with the three `.skill` assets.
 
 ## Why not re-verify per query (recorded so it isn't relitigated)
 
