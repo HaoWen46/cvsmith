@@ -8,6 +8,8 @@ interpreter (pyyaml present), --json output is the assertion surface.
 from __future__ import annotations
 
 import json
+import os
+import shutil
 import subprocess
 import sys
 import textwrap
@@ -140,6 +142,125 @@ def test_bad_group_enum_is_caught(tmp_path):
     assert f[0]["check_id"] == "values"
     assert "experience[3].group" in f[0]["detail"]
     assert "volunteer" in f[0]["detail"]
+
+
+# ── values that pass validation but crash the render ─────────────────
+
+def test_out_of_enum_paper_fails(tmp_path):
+    # templates feed meta.paper straight to set page(paper:); anything
+    # outside us-letter | a4 crashes the compile with a 100-name enum dump
+    bad = mutated(tmp_path, "resume-sample",
+                  "page_budget: 1", "page_budget: 1\n  paper: legal")
+    code, report = run_validator(bad)
+    assert code == 1
+    f = fails(report)
+    assert len(f) == 1, f"expected exactly the planted violation: {f}"
+    assert f[0]["check_id"] == "values"
+    assert "meta.paper" in f[0]["detail"]
+    assert "legal" in f[0]["detail"]
+    assert "crash" in f[0]["detail"], \
+        "the render-crash consequence must be named"
+
+
+def test_blank_name_fails(tmp_path):
+    # "" satisfies presence + isinstance(str); the compile then dies with
+    # 'PDF/UA-1 error: heading title is empty'
+    bad = mutated(tmp_path, "resume-sample", "name: Sam Casey", 'name: ""')
+    code, report = run_validator(bad)
+    assert code == 1
+    f = fails(report)
+    assert len(f) == 1, f"expected exactly the planted violation: {f}"
+    assert "basics.name" in f[0]["detail"]
+    assert "compile" in f[0]["detail"], \
+        "the compile-failure consequence must be named"
+
+
+def test_blank_email_fails(tmp_path):
+    bad = mutated(tmp_path, "resume-sample",
+                  "email: sam.casey@example.com", 'email: "  "')
+    code, report = run_validator(bad)
+    assert code == 1
+    f = fails(report)
+    assert len(f) == 1, f"expected exactly the planted violation: {f}"
+    assert "basics.email" in f[0]["detail"]
+
+
+def test_tracking_param_url_fails(tmp_path):
+    # data-schema.md promises tracking-parameter URLs are a lint error
+    bad = mutated(
+        tmp_path, "resume-sample",
+        "url: https://github.com/samcasey-demo\n",
+        "url: https://github.com/samcasey-demo?utm_source=chatgpt.com\n")
+    code, report = run_validator(bad)
+    assert code == 1
+    f = fails(report)
+    assert len(f) == 1, f"expected exactly the planted violation: {f}"
+    assert f[0]["check_id"] == "urls"
+    assert "basics.links[0].url" in f[0]["detail"]
+    assert "utm_source" in f[0]["detail"]
+
+
+def test_tracking_param_project_url_fails(tmp_path):
+    # templates print projects[].url verbatim too
+    bad = mutated(
+        tmp_path, "resume-sample",
+        "url: https://github.com/samcasey-demo/ledgerlite\n",
+        "url: https://github.com/samcasey-demo/ledgerlite?fbclid=abc123\n")
+    code, report = run_validator(bad)
+    assert code == 1
+    f = fails(report)
+    assert len(f) == 1, f"expected exactly the planted violation: {f}"
+    assert f[0]["check_id"] == "urls"
+    assert "projects[0].url" in f[0]["detail"]
+    assert "fbclid" in f[0]["detail"]
+
+
+def test_tracking_param_publication_url_fails(tmp_path):
+    # and publications[].url
+    bad = mutated(
+        tmp_path, "resume-sample",
+        "url: https://example.com/hotcloud25-preemption.pdf\n",
+        "url: https://example.com/hotcloud25-preemption.pdf?gclid=x1\n")
+    code, report = run_validator(bad)
+    assert code == 1
+    f = fails(report)
+    assert len(f) == 1, f"expected exactly the planted violation: {f}"
+    assert f[0]["check_id"] == "urls"
+    assert "publications[0].url" in f[0]["detail"]
+    assert "gclid" in f[0]["detail"]
+
+
+# ── render.sh fails closed when uv is missing ────────────────────────
+
+def test_render_sh_fails_closed_without_uv(tmp_path):
+    """No uv means no schema gate — render.sh must refuse to render,
+    not ship a PDF with content silently missing."""
+    render = REPO / "skills/resume-builder/scripts/render.sh"
+    if shutil.which("typst") is None:
+        pytest.skip("typst not installed; render.sh exits before the uv gate")
+    bindir = tmp_path / "bin"
+    bindir.mkdir()
+    for name in ("bash", "awk", "dirname", "basename", "grep", "typst",
+                 "mktemp", "cp", "cat", "rm", "tr", "wc"):
+        real = shutil.which(name)
+        if real is None:
+            pytest.skip(f"{name} not on PATH; cannot assemble restricted PATH")
+        (bindir / name).symlink_to(real)
+    data = tmp_path / "resume.yaml"
+    data.write_text(FIXTURES["resume-sample"].read_text())
+    env = {"PATH": str(bindir),
+           "HOME": os.environ.get("HOME", str(tmp_path)),
+           "TMPDIR": os.environ.get("TMPDIR", "/tmp")}
+    proc = subprocess.run(
+        [str(bindir / "bash"), str(render), str(data)],
+        capture_output=True, text=True, env=env, cwd=tmp_path)
+    assert proc.returncode == 1, (
+        f"must fail closed without uv, got exit {proc.returncode}\n"
+        f"stdout: {proc.stdout}\nstderr: {proc.stderr}")
+    assert "error" in proc.stderr and "uv" in proc.stderr, \
+        f"stderr must name the missing gate: {proc.stderr}"
+    assert not (tmp_path / "resume.pdf").exists(), \
+        "no PDF may ship unvalidated"
 
 
 # ── the exit-code contract's third leg ───────────────────────────────

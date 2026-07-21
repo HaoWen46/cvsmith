@@ -40,8 +40,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v5
       - name: Check Verify-by stamps
-        run: python3 .github/scripts/check_freshness.py ${{ github.event_name == 'schedule' && '--strict' || '' }}
+        run: uv run --no-project python .github/scripts/check_freshness.py ${{ github.event_name == 'schedule' && '--strict' || '' }}
 
   templates:
     name: Compile Typst templates
@@ -61,6 +63,9 @@ jobs:
           curl -fsSL "https://github.com/typst/typst/releases/download/v${TYPST_VERSION}/typst-x86_64-unknown-linux-musl.tar.xz" | tar -xJ
           sudo mv typst-x86_64-unknown-linux-musl/typst /usr/local/bin/
           typst --version
+      - name: Set up uv
+        if: steps.detect.outputs.count != '0'
+        uses: astral-sh/setup-uv@v5
       - name: Render fixture through every template
         if: steps.detect.outputs.count != '0'
         run: |

@@ -68,11 +68,13 @@ done
 # Schema validation before compile: a typoed optional key or section
 # name renders a clean-looking PDF with content silently missing —
 # the one failure the smoke checks can't see. Clear yaml paths beat
-# cryptic typst errors for the required-key class too.
+# cryptic typst errors for the required-key class too. No uv, no
+# render: skipping the gate is exactly the silent-loss hole it closes.
 if command -v uv >/dev/null; then
   uv run --script "$SCRIPT_DIR/validate_yaml.py" "$DATA" || exit 1
 else
-  echo "warning: uv not found — schema validation skipped" >&2
+  echo "error: uv not found — schema validation is required; install it: https://docs.astral.sh/uv/" >&2
+  exit 1
 fi
 
 # Build in a scratch dir: typst's file access is rooted there, so the
@@ -116,7 +118,8 @@ if [ -n "${blimit:-}" ]; then
   if command -v uv >/dev/null; then
     uv run --script "$SCRIPT_DIR/check_bullets.py" "$OUT" --max-lines "$blimit" || exit 1
   else
-    echo "warning: meta.bullet_lines set but uv not found — bullet check skipped" >&2
+    echo "error: meta.bullet_lines is set but uv not found — install it: https://docs.astral.sh/uv/" >&2
+    exit 1
   fi
 fi
 

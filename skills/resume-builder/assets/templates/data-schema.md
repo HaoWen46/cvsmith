@@ -112,8 +112,9 @@ awards:                  # optional
   display (scheme stripped; `compact` also strips `www.`) — as both the
   visible text and the hyperlink target, so the URL survives as
   extractable text for screeners. `label` names the link in the data
-  file for the builder and user; no template renders it. Bare
-  tracking-parameter URLs are a lint error upstream.
+  file for the builder and user; no template renders it. URLs carrying
+  tracking parameters (`utm_*`, `fbclid`, `gclid`, `mc_cid`) fail
+  `scripts/validate_yaml.py`.
 - **`projects[].stack`**: rendered inline by `onecol` and as the tag row
   by `compact`; `classic` omits it by design (monochrome discipline).
 - **`experience` vs `projects`**: paid/formal roles go in `experience`;

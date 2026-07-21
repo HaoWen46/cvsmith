@@ -5,12 +5,20 @@
 #     "pyyaml>=6",
 # ]
 # ///
-"""Enforce the vault projection invariant, mechanically.
+"""Check projection hard-fact tokens for vault presence, mechanically.
 
 Projections never contain a fact the vault lacks (career-vault.md,
-Protocol). The hard-fact subset of that invariant — numbers, dates,
-URLs — is deterministic, so it gets a script; org/title/name wording
-is legitimately reframed per application, so drift there only WARNs.
+Protocol). This script enforces the token-level shadow of that
+invariant: every numeric token, date, and URL in the projection
+appears somewhere in the vault. Presence, not meaning — tokens are
+not bound to the claims they sit in, so a bullet that recombines
+genuine vault numbers passes: vault "480 ms -> 210 ms", resume
+"210 ms -> 480 ms" — both tokens exist, the reversal is invisible
+here (an ordered-pair heuristic was rejected: it false-fails
+legitimate rephrasings). Direction and pairing stay on the human
+review. Org/title/name wording is legitimately reframed per
+application, so drift there only WARNs — but a drifted value is
+still swept for numeric tokens, which FAIL like content numbers.
 
 Part of the builder's authoring loop (like check_bullets.py), not the
 evaluator's battery — the cold read is vault-blind by design.
@@ -27,7 +35,9 @@ What is checked, and how leniently:
             compared after stripping scheme, leading www., and the
             trailing slash. Miss = FAIL.
   identity  name / organization / institution / title / degree not
-            found verbatim = WARN (formatting drift is legitimate).
+            found verbatim = WARN (formatting drift is legitimate);
+            numeric tokens in a drifted value are checked like
+            content numbers. Miss = FAIL.
 meta.* is skipped entirely: page budgets and accent colors are
 knobs, not facts.
 
@@ -81,8 +91,12 @@ def normalize_url(url: str) -> str:
 
 
 def number_in(token: str, haystack: str) -> bool:
-    """Literal match with digit boundaries: 25 must not ride on 250."""
-    return re.search(rf"(?<![\d.]){re.escape(token)}(?![\d.])", haystack) is not None
+    """Literal match with digit boundaries: 25 must not ride on 250,
+    nor 4.0 on 4.0.1 — but a period is a boundary unless a digit
+    follows it, so sentence-final "…GPA is 4.0." still supports 4.0."""
+    return re.search(
+        rf"(?<!\d)(?<!\d\.){re.escape(token)}(?!\d)(?!\.\d)",
+        haystack) is not None
 
 
 def date_candidates(y: int, m: int) -> list[str]:
@@ -243,15 +257,22 @@ def main() -> int:
     if u_clean:
         add("urls", PASS, f"{len(url_items)} url(s) verified against the vault")
 
-    # ── identity: WARN only — reframing wording is legitimate ────────
+    # ── identity: drift WARNs, but drifted numbers FAIL ──────────────
     i_clean = True
     for path, value in found["identity"]:
         needle = " ".join(normalize(value).split())
-        if needle and needle not in haystack:
-            i_clean = False
-            add("identity_drift", WARN,
-                f"{path}: '{value}' not found verbatim in the vault — "
-                f"fine if it's a rename/reformat, worth a look if not")
+        if not needle or needle in haystack:
+            continue  # verbatim in the vault: supported by definition
+        i_clean = False
+        add("identity_drift", WARN,
+            f"{path}: '{value}' not found verbatim in the vault — "
+            f"fine if it's a rename/reformat, worth a look if not")
+        for token in re.findall(r"\d+(?:\.\d+)?", needle):
+            if not number_in(token, haystack):
+                add("number_unsupported", FAIL,
+                    f"'{token}' at {path} has no vault support — "
+                    f"\"{excerpt(value, token)}\" (rewording must not "
+                    f"introduce numbers the vault lacks)")
     if i_clean:
         add("identity", PASS,
             f"{len(found['identity'])} name/org/title field(s) matched")

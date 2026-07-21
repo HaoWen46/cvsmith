@@ -35,6 +35,7 @@ import re
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
+from urllib.parse import parse_qsl, urlsplit
 
 PASS = "pass"
 WARN = "warn"
@@ -78,6 +79,7 @@ PAPERS = {"us-letter", "a4"}
 DATE_RE = re.compile(r"^\d{4}-(0[1-9]|1[0-2])$")
 YEAR_RE = re.compile(r"^\d{4}$")
 HEX_RE = re.compile(r"^#(?:[0-9a-fA-F]{3,4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$")
+TRACKING_RE = re.compile(r"(?i)^(?:utm_|fbclid$|gclid$|mc_cid$)")
 
 SILENT = "silently ignored at render — the content never appears"
 CRASH = ("the Typst compile fails without it "
@@ -95,6 +97,16 @@ def tn(v) -> str:
 def suggest(key, valid) -> str:
     m = difflib.get_close_matches(str(key), sorted(valid), n=1, cutoff=0.6)
     return f" (did you mean {m[0]!r}?)" if m else ""
+
+
+def tracking_params(url: str) -> list[str]:
+    """Query keys that are tracking junk: utm_*, fbclid, gclid, mc_cid."""
+    try:
+        query = urlsplit(url).query
+    except ValueError:
+        return []
+    return [k for k, _ in parse_qsl(query, keep_blank_values=True)
+            if TRACKING_RE.match(k)]
 
 
 def available_templates() -> set[str]:
@@ -190,6 +202,13 @@ class Validator:
             if (val := e.get(k)) is not None and not isinstance(val, str):
                 self.flag("shapes", level,
                           f"{path}.{k}: expected a string, got {tn(val)}")
+
+    def url_of(self, e: dict, path: str, k: str = "url") -> None:
+        if isinstance(u := e.get(k), str) and (junk := tracking_params(u)):
+            self.flag("urls", FAIL,
+                      f"{path}.{k}: tracking parameter(s) "
+                      f"{', '.join(junk)} — strip the query; templates "
+                      "print the url verbatim as visible text")
 
     def str_list(self, e: dict, path: str, k: str) -> None:
         if k not in e or e[k] is None:      # nulls() covers the None case
@@ -297,9 +316,10 @@ def validate(data: dict) -> Validator:
                     v.flag("values", FAIL,
                            f"meta.{k}: {val!r} — expected a positive integer")
             if (val := m.get("paper")) is not None and val not in PAPERS:
-                v.flag("values", WARN,
-                       f"meta.paper: {val!r} — schema knows us-letter | a4 "
-                       "(match the target market)")
+                v.flag("values", FAIL,
+                       f"meta.paper: {val!r} — must be us-letter | a4; "
+                       "templates feed it straight to set page(paper:), "
+                       "so the render crashes on anything else")
             if (val := m.get("target_field")) is not None \
                     and val not in TARGET_FIELDS:
                 v.flag("values", WARN,
@@ -338,8 +358,18 @@ def validate(data: dict) -> Validator:
         v.nulls(b, "basics")
         v.require(b, "basics", ("name", "email"))
         v.str_of(b, "basics", "name", "email")
+        if isinstance(val := b.get("name"), str) and not val.strip():
+            v.flag("empties", FAIL,
+                   "basics.name: blank — an empty name fails the compile "
+                   "(PDF/UA-1 rejects an empty heading); whitespace-only "
+                   "renders a blank one")
+        if isinstance(val := b.get("email"), str) and not val.strip():
+            v.flag("empties", FAIL,
+                   "basics.email: blank — the contact line renders with "
+                   "a dead mailto: link")
         v.str_of(b, "basics", "phone", "location", level=WARN)
-        if isinstance(b.get("email"), str) and "@" not in b["email"]:
+        if isinstance(b.get("email"), str) and b["email"].strip() \
+                and "@" not in b["email"]:
             v.flag("values", WARN,
                    f"basics.email: {b['email']!r} has no '@' — the mailto: "
                    "link will be broken")
@@ -372,6 +402,8 @@ def validate(data: dict) -> Validator:
                         v.flag("shapes", FAIL,
                                f"{p}.url: expected a non-empty string, "
                                f"got {link['url']!r}")
+                    else:
+                        v.url_of(link, p)
                     if "label" not in link:
                         v.flag("required_keys", WARN,
                                f"{p}: 'label' missing — no template renders "
@@ -424,6 +456,7 @@ def validate(data: dict) -> Validator:
             v.nulls(e, p)
             v.require(e, p, ("name", "bullets"))
             v.str_of(e, p, "name", "summary", "url")
+            v.url_of(e, p)
             v.date_of(e, p, "start", "end")
             v.str_list(e, p, "bullets")
             v.str_list(e, p, "stack")
@@ -444,6 +477,7 @@ def validate(data: dict) -> Validator:
             v.nulls(e, p)
             v.require(e, p, ("citation",))
             v.str_of(e, p, "citation", "url")
+            v.url_of(e, p)
 
     # ── awards ───────────────────────────────────────────────────────
     if "awards" in data:
@@ -473,6 +507,7 @@ CATEGORIES = (
     ("shapes", "field shapes match the schema"),
     ("empties", "no nulls, no empty lists — absence is the signal"),
     ("values", "enums and meta knobs in range"),
+    ("urls", "link urls free of tracking parameters"),
 )
 
 
