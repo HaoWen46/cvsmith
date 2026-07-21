@@ -144,9 +144,11 @@ the method:
    most. Then draft each bullet to capacity minus ~8 chars of
    headroom (proportional fonts make any count approximate — that's
    why verification still exists).
-3. **Verify once** — `meta.bullet_lines: 1` makes `render.sh` measure
-   the PDF and fail the build naming each violator with its overshoot
-   ("138 chars, cut ≳26").
+3. **Verify every render** — `meta.bullet_lines: 1` makes `render.sh`
+   measure the PDF and fail the build naming each violator with its
+   overshoot ("138 chars, cut ≳26"). Unset, render.sh still prints the
+   wrap report — read it; revision passes (cold-read fixes, folded-in
+   answers) reintroduce wraps exactly when nobody is looking.
 4. **Escalate on failure — never retry unchanged.** The render is
    deterministic: re-rendering the same text is a no-op, and a second
    identical failure means the *strategy* is wrong, not the luck.

@@ -161,6 +161,21 @@ def test_bullet_check_measures_and_enforces(tmp_path):
     assert proc.returncode == 1, "one-line budget must fail on wrapped bullets"
 
 
+def test_render_sh_reports_bullets_when_knob_unset(tmp_path):
+    # Silent default is the failure mode: with no bullet_lines set, the
+    # render must still SHOW the wrap state so two-line bullets are a
+    # visible choice, not an invisible accident. Build stays green.
+    proc = subprocess.run(
+        ["bash", str(REPO / "skills/resume-builder/scripts/render.sh"),
+         str(REPO / "evals/fixtures/resume-sample/resume.yaml"),
+         "-t", "compact", "-o", str(tmp_path / "report.pdf")],
+        capture_output=True, text=True)
+    assert proc.returncode == 0, proc.stderr
+    out = proc.stdout + proc.stderr
+    assert "[bullets]" in out, "unset knob must still print the measurement"
+    assert "2 lines" in out, "fixture is known to wrap bullets in compact"
+
+
 def test_render_sh_enforces_bullet_lines(tmp_path):
     src = (REPO / "evals/fixtures/resume-sample/resume.yaml").read_text()
     strict = src.replace("page_budget: 1", "page_budget: 1\n  bullet_lines: 1")

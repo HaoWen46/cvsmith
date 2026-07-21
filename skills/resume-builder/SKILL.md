@@ -151,7 +151,12 @@ one entry, three deliberately overlong bullets) through
 on the PDF for measured line capacity; three bullets, not one, so the
 wrapped-line medians have enough votes. Plan the space division —
 bullets per entry, chars per bullet — so the first real render
-confirms rather than discovers. When a check does fail, the failure
+confirms rather than discovers. Decide the bullet discipline now, in
+the yaml: set `meta.bullet_lines: 1` unless the register genuinely
+wants two-line bullets, and leave a `# why` comment when it does. An
+unset knob is a decision by omission — render.sh prints the measured
+wrap state either way, and that report is not for scrolling past.
+When a check does fail, the failure
 carries information: escalate per the writing-rules ladder;
 re-rendering unchanged text is not an attempt.
 
@@ -205,6 +210,12 @@ deliberate 9.2pt — never shrink it further) or margins below 1.2cm.
 Run the `resume-evaluator` skill on the rendered PDF (with the
 jd-analyzer output if step 4 ran). Fix what it reports, re-render,
 re-run until L0–L3 pass clean. Show the user the final report.
+
+This applies to *every* later edit, not just the first build: folding
+in an answer, a cold-read fix, or a cut re-runs the same render and
+the same checks — the bullet report in the render output is part of
+what you read each time. A revision pass that ships a new two-line
+bullet unnoticed is the exact failure the knob exists to prevent.
 
 You wrote this resume, so your judgment of it is compromised by
 familiarity — **dispatch the evaluator's L4/L5 to a fresh-context

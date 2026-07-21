@@ -34,9 +34,12 @@ meta:                    # optional; knobs for template + evaluator
   template: compact      # onecol (default) | compact | classic — render.sh
                          # uses this when no -t flag is given, so each
                          # projection re-renders with one command
-  bullet_lines: 1        # optional: cap rendered lines per bullet;
-                         # render.sh measures the PDF and fails on
-                         # violations (scripts/check_bullets.py)
+  bullet_lines: 1        # cap rendered lines per bullet; render.sh
+                         # measures the PDF and fails on violations
+                         # (scripts/check_bullets.py). Unset, the
+                         # measurement still prints, non-fatal — set
+                         # the cap (or comment why not) instead of
+                         # ignoring the report
 
 basics:                  # required
   name: Jordan Wu

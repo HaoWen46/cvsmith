@@ -110,9 +110,11 @@ if command -v pdfinfo >/dev/null; then
   fi
 fi
 
-# Opt-in bullet-line discipline: meta.bullet_lines caps rendered lines
-# per bullet, measured from the PDF's geometry (the render is the truth;
+# Bullet-line discipline: meta.bullet_lines caps rendered lines per
+# bullet, measured from the PDF's geometry (the render is the truth;
 # character counts are only a pencil sketch). Violations fail the build.
+# With no cap set, the measurement still prints — two-line bullets must
+# be a visible choice, never an invisible accident.
 blimit=$(meta_val bullet_lines)
 if [ -n "${blimit:-}" ]; then
   if command -v uv >/dev/null; then
@@ -121,6 +123,9 @@ if [ -n "${blimit:-}" ]; then
     echo "error: meta.bullet_lines is set but uv not found — install it: https://docs.astral.sh/uv/" >&2
     exit 1
   fi
+else
+  uv run --script "$SCRIPT_DIR/check_bullets.py" "$OUT" \
+    || echo "warning: bullet measurement failed — wrap state unknown" >&2
 fi
 
 echo "rendered: $OUT"
