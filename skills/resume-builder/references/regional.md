@@ -55,8 +55,8 @@ vault's notes so the next application to that market skips the
 research.
 
 Mechanical parse-safety (single column, real text, standard structure)
-holds in every market — multinational employers run the same ATS
-stacks everywhere.
+holds in every market — multinational employers typically run the
+same ATS stacks across markets.
 
 ## Photo & personal-data doctrine
 

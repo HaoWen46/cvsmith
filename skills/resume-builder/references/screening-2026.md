@@ -13,13 +13,19 @@ trust this file over general recollection.
 Nearly every mid-to-large employer runs some version of:
 
 ```
-PDF → text extraction → section/field structuring → embedding vs. job
-description → score/rank → (maybe) human skim of the top slice
+PDF → text extraction → section/field structuring → match vs. job
+description (embedding / grading / criteria checks, by vendor) →
+rank or triage → (maybe) human skim of the top slice
 ```
 
-- Major ATS layers (Workday, Greenhouse, Ashby, Oracle, plus LLM
-  add-ons) moved from keyword boolean search to **semantic/embedding
-  match** between structured resume fields and the JD. (†)
+- Major ATS layers moved past keyword boolean search, but **not to
+  one mechanism**: Workday/HiredScore grades candidates against the
+  requisition's requirements; Greenhouse's Real Talent matches
+  against recruiter-weighted criteria; Ashby evaluates per-criterion
+  and explicitly does not score or rank. The common denominator:
+  every mechanism reads parsed text against JD requirements, so
+  parse-safety and honest requirement coverage pay off regardless of
+  stack. (†)
 - Recruiters see a *ranked slice*, not the pile. A human typically
   spends ~6 seconds on a first skim of resumes that survive ranking.
 - Cost pressure means the machine layers are decisive for high-volume
@@ -50,7 +56,8 @@ gap-detection features; unparseable dates read as gaps.
 
 ### 3. Scoring (semantic match)
 
-Embedding similarity between JD requirements and resume evidence.
+Typically embedding similarity between JD requirements and resume
+evidence; grading/criteria vendors read the same parsed inputs.
 Consequences that surprise people:
 
 - **Keyword stuffing is dead and now harmful.** Screeners flag token

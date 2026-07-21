@@ -1,6 +1,6 @@
 ---
 name: resume-evaluator
-description: Test, score, and stress-check any resume PDF the way 2026 screening pipelines do — ATS parseability, hidden-text/integrity screening, structure lint, job-description alignment, and a recruiter-skim critique. Use whenever the user asks "is my resume good / ATS-safe / will it pass screening", shares a resume PDF for review or feedback, wants two resume versions compared, or after ANY resume is generated or re-rendered (the builder's output is not done until this passes).
+description: Test, score, and stress-check any resume PDF with the same classes of checks 2026 screening pipelines run — ATS parseability, hidden-text/integrity screening, structure lint, job-description alignment, and a recruiter-skim critique. Use whenever the user asks "is my resume good / ATS-safe / will it pass screening", shares a resume PDF for review or feedback, wants two resume versions compared, or after ANY resume is generated or re-rendered (the builder's output is not done until this passes).
 ---
 
 # resume-evaluator

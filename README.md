@@ -1,19 +1,19 @@
 # cvsmith
 
-**Agent skills that teach AI agents how to build, tailor, and adversarially test resumes — rendered with Typst, verified the way modern screening stacks actually verify.**
+**Agent skills that teach AI agents how to build, tailor, and adversarially test resumes — rendered with Typst, verified with the same classes of checks modern screening stacks run.**
 
 Not a resume generator, not a SaaS checker. cvsmith is a set of portable skills (SKILL.md + references + scripts, Claude Code / Cowork / Agent SDK compatible) that make any capable agent behave like an expert resume engineer with a verification loop: **build → test → iterate**, like TDD for resumes.
 
 ## Why
 
-As of 2026, resume screening is an LLM-mediated pipeline: parse → structure → embed against the job description → score → rank. That changes what a good resume tool must do:
+As of 2026, most high-volume resume screening runs some version of an LLM-mediated pipeline — parse → structure → embed against the job description → score → rank — though vendors differ in mechanism (Workday's HiredScore grades against requisition requirements, Greenhouse matches recruiter-weighted criteria, Ashby explicitly doesn't score or rank). cvsmith targets the strictest common denominator, which changes what a good resume tool must do:
 
-- **Parsing is the gate.** If extraction fails, no intelligence ever evaluates the candidate. Single-column, text-layer, tagged PDFs with standard headings are non-negotiable.
+- **Parsing is the gate.** If extraction fails, no intelligence ever evaluates the candidate. Single-column, text-layer, tagged PDFs with standard headings are cvsmith's non-negotiables — the conservative choice that survives every vendor's parser.
 - **Keyword stuffing is dead and harmful.** Modern screeners use semantic matching and flag manipulation. The target is honest semantic coverage of the JD, not token overlap.
 - **Hidden text is detected and punished.** Production detectors cross-check rendered pixels against extracted text. A builder must *prove* it produced nothing that looks like hidden content.
 - **Generic AI prose is a negative signal.** Differentiators are specificity, quantification, and verifiable claims.
 
-The moat is the **evaluator**: a test harness that checks a PDF the same way screening vendors do.
+The moat is the **evaluator**: a test harness that runs a PDF through the same classes of checks screening stacks use.
 
 ## The skills
 
@@ -44,21 +44,24 @@ Grab the `.skill` files from the
 [latest release](https://github.com/HaoWen46/cvsmith/releases) and add
 them to your agent's skills (Claude Code: save under `~/.claude/skills/`
 or use your client's skill-import), or clone this repo and point your
-agent at `skills/`. Each skill is self-contained — fonts vendored,
-scripts carrying inline dependencies (`uv run` just works).
+agent at `skills/`. Each skill is self-contained to install and run —
+fonts vendored, scripts carrying inline dependencies (`uv run` just
+works) — but install both resume-builder and resume-evaluator for the
+full build → verify loop: the builder's definition of done is the
+evaluator passing.
 
 ## Status
 
 **v0.1.0** — all milestones complete:
 
 - [x] **M0–M3** — Scaffold, render path, evaluator harness, the three skills + references
-- [x] **M4** — Eval loop: 18 independent-agent runs across two model tiers (Fable 5 and Sonnet 5 executors). With-skill swept both iterations — 100% of assertions vs 67%/81% for baselines; three repo bugs were found *by* the runs and fixed
+- [x] **M4** — Eval loop: 18 agent runs across two model tiers (Fable 5 and Sonnet 5 executors), one run per eval/condition — directional, not statistical. With-skill swept both iterations (100% of assertions vs 67%/81% for baselines), though some assertions check the skill's own contract, and two with-skill runs saw grading metadata (scores stand on objective checks). Three repo bugs were found *by* the runs and fixed
 - [x] **M5** — Worked example ([examples/ai-ml-intern](examples/ai-ml-intern)), three templates spanning the register axis, packaged `.skill` releases
 
 ## Requirements
 
 - [Typst](https://typst.app/) ≥ 0.15 (PDF/UA-1 tagged output)
-- [uv](https://docs.astral.sh/uv/) — `uv sync` sets up the Python environment for the evaluator scripts
+- [uv](https://docs.astral.sh/uv/) — runs the schema-validation gate in `render.sh` and the evaluator scripts (`uv sync` sets up the test environment)
 - Poppler (`pdftotext`) for extraction checks
 
 ## A note on personal data

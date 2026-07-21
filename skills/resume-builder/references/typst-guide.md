@@ -74,7 +74,8 @@ same facts, different music.
 ## Page-overflow triage (in cut order)
 
 When render.sh warns the page budget is exceeded, cut in this order —
-never shrink type below 9.5pt or margins below 1.2cm to squeeze:
+never shrink type below 9.5pt (compact ships at a deliberate 9.2pt —
+never shrink it further) or margins below 1.2cm to squeeze:
 
 1. Coursework/honors lines in Education
 2. Weakest bullet of the weakest Projects entry (or the entry itself)

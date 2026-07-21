@@ -56,10 +56,20 @@ repeating dead-end edits across sessions.
 - **Session start**: look for the vault before interviewing. If it
   exists, read it, then ask only "what's new since <updated date>?"
   Never re-ask what the vault answers.
+- **Before the first write** (no vault yet): state in one line what
+  will be stored — full history including gaps with true reasons,
+  visa details, references, the Q&A log — and offer three modes:
+  full vault; minimal vault (FACT lines only — no Gaps & flags
+  ledger, no CONTEXT references); session-only (no persistent vault,
+  resume yaml only). State the trade-off honestly: minimal and
+  session-only weaken the honesty ledger and the evaluator's
+  gap-check.
 - **During intake**: every extracted fact and every user answer goes
   into the vault *as well as* the resume. The vault only grows richer;
   facts are corrected, not deleted (move superseded claims to CUT with
-  a note).
+  a note). That rule is accuracy bookkeeping, not retention: the file
+  *is* the retention policy, and the user may purge any entry — Gaps
+  & flags especially — or the whole vault, whenever they choose.
 - **Tailoring**: each application gets its own projection —
   `resume-<company>-<role>.yaml` next to the vault, derived by
   *selecting and reframing* vault facts against the jd-analyzer
@@ -68,7 +78,12 @@ repeating dead-end edits across sessions.
   user's answer), then the yaml. That invariant is what keeps twenty
   tailored resumes honest at once — and it's mechanically checkable:
   `scripts/check_projection.py <projection.yaml> career-vault.md`
-  verifies every hard fact (numbers, dates, URLs) traces to the vault.
+  checks hard-fact token support — every number, date, and URL in the
+  projection appears somewhere in the vault.
+- **Sharing**: the projection is the shareable artifact — facts
+  selected for one application, never Gaps & flags, CONTEXT, or the
+  Q&A log. Anything that leaves the machine (parser APIs, other
+  agents, humans) gets a projection, never the vault.
 - **The evaluator's L4** can then be trusted: gaps it finds are real
   gaps in the vault, not artifacts of a forgetful session.
 

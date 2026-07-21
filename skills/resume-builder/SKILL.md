@@ -1,6 +1,6 @@
 ---
 name: resume-builder
-description: Build, rewrite, tailor, or improve a resume/CV and render it as an ATS-safe tagged PDF. Use whenever the user wants a resume created or updated, asks to tailor one to a job posting, mentions applying to jobs/internships/grad programs, or shares career materials (old resume, LinkedIn export, transcript, project list) — even if they never say the word "resume". Also use when someone asks "turn my experience into a CV" or wants their resume converted to a cleaner format. Also use when the user wants to start or update their career vault (career-vault.md) — recording a new role, project, or number for future applications.
+description: 'Build, rewrite, tailor, or improve a resume/CV and render it as an ATS-safe tagged PDF. Use whenever the user wants a resume created or updated, asks to tailor one to a job posting, mentions applying to jobs/internships/grad programs, or shares career materials (old resume, LinkedIn export, transcript, project list) — even if they never say the word "resume". Also use for "turn my experience into a CV" or converting a resume to a cleaner format, and to start or update a career vault (career-vault.md). Strongest for English-language, one-page, student/early-career resumes into any market: headings and month names render in English, section order is fixed (education first), and there are no dedicated certification/license/spoken-language sections yet. Standardized non-English forms (Japanese rirekisho), multi-page senior-academic CVs, USAJOBS federal formats, and design portfolios are out of template scope — still invoke the skill so it can say what transfers and help honestly.'
 ---
 
 # resume-builder
@@ -12,7 +12,7 @@ pipelines — then prove it survives them.
 **The loop is build → test → iterate.** A resume is not done when the
 PDF exists; it is done when `resume-evaluator` passes it.
 
-Non-negotiables, because screening stacks now detect all three:
+Non-negotiables, because modern screening stacks can detect all three:
 - **Never fabricate** — no invented employers, titles, dates, metrics,
   or degrees. Weak sections get flagged to the user, not padded.
 - **Never stuff keywords** — semantic match beats token match; screeners
@@ -41,7 +41,14 @@ extractors.
 workspace (or the user has one elsewhere), read it and ask only what's
 new — never re-interview a person whose answers are already on file.
 No vault yet? Create one as intake proceeds: every extracted fact and
-every answer lands there as well as in the resume. Hold the vault's
+every answer lands there as well as in the resume. Before the first
+vault write, say in one line what it will store — full history
+including gaps with true reasons, visa details, references, the Q&A
+log — and offer three modes: full vault; minimal vault (FACT lines
+only — no Gaps & flags ledger, no CONTEXT references); session-only
+(no persistent vault, resume yaml only). State the trade-off
+honestly: minimal and session-only weaken the honesty ledger and the
+evaluator's gap-check. Hold the vault's
 first disk write until the step-2 workspace gate — it is the most
 sensitive file this skill produces. Read
 `references/career-vault.md` for the format and the projection rules —
@@ -82,6 +89,10 @@ jd-analysis output, rendered PDFs) will live.
 If that location is inside a git repository, check the paths are
 ignored (`git check-ignore`) and offer to add ignores *before* writing.
 Career data silently landing in someone's tracked repo is a real harm.
+Two more checks while confirming: if the location sits inside a
+cloud-synced folder (iCloud/Drive/Dropbox), say so — gitignore does
+not stop a sync client from uploading the vault; and after the first
+write, `chmod 600` the vault and its projections on POSIX systems.
 
 ### 3. Identify the field, market, and level
 
@@ -186,7 +197,8 @@ Requires Typst ≥ 0.15 (`brew install typst` / see
 `references/typst-guide.md` for other platforms and troubleshooting).
 One page for students and early-career; the script warns on budget
 overflow. If it overflows, cut content by priority (typst-guide has the
-order) — never shrink fonts below 9.5pt or margins below 1.2cm.
+order) — never shrink type below 9.5pt (compact ships at a
+deliberate 9.2pt — never shrink it further) or margins below 1.2cm.
 
 ### 8. Verify — mandatory, not optional
 

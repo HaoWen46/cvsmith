@@ -25,7 +25,7 @@ run. When re-verification finds nothing changed, still bump both dates
 
 | Claim cluster | Lives in | Cadence | How to check |
 |---|---|---|---|
-| Screening-pipeline behavior (semantic matching, manipulation flags, hidden-text detection stats) | resume-builder `references/screening-2026.md` | 12 mo | search recent vendor docs (Workday/Greenhouse/Ashby release notes), arXiv for injection-detection papers, Jobscan/ATS-research posts |
+| Screening-pipeline behavior (semantic matching, manipulation flags, hidden-text detection stats) | resume-builder `references/screening-2026.md` | 12 mo | search recent vendor docs (Workday/Greenhouse/Ashby release notes; primary pages: https://www.greenhouse.com/uk/product-features/greenhouse-real-talent · https://www.ashbyhq.com/blog/recruiting/ai-assisted-application-review-in-practice · Workday "AI for Talent" HiredScore datasheet on workday.com), arXiv for injection-detection papers, Jobscan/ATS-research posts |
 | Hot evidence & market direction for AI/ML | resume-builder `references/fields/ai-ml.md` | 6 mo (each recruiting season: ~Feb, ~Aug) | Indeed Hiring Lab, BLS JOLTS, a scan of 20 current JD postings for the skill vocabulary actually asked |
 | Recruiting-season calendar, ghost-posting signals | jd-analyzer `references/requirement-taxonomy.md` | 12 mo | new-grad hiring guides, recruiter-community write-ups |
 | Board API endpoints (Greenhouse/Lever/Ashby) | jd-analyzer `SKILL.md` (§1 Ingest) | opportunistic (they break loudly) | curl one known company per endpoint |

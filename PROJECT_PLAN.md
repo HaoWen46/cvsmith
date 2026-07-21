@@ -1,6 +1,6 @@
 # cvsmith — Project Plan
 
-**Agent skills that teach AI agents how to build, tailor, and adversarially test resumes — rendered with Typst, verified the way 2026 screening stacks actually verify.**
+**Agent skills that teach AI agents how to build, tailor, and adversarially test resumes — rendered with Typst, verified with the same classes of checks 2026 screening stacks run.**
 
 Living doc: architecture, principles, status, and roadmap. Workflow
 detail lives in the three `SKILL.md` files (source of truth); this file
@@ -11,10 +11,11 @@ Last updated: 2026-07-21.
 
 ## 1. Problem statement (why this exists)
 
-As of mid-2026, resume screening is an LLM-mediated pipeline: **parse →
-structure into fields → embed against the job description → score →
-rank**. Verified facts driving the design (2026-dated sources, §10;
-perishable claims live under freshness stamps in
+As of mid-2026, most high-volume resume screening runs some version of
+an LLM-mediated pipeline: **parse → structure into fields → embed
+against the job description → score → rank**. Design assumptions (a
+conservative model of 2026 screening; sources §9; perishable claims
+live under freshness stamps in
 `skills/resume-builder/references/screening-2026.md`):
 
 1. **Parsing is the gate.** If extraction fails or sections misroute,
@@ -40,7 +41,8 @@ with a verification loop.
 ## 2. Product principles
 
 1. **Evaluator > builder.** Anyone can generate a resume; the moat is
-   the harness that checks a PDF the way screening vendors do.
+   the harness that runs a PDF through the same classes of checks
+   screening stacks use.
    Build → test → iterate — TDD for resumes. A resume is done when it
    *passes*, not when it exists.
 2. **Skills, not services.** No server, no API keys on the core path.
@@ -194,10 +196,11 @@ The workflows live in the SKILL.md files. What must stay consistent
 
 Post-v0.1 backlog, in rough priority order:
 
-1. **Description trigger-optimization** — the one M4 piece still open.
-   Blocked from agent sessions (`claude -p` gets 401 when nested); run
-   from a normal terminal when convenient. The 20-query eval set is
-   already written at `m4-workspace/trigger-eval-resume-builder.json`;
+1. **Description trigger-optimization** — deferred from M4 to
+   post-v0.1. Blocked from agent sessions (`claude -p` gets 401 when
+   nested); run from a normal terminal when convenient. The 20-query
+   eval set is already written at
+   `m4-workspace/trigger-eval-resume-builder.json`;
    the command is the skill-creator's
    `python -m scripts.run_loop --eval-set <that file> --skill-path
    skills/resume-builder --model <session model> --max-iterations 3`.
@@ -223,6 +226,10 @@ Post-v0.1 backlog, in rough priority order:
    publications-early, experienced education-last; only if real usage
    hits the limitation (field guides now state the fixed order
    honestly instead of implying reorder support).
+9. **DOCX / plain-text export** — PDF-only is a deliberate scope
+   choice (tagged PDF is the parse-safe format); a Word/plain-text
+   path is future work for employers who explicitly request it
+   (common in academia/government/agency recruiting).
 
 ## 7. Toolchain & operations
 
@@ -246,17 +253,16 @@ Post-v0.1 backlog, in rough priority order:
 
 ## 8. Risks & open questions
 
-- **The skills are unproven end-to-end.** Scripts are tested; the
-  *instructions* haven't been executed by independent agents yet (M4
-  runs pending). Until then, claims about builder/analyzer behavior
-  are design intent, not evidence.
+- **End-to-end proof is one eval cycle deep.** M4's 18 agent runs
+  exercised the instructions (100% of assertions with-skill);
+  real-user usage beyond eval fixtures is still the open question.
 - **ATS behavior is a black box.** Open-library simulation ≠ vendor
   parsers. Mitigations: conservative rules, dual-extractor agreement,
   failure-modes catalog grown from real reports, consented
   commercial-parser ground-truth path when a real-world failure
   appears.
 - **Trigger quality unknown.** Descriptions are written pushy but
-  untuned; description-optimization is part of M4.
+  untuned; description-optimization is backlog #1.
 - **Single-maintainer freshness.** Stamps + cron surface staleness,
   but re-verification still needs a human or scheduled agent to act.
 - **English-centricity** (months, L1 taxonomy) is stated, not solved —
@@ -276,6 +282,12 @@ Jobscan "How AI Resume Screening Works" (Jul 2026) · ATS Verification
 LLM Resume Screening" (May 2026) · Indeed Hiring Lab labor update (Jan
 2026) · Metaintro new-grad market analysis (Apr 2026) · CNBC
 entry-level AI-skills report (Apr 2026) · Typst 0.15 release (Jun
-2026). Perishable claims from these are frozen into stamped references
+2026). Vendor primary sources for mechanism claims: Greenhouse Real
+Talent product page
+(https://www.greenhouse.com/uk/product-features/greenhouse-real-talent)
+· Ashby "AI-Assisted Application Review in Practice"
+(https://www.ashbyhq.com/blog/recruiting/ai-assisted-application-review-in-practice)
+· Workday "AI for Talent" HiredScore datasheet (workday.com).
+Perishable claims from these are frozen into stamped references
 (`screening-2026.md`, `fields/ai-ml.md`, `regional.md`) and re-verified
 per MAINTENANCE.md, not per query.
