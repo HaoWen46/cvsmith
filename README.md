@@ -59,11 +59,12 @@ of done is the evaluator passing.
 
 ## Status
 
-**v0.1.0** — all milestones complete:
+**v0.1.1** — all milestones complete, hardened by four external review rounds:
 
 - [x] **M0–M3** — Scaffold, render path, evaluator harness, the first three skills + references
 - [x] **M4** — Eval loop: 18 agent runs across two model tiers (Fable 5 and Sonnet 5 executors), one run per eval/condition — directional, not statistical. With-skill swept both iterations (100% of assertions vs 67%/81% for baselines), though some assertions check the skill's own contract, and two with-skill runs saw grading metadata (scores stand on objective checks). Three repo bugs were found *by* the runs and fixed
 - [x] **M5** — Worked example ([examples/ai-ml-intern](examples/ai-ml-intern)), three templates spanning the register axis, packaged `.skill` releases
+- [x] **Review hardening (v0.1.1)** — Four adversarial review rounds folded in, every finding reproduced before fixing: fail-closed integrity gate (transparent-text and XMP channels covered, unverified never passes), render/validation guards against silent source loss, fabrication-class identity checks, application-tracker update semantics, a stricter packaging contract, byte-reproducible renders, and claims aligned to documented vendor behavior (92 planted-fixture tests)
 
 ## Requirements
 

@@ -45,12 +45,13 @@ claim, not just the listed marketing pages.
 ## Release checklist
 
 1. Package each skill into `dist/`: `uv run scripts/package_release.py`
-   — repo-local, stdlib-only; excludes `__pycache__`/evals and
-   sanity-checks frontmatter (CI's skill-structure job does the
-   richer validation).
-2. Verify each `.skill` zip's `scripts/` contains every script its
-   SKILL.md references — the packager enforces this and deletes any
-   zip that fails, so a clean exit 0 *is* the verification.
+   — repo-local; excludes `__pycache__`/evals, parses frontmatter as
+   YAML (name must match the shipped directory, description
+   non-empty), and enforces the doc-reference contract.
+2. Verify each `.skill` zip carries every `scripts/`, `references/`,
+   and `assets/` path its bundled docs mention — the packager enforces
+   this and deletes any zip that fails, so a clean exit 0 *is* the
+   verification.
 3. Tag; `gh release create` with the `.skill` assets.
 
 ## Why not re-verify per query (recorded so it isn't relitigated)
