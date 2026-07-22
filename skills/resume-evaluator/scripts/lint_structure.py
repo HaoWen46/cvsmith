@@ -113,13 +113,20 @@ def main() -> int:
     from pypdf import PdfReader
 
     report = Report(layer="L3-structure", file=str(args.pdf))
-    reader = PdfReader(str(args.pdf))
+    try:
+        reader = PdfReader(str(args.pdf))
+        encrypted = reader.is_encrypted
+        n_pages = len(reader.pages) if not encrypted else 0  # force the parse; pypdf is lazy
+    except Exception as e:  # corrupt / not a PDF
+        report.add("readable", FAIL,
+                   f"pypdf could not open the file: {e} — a screening "
+                   "pipeline rejects it unread")
+        return report.emit(args.json)
 
-    if reader.is_encrypted:
+    if encrypted:
         report.add("encryption", FAIL, "file is encrypted — many parsers refuse it")
         return report.emit(args.json)
 
-    n_pages = len(reader.pages)
     report.metrics["pages"] = n_pages
     if args.page_budget is not None:
         if n_pages > args.page_budget:

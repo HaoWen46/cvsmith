@@ -110,7 +110,10 @@ awards:                  # optional
 
 - **`meta.target_field`** routes the builder to the matching
   `references/fields/*.md` file and tells the evaluator which field
-  conventions to score against. It never changes rendering.
+  conventions to score against — the builder hands the yaml path to
+  the evaluator at verify time (its step 8) precisely so this knob,
+  `page_budget`, and `lang` reach a scorer that otherwise sees only
+  the PDF. It never changes rendering.
 - **`basics.links`**: templates print the URL itself — shortened for
   display (scheme stripped; `compact` also strips `www.`) — as both the
   visible text and the hyperlink target, so the URL survives as

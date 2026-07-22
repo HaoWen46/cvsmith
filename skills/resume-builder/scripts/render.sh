@@ -4,8 +4,10 @@
 #   usage: render.sh <resume.yaml> [-t template] [-o out.pdf]
 #
 # Defaults: template "onecol", output next to the data file (<stem>.pdf).
-# Compiles with PDF/UA-1 + PDF/A-2a and only the vendored fonts, so output
-# is identical on every machine and always carries a tagged structure tree.
+# Compiles with PDF/UA-1 + PDF/A-2a and only the vendored fonts, so layout
+# and text are the same on every machine and the file always carries a
+# tagged structure tree. SOURCE_DATE_EPOCH is pinned to the data file's
+# mtime, so re-rendering unchanged data is byte-identical too.
 # Runs a light extraction smoke check; the full battery is resume-evaluator's.
 set -euo pipefail
 
@@ -55,6 +57,28 @@ command -v typst >/dev/null || { echo "error: typst not found (need >= 0.15): ht
 if [ -z "$OUT" ]; then
   base=$(basename "$DATA")
   OUT=$(dirname "$DATA")/${base%.*}.pdf
+fi
+
+# The final mv replaces $OUT unconditionally, so $OUT must never be able
+# to name source material: -o resume.yaml (or the data file itself, or a
+# vault) would silently destroy it and still exit 0.
+case $OUT in
+  *.pdf) ;;
+  *) echo "error: output must end in .pdf — refusing to overwrite a non-PDF path: $OUT" >&2
+     exit 1 ;;
+esac
+if [ -e "$OUT" ] && [ "$OUT" -ef "$DATA" ]; then
+  echo "error: output path is the data file itself: $OUT" >&2
+  exit 1
+fi
+
+# Reproducible output: pin the PDF's creation timestamp to the data
+# file's mtime (unless the caller already pinned one), so re-rendering
+# unchanged data yields byte-identical files.
+if [ -z "${SOURCE_DATE_EPOCH:-}" ]; then
+  SOURCE_DATE_EPOCH=$(stat -f %m "$DATA" 2>/dev/null \
+    || stat -c %Y "$DATA" 2>/dev/null || echo 0)
+  export SOURCE_DATE_EPOCH
 fi
 
 # The templates pin vendored fonts; fail loudly if typst can't see them.

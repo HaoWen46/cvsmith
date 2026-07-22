@@ -57,6 +57,43 @@ def test_real_fixture_passes_clean(fixture):
     assert not warns, f"unexpected warnings on {fixture}: {warns}"
 
 
+# ── duplicate keys: the later block silently replaces the earlier ────
+
+def test_duplicate_top_level_section_is_caught(tmp_path):
+    src = FIXTURES["resume-sample"].read_text()
+    dup = src + textwrap.dedent("""
+        projects:
+          - name: shadow-project
+            bullets:
+              - The second projects block silently replaced the first.
+    """)
+    out = tmp_path / "resume.yaml"
+    out.write_text(dup)
+    code, report = run_validator(out)
+    assert code == 1, "a duplicate top-level section must fail validation"
+    f = [c for c in fails(report) if c["check_id"] == "duplicate_keys"]
+    assert f, f"expected a duplicate_keys violation: {fails(report)}"
+    assert "projects" in f[0]["detail"]
+    assert "line" in f[0]["detail"], "both definitions must be locatable"
+
+
+def test_duplicate_nested_key_is_caught(tmp_path):
+    bad = mutated(tmp_path, "resume-sample", "  name: Sam Casey\n",
+                  "  name: Sam Casey\n  name: Casey Sam\n")
+    code, report = run_validator(bad)
+    assert code == 1
+    f = [c for c in fails(report) if c["check_id"] == "duplicate_keys"]
+    assert f, f"expected a duplicate_keys violation: {fails(report)}"
+    assert "name" in f[0]["detail"]
+
+
+def test_no_duplicates_reports_pass_line(tmp_path):
+    code, report = run_validator(FIXTURES["resume-sample"])
+    assert code == 0
+    line = [c for c in report["checks"] if c["check_id"] == "duplicate_keys"]
+    assert len(line) == 1 and line[0]["level"] == "pass"
+
+
 # ── every planted violation is caught, with the right yaml path ──────
 
 def test_optional_key_typo_is_caught(tmp_path):
@@ -306,7 +343,7 @@ def test_render_sh_fails_closed_without_uv(tmp_path):
     bindir = tmp_path / "bin"
     bindir.mkdir()
     for name in ("bash", "awk", "dirname", "basename", "grep", "typst",
-                 "mktemp", "cp", "cat", "rm", "tr", "wc"):
+                 "mktemp", "cp", "cat", "rm", "tr", "wc", "stat"):
         real = shutil.which(name)
         if real is None:
             pytest.skip(f"{name} not on PATH; cannot assemble restricted PATH")

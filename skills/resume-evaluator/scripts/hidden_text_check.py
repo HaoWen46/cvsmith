@@ -10,25 +10,33 @@
 """L2 — integrity: does the rendered page show everything the text layer
 claims? The cross-modal check screening vendors run against injection.
 
-Rasterizes each page, then verifies every extracted word actually puts
-ink on its own bounding box. White-on-white text, 0-opacity text,
-invisible render mode, text hidden behind white shapes — all of them
-extract "normally" but leave their pixels blank, so all of them are
-caught by the same test. Also flags microscopic fonts, off-page text,
-and zero-width/invisible Unicode, which survive rasterization but are
-manipulation signals on their own.
+Rasterizes each page, then verifies every extracted word draws glyphs of
+its own. Two pixel tests per word bbox: light-and-empty (white-on-white,
+0-opacity on a white page, text behind white shapes — no ink at all) and
+zero-contrast (transparent or background-colored text over a dark or
+colored shape — the shape supplies ink, the glyphs never do; a crop with
+no luminance spread contains no distinguishable glyphs). Also flags
+microscopic fonts, off-page text, and zero-width/invisible Unicode,
+which survive rasterization but are manipulation signals on their own.
+Known residual: transparent text over a busy image can still hide in
+the image's own contrast — photos on a resume are their own L3 finding.
 
-Docinfo metadata (title/author/subject/keywords) is the one text channel
-the pixel cross-check cannot see: it extracts into parsers while leaving
-zero ink on any page, so it gets its own pass — injection markers,
-keyword dumps, and an author that matches nothing on the page.
+Metadata is the text channel the pixel cross-check cannot see: it
+extracts into parsers while leaving zero ink on any page. BOTH channels
+get the same pass — docinfo (title/author/subject/keywords) and the XMP
+packet (every PDF/A file carries one) — injection markers, keyword
+dumps, and an author that matches nothing on the page.
 
 A resume that fails here doesn't just parse badly — it looks like
 prompt injection / keyword stuffing and gets the candidate flagged.
 
-Without poppler the raster cross-check degrades honestly: the
-pdfplumber-only checks still run, raster_available WARNs, and the
-ink checks report nothing rather than a PASS they never earned.
+Without poppler the raster cross-check cannot run, and integrity that
+was not verified is integrity NOT verified: raster_available FAILs
+(environment gap, not a file finding — install poppler and re-run).
+The pdfplumber-only checks still run and report; the ink checks report
+nothing rather than a PASS they never earned. Failing closed here is
+deliberate: this layer's one forbidden output is a reassuring false
+PASS.
 
 usage: hidden_text_check.py resume.pdf [--json] [--dpi 150]
 """
@@ -46,6 +54,7 @@ from _report import FAIL, PASS, WARN, Report, die
 MIN_FONT_PT = 4.5          # below this, text is unreadable to humans
 INK_LUMINANCE = 200        # a pixel darker than this counts as ink (0-255)
 LIGHT_INK_LUMINANCE = 140  # "solid" ink for contrast confidence
+MIN_GLYPH_CONTRAST = 45    # luminance spread below this = no visible glyphs
 BBOX_INSET = 0.15          # crop inset to dodge antialiased neighbors
 ZERO_WIDTH = {"​", "‌", "‍", "⁠", "﻿", "­"}
 
@@ -62,8 +71,9 @@ def page_words(page):
     return page.extract_words(use_text_flow=False, keep_blank_chars=False)
 
 
-def crop_min_luminance(img, bbox, scale):
-    """Darkest grayscale pixel inside the (inset) bbox, or None if empty."""
+def crop_luminance(img, bbox, scale):
+    """(darkest, lightest) grayscale pixels inside the (inset) bbox,
+    or None if the crop is empty."""
     x0, top, x1, bottom = bbox
     w, h = x1 - x0, bottom - top
     x0 += w * BBOX_INSET
@@ -77,7 +87,39 @@ def crop_min_luminance(img, bbox, scale):
     if px0 >= px1 or py0 >= py1:
         return None
     crop = img.crop((px0, py0, px1, py1))
-    return crop.getextrema()[0]
+    return crop.getextrema()
+
+
+def xmp_text_nodes(xml: str) -> list[tuple[str, str]]:
+    """(nearest element name, text) for every non-blank XML text node.
+
+    A tolerant tag-stack scan, not a real XML parse — hostile metadata is
+    exactly where a strict parser chokes first. Attribute values are not
+    scanned; XMP carries its payloads in element text."""
+    import html
+
+    nodes: list[tuple[str, str]] = []
+    stack: list[str] = []
+    pos = 0
+    tag = re.compile(r"<[!?][^>]*>|<(/?)([A-Za-z_][\w:.-]*)[^>]*?(/?)>")
+    for m in tag.finditer(xml):
+        text = xml[pos:m.start()].strip()
+        if text:
+            # attribute to the nearest ancestor that names a field, not
+            # the rdf list plumbing wrapped around it
+            owner = next((t for t in reversed(stack)
+                          if not t.startswith("rdf:")), stack[-1] if stack else "xmp")
+            nodes.append((owner, html.unescape(text)))
+        pos = m.end()
+        if m.group(2) is None:
+            continue  # processing instruction / comment / doctype
+        closing, name, selfclosing = m.group(1), m.group(2), m.group(3)
+        if closing:
+            if name in stack:
+                del stack[stack.index(name):]
+        elif not selfclosing:
+            stack.append(name)
+    return nodes
 
 
 def main() -> int:
@@ -96,13 +138,23 @@ def main() -> int:
     scale = args.dpi / 72.0
 
     try:
+        pdf = pdfplumber.open(str(args.pdf))
+    except Exception as e:  # encrypted / corrupt / not a PDF
+        report.add("readable", FAIL,
+                   f"pdfplumber could not open the file: {e} — a screening "
+                   "pipeline rejects it unread")
+        return report.emit(args.json)
+
+    try:
         images = convert_from_path(str(args.pdf), dpi=args.dpi)
     except Exception:
-        images = None  # poppler (pdftoppm) missing/broken — degrade, don't crash
+        images = None  # poppler (pdftoppm) missing/broken
     if images is None:
-        report.add("raster_available", WARN,
-                   "poppler not installed — cross-modal ink check skipped; "
-                   "invisible/faint text NOT verified; install poppler")
+        report.add("raster_available", FAIL,
+                   "poppler not installed — the cross-modal ink check cannot "
+                   "run, so invisible text is UNVERIFIED. This is an "
+                   "environment gap, not a file finding: install poppler and "
+                   "re-run; never treat this file as integrity-cleared")
 
     invisible: list[str] = []
     faint: list[str] = []
@@ -111,9 +163,17 @@ def main() -> int:
     all_words: list[str] = []
     zero_width_hits = 0
     total_words = 0
+    xmp_raw = ""
 
-    with pdfplumber.open(str(args.pdf)) as pdf:
+    with pdf:
         doc_meta = pdf.metadata or {}
+        try:
+            from pdfminer.pdftypes import resolve1
+            meta_ref = pdf.doc.catalog.get("Metadata")
+            if meta_ref is not None:
+                xmp_raw = resolve1(meta_ref).get_data().decode("utf-8", "replace")
+        except Exception:
+            xmp_raw = ""  # no XMP packet / undecodable stream — nothing to scan
         for i, page in enumerate(pdf.pages):
             gray = None
             if images is not None and i < len(images):
@@ -133,14 +193,18 @@ def main() -> int:
                 if height_pt < MIN_FONT_PT and len(text.strip()) > 1:
                     tiny.append(text)
 
-                if gray is None:
+                if gray is None or len(text.strip()) <= 1:
                     continue
-                lum = crop_min_luminance(gray, (w["x0"], w["top"], w["x1"], w["bottom"]), scale)
-                if lum is None:
+                extrema = crop_luminance(
+                    gray, (w["x0"], w["top"], w["x1"], w["bottom"]), scale)
+                if extrema is None:
                     continue
-                if lum > INK_LUMINANCE and len(text.strip()) > 1:
-                    invisible.append(text)
-                elif lum > LIGHT_INK_LUMINANCE and len(text.strip()) > 1:
+                lo, hi = extrema
+                if lo > INK_LUMINANCE:
+                    invisible.append(text)          # light and empty: no ink at all
+                elif hi - lo < MIN_GLYPH_CONTRAST:
+                    invisible.append(text)          # uniform crop: shape ink, no glyphs
+                elif lo > LIGHT_INK_LUMINANCE:
                     faint.append(text)
 
     report.metrics["words_checked"] = total_words
@@ -150,12 +214,13 @@ def main() -> int:
         if invisible:
             sample = " ".join(invisible[:25])
             report.add("invisible_text", FAIL,
-                       f"{len(invisible)} extracted word(s) leave no ink on the "
-                       f"page (white/hidden text). Hidden content starts: {sample!r}")
+                       f"{len(invisible)} extracted word(s) draw no glyphs of "
+                       f"their own (white, transparent, or background-matched "
+                       f"text). Hidden content starts: {sample!r}")
             report.extra["invisible_words"] = invisible
         else:
             report.add("invisible_text", PASS,
-                       "every extracted word puts ink on its own bbox")
+                       "every extracted word draws visible glyphs on its own bbox")
 
         if faint:
             report.add("faint_text", WARN,
@@ -184,26 +249,24 @@ def main() -> int:
     else:
         report.add("zero_width_chars", PASS, "no invisible Unicode")
 
-    # ── docinfo metadata: text that leaves no ink on any page ────────
+    # ── metadata: text that leaves no ink on any page ────────────────
+    # Two channels, same scrutiny: docinfo and the XMP packet. Injection
+    # markers, bulk dumps, and token sets absent from the visible page.
     page_text = " ".join(all_words).casefold()
     checks_before_meta = len(report.checks)
 
-    for field, raw in doc_meta.items():
-        if raw is None:
-            continue
-        value = raw if isinstance(raw, str) else str(raw)
+    def scan_meta_value(channel: str, field: str, value: str) -> None:
         low = value.casefold()
-
         hits = [m for m in INJECTION_MARKERS if m in low]
         if hits:
             report.add("metadata_injection", FAIL,
-                       f"docinfo {field} carries injection marker(s) "
+                       f"{channel} {field} carries injection marker(s) "
                        f"{', '.join(repr(h) for h in hits)}: {value!r}")
 
         tokens = [t.strip() for t in re.split(r"[,;]", value) if t.strip()]
         unseen = [t for t in tokens if t.casefold() not in page_text]
         if len(value) > META_STUFF_FAIL_CHARS:
-            detail = (f"docinfo {field} is {len(value)} chars "
+            detail = (f"{channel} {field} is {len(value)} chars "
                       f"(> {META_STUFF_FAIL_CHARS}) — bulk keyword dump: "
                       f"{value[:120]!r}…")
             if unseen:
@@ -211,10 +274,18 @@ def main() -> int:
             report.add("metadata_stuffing", FAIL, detail)
         elif len(unseen) >= META_STUFF_WARN_TOKENS:
             report.add("metadata_stuffing", WARN,
-                       f"docinfo {field} carries {len(unseen)} token(s) absent "
+                       f"{channel} {field} carries {len(unseen)} token(s) absent "
                        f"from the page text: {', '.join(unseen[:12])!r} — "
                        "keyword-stuffing pattern (escalate if these match JD "
                        "vocabulary)")
+
+    for field, raw in doc_meta.items():
+        if raw is None:
+            continue
+        scan_meta_value("docinfo", field, raw if isinstance(raw, str) else str(raw))
+
+    for field, value in (xmp_text_nodes(xmp_raw) if xmp_raw else []):
+        scan_meta_value("XMP", field, value)
 
     author = doc_meta.get("Author")
     if author is not None:
@@ -229,7 +300,7 @@ def main() -> int:
 
     if len(report.checks) == checks_before_meta:
         report.add("metadata", PASS,
-                   "metadata clean (title/author/subject/keywords)")
+                   "metadata clean (docinfo + XMP)")
 
     return report.emit(args.json)
 

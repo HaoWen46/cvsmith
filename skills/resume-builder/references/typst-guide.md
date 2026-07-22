@@ -17,7 +17,9 @@
 - `assets/templates/data-schema.md` — the `resume.yaml` contract.
   Read it before writing yaml.
 - `assets/fonts/` — vendored OFL fonts (Source Sans 3, Inter, Source
-  Serif 4), so rendering is identical on every machine.
+  Serif 4), so layout and text render the same on every machine
+  (render.sh also pins the PDF timestamp to the data file's mtime,
+  making re-renders of unchanged data byte-identical).
 - `scripts/render.sh` — the only supported way to compile:
 
 ```sh

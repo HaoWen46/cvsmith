@@ -100,7 +100,13 @@ def main() -> int:
         die(f"no such file: {args.pdf}")
 
     report = Report(layer="L1-parse-sim", file=str(args.pdf))
-    lines = extract_lines(args.pdf)
+    try:
+        lines = extract_lines(args.pdf)
+    except Exception as e:  # encrypted / corrupt / not a PDF
+        report.add("readable", FAIL,
+                   f"could not extract text from the file: {e} — a screening "
+                   "pipeline rejects it unread")
+        return report.emit(args.json)
 
     # ── segment into sections ────────────────────────────────────────
     sections: dict[str, list[str]] = {}

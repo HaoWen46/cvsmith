@@ -165,6 +165,41 @@ def die(msg: str):
     sys.exit(2)
 
 
+def find_duplicate_keys(raw: str) -> list[tuple[str, int, int]]:
+    """(yaml-path, first-line, second-line) for every repeated mapping key.
+
+    yaml.safe_load keeps only the LAST duplicate, so the earlier block
+    vanishes from the render with zero downstream signal — two `projects:`
+    sections validate fine and render one. Composed nodes carry line
+    marks; construction does not, hence this separate pass."""
+    import yaml
+
+    try:
+        root = yaml.compose(raw)
+    except yaml.YAMLError:
+        return []
+    dups: list[tuple[str, int, int]] = []
+
+    def walk(node, path: str) -> None:
+        if isinstance(node, yaml.MappingNode):
+            seen: dict[str, int] = {}
+            for key_node, value_node in node.value:
+                key = str(getattr(key_node, "value", key_node))
+                label = f"{path}.{key}" if path else key
+                line = key_node.start_mark.line + 1
+                if key in seen:
+                    dups.append((label, seen[key], line))
+                else:
+                    seen[key] = line
+                walk(value_node, label)
+        elif isinstance(node, yaml.SequenceNode):
+            for i, item in enumerate(node.value):
+                walk(item, f"{path}[{i}]")
+
+    walk(root, "")
+    return dups
+
+
 # ── the validator ────────────────────────────────────────────────────
 
 class Validator:
@@ -512,6 +547,7 @@ def validate(data: dict) -> Validator:
 # Fixed report order; a category with no violations gets one PASS line,
 # matching the evaluator scripts' one-line-per-check style.
 CATEGORIES = (
+    ("duplicate_keys", "no duplicate keys — every block renders exactly once"),
     ("known_keys",
      "all {keys} keys recognized (inventory read from onecol/compact/"
      "classic + render.sh)"),
@@ -550,6 +586,12 @@ def main() -> int:
             f"(basics:, education:, ...), got {tn(data)}")
 
     v = validate(data)
+    for label, first, second in find_duplicate_keys(raw):
+        v.violations.insert(0, Check(
+            "duplicate_keys", FAIL,
+            f"{label}: defined twice (line {first} and line {second}) — "
+            "yaml keeps only the later block; the earlier one silently "
+            "never renders"))
     report = Report(layer="schema", file=str(args.yaml_file))
     for cid, pass_detail in CATEGORIES:
         hits = [c for c in v.violations if c.check_id == cid]

@@ -96,6 +96,36 @@ def test_tiny_text_is_exposed(fixtures):
     assert any("MICRO_STUFFING_MARKER" in w for w in report["tiny_words"])
 
 
+def test_transparent_text_over_dark_is_exposed(fixtures):
+    # Hidden text whose bbox sits on a dark rectangle: the background
+    # supplies ink, the glyphs never do. The naive min-luminance check
+    # passes it; the glyph-contrast check must not.
+    code, report = run_script("hidden_text_check", fixtures / "transparent_text.pdf")
+    assert code == 1
+    assert "invisible_text" in failed_ids(report)
+    hidden = " ".join(report["invisible_words"])
+    assert "TRANSPARENT_MARKER" in hidden, \
+        "fully transparent text over a dark banner must be surfaced"
+    assert "SAMECOLOR_MARKER" in hidden, \
+        "same-color-as-background text must be surfaced"
+
+
+# ── malformed PDFs keep the JSON contract ────────────────────────────
+
+@pytest.mark.parametrize("script", ALL_SCRIPTS)
+def test_malformed_pdf_reports_json_not_traceback(tmp_path, script):
+    garbage = tmp_path / "garbage.pdf"
+    garbage.write_bytes(b"%PDF-1.7\nthis is not a real pdf body\n" + b"\x00" * 64)
+    proc = subprocess.run(
+        [sys.executable, str(SCRIPTS / f"{script}.py"), str(garbage), "--json"],
+        capture_output=True, text=True)
+    assert proc.returncode == 1, \
+        f"{script} must FAIL a malformed file, not crash: {proc.stderr}"
+    report = json.loads(proc.stdout)  # the JSON contract holds even here
+    assert report["verdict"] == "fail"
+    assert "readable" in failed_ids(report)
+
+
 def test_two_column_fails_structure(fixtures):
     code, report = run_script("lint_structure", fixtures / "twocol.pdf")
     assert code == 1
@@ -243,6 +273,40 @@ def test_failed_smoke_gate_preserves_last_good_pdf(tmp_path):
     assert "suspiciously small" in proc.stderr
     assert pdf.read_bytes() == good, \
         "failed smoke gate replaced the previous good PDF"
+
+
+def test_render_refuses_to_overwrite_the_data_file(tmp_path):
+    # `render.sh resume.yaml -o resume.yaml` must refuse loudly — the old
+    # behavior replaced the YAML source with a PDF and exited 0.
+    yaml = tmp_path / "resume.yaml"
+    yaml.write_text(
+        (REPO / "evals/fixtures/resume-sample/resume.yaml").read_text())
+    before = yaml.read_text()
+    proc = render_to(yaml, yaml)
+    assert proc.returncode != 0, \
+        "rendering onto the data file must fail, not destroy the source"
+    assert yaml.read_text() == before, "the data file must be untouched"
+
+
+def test_render_refuses_non_pdf_output(tmp_path):
+    # The whole class: -o pointing at any non-.pdf path (another yaml, a
+    # vault, notes.md) silently replaces source material with a PDF.
+    proc = render_to(REPO / "evals/fixtures/resume-sample/resume.yaml",
+                     tmp_path / "notes.txt")
+    assert proc.returncode != 0
+    assert ".pdf" in (proc.stdout + proc.stderr)
+    assert not (tmp_path / "notes.txt").exists()
+
+
+def test_repeat_renders_are_byte_identical(tmp_path):
+    # SOURCE_DATE_EPOCH is pinned to the data file's mtime, so re-rendering
+    # unchanged data yields the same bytes — no drifting PDF timestamps.
+    a, b = tmp_path / "a.pdf", tmp_path / "b.pdf"
+    src = REPO / "evals/fixtures/resume-sample/resume.yaml"
+    assert render_to(src, a).returncode == 0
+    assert render_to(src, b).returncode == 0
+    assert a.read_bytes() == b.read_bytes(), \
+        "re-rendering unchanged data must be byte-stable"
 
 
 def test_successful_render_leaves_no_temp_files(tmp_path):

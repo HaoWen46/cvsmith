@@ -71,9 +71,14 @@ evidence; grading/criteria vendors read the same parsed inputs.
 Consequences that surprise people:
 
 - **Keyword stuffing is dead and now harmful.** Screeners flag token
-  spam and manipulation patterns; several vendors hard-reject on
-  detected hidden text. Target ~80–90% *semantic* coverage of the JD's
-  real requirements via honest, specific evidence. (†)
+  spam and manipulation patterns. What follows a hidden-text flag
+  varies by vendor — the documented range runs from human-reviewed
+  downranking (Greenhouse keeps recruiters in control; Ashby surfaces
+  per-criterion results for a human to sort) to automated rejection
+  in some detector integrations — but the floor everywhere is
+  "marked as manipulation," and that mark attaches to the candidate,
+  not the file. Target ~80–90% *semantic* coverage of the JD's real
+  requirements via honest, specific evidence. (†)
 - **Synonym anxiety is obsolete.** "Built RAG evaluation harness"
   matches "LLM pipeline QA experience" semantically. Use the JD's
   vocabulary where it's natural; never bolt it on.

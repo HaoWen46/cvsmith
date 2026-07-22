@@ -36,14 +36,17 @@ def main() -> int:
             unstamped.append(str(ref.relative_to(root)))
 
     for f in unstamped:
-        print(f"::warning file={f}::has 'Last verified' but no 'Verify by' stamp")
+        level = "error" if strict else "warning"
+        print(f"::{level} file={f}::has 'Last verified' but no 'Verify by' "
+              "stamp — unstamped perishables never come due, so strict runs "
+              "fail them")
     for f in stale:
         level = "error" if strict else "warning"
         print(f"::{level}::stale reference: {f} — run the MAINTENANCE.md refresh")
 
     if not stale and not unstamped:
         print("all perishable references are within their verify-by window")
-    return 1 if (strict and stale) else 0
+    return 1 if (strict and (stale or unstamped)) else 0
 
 
 if __name__ == "__main__":

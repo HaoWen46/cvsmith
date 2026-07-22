@@ -23,10 +23,12 @@ live under freshness stamps in
 2. **Keyword stuffing is dead and actively harmful.** Screeners use
    semantic matching and flag manipulation; the target is honest
    semantic coverage, not token overlap.
-3. **Hidden text is detected and punished.** Production detectors
-   cross-check rendered pixels against extracted text (86–93%
-   precision, ~$0.0001–0.01/file — arXiv 2605.28999). A builder must
-   *prove* it produced nothing that looks like hidden content.
+3. **Hidden text is detected, and the flag sticks to the person.**
+   Production detectors cross-check rendered pixels against extracted
+   text (86–93% precision, ~$0.0001–0.01/file — arXiv 2605.28999);
+   documented vendor responses range from recruiter-visible
+   manipulation flags to automated rejection. A builder must *prove*
+   it produced nothing that looks like hidden content.
 4. **Generic AI prose is a negative signal.** Polish is free now;
    differentiators are specificity, quantification, verifiable claims.
 5. **The market is a barbell.** Entry-level tech postings down, AI

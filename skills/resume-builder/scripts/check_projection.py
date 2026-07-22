@@ -30,16 +30,26 @@ Part of the builder's authoring loop (like check_bullets.py), not the
 evaluator's battery — the cold read is vault-blind by design.
 
 What is checked, and how leniently:
-  numbers   numeric tokens in content strings (bullets, summary,
-            honors, gpa, citation, stack, tags), matched literally
-            after normalizing dashes, thousands separators, and
-            ~/$/+/% decoration. Miss = FAIL.
+  numbers   numeric tokens in EVERY string value outside meta.* —
+            content strings (bullets, summary, honors, gpa, citation,
+            stack, tags) and everything else (coursework, locations,
+            phone, labels, ...), matched literally after normalizing
+            dashes, thousands separators, and ~/$/+/% decoration.
+            Miss = FAIL. Numbers do not get to hide in fields the
+            sweep never read.
   dates     start/end values (YYYY-MM), matched against YYYY-MM,
             "Mon YYYY", "Month YYYY", MM/YYYY, YYYY/MM. Only the
-            year found = WARN; nothing found = FAIL.
+            year found = WARN; nothing found = FAIL. An end of
+            "present" is mechanically unverifiable in either
+            direction, so every ongoing-role claim is listed in an
+            ongoing_roles WARN for manual confirmation — an ended
+            role projected as ongoing is fabrication this script
+            cannot see on its own.
   urls      url fields (and any URL pasted into a content string),
             compared after stripping scheme, leading www., and the
-            trailing slash. Miss = FAIL.
+            trailing slash — and matched with a right boundary, so
+            github.com/user is never supported by the different
+            account github.com/username. Miss = FAIL.
   pairs     ordered numeric pairs in content strings with an explicit
             direction marker: X -> Y / X → Y / X ⇒ Y, or
             "from X ... to Y" inside one string (~40-char window, no
@@ -49,9 +59,15 @@ What is checked, and how leniently:
             marker = WARN (manual review). Pairs whose numbers
             already failed presence are not double-reported.
   identity  name / organization / institution / title / degree not
-            found verbatim = WARN (formatting drift is legitimate);
-            numeric tokens in a drifted value are checked like
-            content numbers. Miss = FAIL.
+            found verbatim splits into two classes: some meaningful
+            token still matches the vault = WARN (rename/reformat
+            drift is legitimate); ZERO tokens match = FAIL (the
+            fabrication class — a Google CRO projected from a
+            Widget Corp internship shares no token with the vault).
+            Numeric tokens in a drifted value are checked like
+            content numbers either way. The remediation for a real
+            rename is the invariant itself: record the alias in the
+            vault first, then keep it in the yaml.
 meta.* is skipped entirely: page budgets and accent colors are
 knobs, not facts.
 
@@ -78,6 +94,12 @@ URL_KEYS = {"url"}
 CONTENT_KEYS = {"bullets", "summary", "honors", "gpa", "citation", "stack", "tags"}
 IDENTITY_KEYS = {"name", "organization", "institution", "title", "degree"}
 PRESENT_WORDS = {"present", "current", "ongoing", "now"}
+# Generic org/degree furniture: shared suffix words must not let a
+# fabricated identity ride on them ("... Institute of Technology").
+IDENTITY_STOP = {"the", "and", "for", "inc", "llc", "ltd", "corp",
+                 "corporation", "company", "gmbh", "university",
+                 "institute", "institution", "technology", "college",
+                 "school", "department", "faculty", "national"}
 
 MONTHS = {
     1: ("jan", "january"), 2: ("feb", "february"), 3: ("mar", "march"),
@@ -151,7 +173,9 @@ def iter_strings(node, path):
 
 
 def collect(node, path, out):
-    """One walk of the yaml tree, routing values by key. meta.* skipped."""
+    """One walk of the yaml tree, routing values by key. meta.* skipped.
+    Scalars under no routed key land in "other" — every string field
+    gets the numeric sweep, not just the famous ones."""
     if isinstance(node, dict):
         for key, value in node.items():
             if not path and key == "meta":
@@ -167,11 +191,16 @@ def collect(node, path, out):
             elif key in IDENTITY_KEYS:
                 if value is not None:
                     out["identity"].append((p, str(value)))
-            else:
+            elif isinstance(value, (dict, list)):
                 collect(value, p, out)
+            elif value is not None:
+                out["other"].append((p, str(value)))
     elif isinstance(node, list):
         for i, item in enumerate(node):
-            collect(item, f"{path}[{i}]", out)
+            if isinstance(item, (dict, list)):
+                collect(item, f"{path}[{i}]", out)
+            elif item is not None:
+                out["other"].append((f"{path}[{i}]", str(item)))
 
 
 def excerpt(text: str, around: str = "", width: int = 70) -> str:
@@ -212,7 +241,8 @@ def main() -> int:
 
     haystack = " ".join(normalize(vault_raw).split())
 
-    found = {"dates": [], "urls": [], "content": [], "identity": []}
+    found = {"dates": [], "urls": [], "content": [], "identity": [],
+             "other": []}
     collect(data, "", found)
 
     checks: list[dict] = []
@@ -220,10 +250,10 @@ def main() -> int:
     def add(check_id: str, level: str, detail: str) -> None:
         checks.append({"check_id": check_id, "level": level, "detail": detail})
 
-    # ── numbers: from content strings only ───────────────────────────
+    # ── numbers: every string value outside meta.* ───────────────────
     n_tokens = 0
     n_clean = True
-    for path, text in found["content"]:
+    for path, text in found["content"] + found["other"]:
         norm = normalize(text)
         for token in re.findall(r"\d+(?:\.\d+)?", norm):
             n_tokens += 1
@@ -273,6 +303,7 @@ def main() -> int:
     # ── dates ────────────────────────────────────────────────────────
     n_dates = 0
     d_clean = True
+    ongoing: list[str] = []
     for path, value in found["dates"]:
         if value is None:
             continue
@@ -281,6 +312,7 @@ def main() -> int:
         else:
             text = str(value).strip()
             if text.casefold() in PRESENT_WORDS:
+                ongoing.append(path)
                 continue
             if re.fullmatch(r"\d{4}", text):
                 n_dates += 1
@@ -308,6 +340,12 @@ def main() -> int:
             add("date_unsupported", FAIL,
                 f"{path}: {y}-{m:02d} appears nowhere in the vault "
                 f"(tried YYYY-MM, Mon YYYY, MM/YYYY forms)")
+    if ongoing:
+        add("ongoing_roles", WARN,
+            f"{len(ongoing)} entry(ies) claim an ongoing role: "
+            f"{', '.join(ongoing)} — 'present' has no vault-verifiable end "
+            "date; confirm each role is still current (an ended role "
+            "projected as ongoing is fabrication this check cannot see)")
     if d_clean:
         add("dates", PASS, f"{n_dates} date(s) verified against the vault")
 
@@ -318,24 +356,36 @@ def main() -> int:
             url_items.append((path, tok))
     u_clean = True
     for path, url in url_items:
-        if normalize_url(url) not in haystack:
+        u = normalize_url(url)
+        # right boundary: /user must not ride on the different account
+        # /username; a deeper path (/user/repo) still supports /user
+        if not re.search(re.escape(u) + r"(?![\w-])", haystack):
             u_clean = False
             add("url_unsupported", FAIL,
-                f"{path}: {url} (normalized '{normalize_url(url)}') "
-                f"has no vault support")
+                f"{path}: {url} (normalized '{u}') has no vault support")
     if u_clean:
         add("urls", PASS, f"{len(url_items)} url(s) verified against the vault")
 
-    # ── identity: drift WARNs, but drifted numbers FAIL ──────────────
+    # ── identity: drift WARNs, fabrication FAILs, drifted numbers FAIL ─
     i_clean = True
     for path, value in found["identity"]:
         needle = " ".join(normalize(value).split())
         if not needle or needle in haystack:
             continue  # verbatim in the vault: supported by definition
         i_clean = False
-        add("identity_drift", WARN,
-            f"{path}: '{value}' not found verbatim in the vault — "
-            f"fine if it's a rename/reformat, worth a look if not")
+        tokens = [t for t in re.findall(r"[a-z0-9]{3,}", needle)
+                  if t not in IDENTITY_STOP]
+        if tokens and not any(t in haystack for t in tokens):
+            add("identity_unsupported", FAIL,
+                f"{path}: '{value}' shares no token with the vault — the "
+                "fabrication class, not the rename class. If this is a "
+                "real rename/alias, record it in the vault first (with "
+                "the user's confirmation); projections never contain an "
+                "identity the vault lacks")
+        else:
+            add("identity_drift", WARN,
+                f"{path}: '{value}' not found verbatim in the vault — "
+                f"fine if it's a rename/reformat, worth a look if not")
         for token in re.findall(r"\d+(?:\.\d+)?", needle):
             if not number_in(token, haystack):
                 add("number_unsupported", FAIL,

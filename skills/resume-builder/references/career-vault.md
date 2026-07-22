@@ -76,10 +76,16 @@ repeating dead-end edits across sessions.
   output. Projections never contain a fact the vault lacks: if
   tailoring needs a new fact, it enters the vault first (with the
   user's answer), then the yaml. That invariant is what keeps twenty
-  tailored resumes honest at once — and it's mechanically checkable:
+  tailored resumes honest at once. Its token-level shadow is
+  mechanically checkable —
   `scripts/check_projection.py <projection.yaml> career-vault.md`
-  checks hard-fact token support — every number, date, and URL in the
-  projection appears somewhere in the vault.
+  verifies that every number, date, URL, and identity token in the
+  projection has vault support — but presence is not meaning: the
+  script cannot bind a number to the claim it sits in (its own
+  docstring says exactly what it checks and how leniently). The
+  semantic invariant stays on the builder and the user's review; the
+  script exists so no hard fact can enter unnoticed, not so anyone
+  can skip the read.
 - **Sharing**: the projection is the shareable artifact — facts
   selected for one application, never Gaps & flags, CONTEXT, or the
   Q&A log. Anything that leaves the machine (parser APIs, other

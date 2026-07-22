@@ -8,9 +8,9 @@ Not a resume generator, not a SaaS checker. cvsmith is a set of portable skills 
 
 As of 2026, most high-volume resume screening runs some version of an LLM-mediated pipeline — parse → structure → embed against the job description → score → rank — though vendors differ in mechanism (Workday's HiredScore grades against requisition requirements, Greenhouse matches recruiter-weighted criteria, Ashby checks per-criterion and surfaces a sortable fit percentage). cvsmith targets the strictest common denominator, which changes what a good resume tool must do:
 
-- **Parsing is the gate.** If extraction fails, no intelligence ever evaluates the candidate. Single-column, text-layer, tagged PDFs with standard headings are cvsmith's non-negotiables — the conservative choice that survives every vendor's parser.
+- **Parsing is the gate.** If extraction fails, no intelligence ever evaluates the candidate. Single-column, text-layer, tagged PDFs with standard headings are cvsmith's non-negotiables — the strictest-common-denominator choice, engineered for the most conservative documented parser behavior rather than any vendor's best case.
 - **Keyword stuffing is dead and harmful.** Modern screeners use semantic matching and flag manipulation. The target is honest semantic coverage of the JD, not token overlap.
-- **Hidden text is detected and punished.** Production detectors cross-check rendered pixels against extracted text. A builder must *prove* it produced nothing that looks like hidden content.
+- **Hidden text is detected, and the flag sticks to the person.** Production detectors cross-check rendered pixels against extracted text; documented vendor responses range from recruiter-visible manipulation flags to automated rejection. A builder must *prove* it produced nothing that looks like hidden content.
 - **Generic AI prose is a negative signal.** Differentiators are specificity, quantification, and verifiable claims.
 
 The moat is the **evaluator**: a test harness that runs a PDF through the same classes of checks screening stacks use.
@@ -37,7 +37,8 @@ skills/resume-builder/scripts/render.sh path/to/resume.yaml
 ```
 
 Output is a tagged PDF/UA-1 + PDF/A-2a file rendered with vendored fonts
-(identical on every machine), smoke-checked for a healthy text layer.
+— same layout and text on every machine, and byte-identical when the
+same data file is re-rendered — smoke-checked for a healthy text layer.
 
 ## Install
 
@@ -45,11 +46,16 @@ Grab the `.skill` files from the
 [latest release](https://github.com/HaoWen46/cvsmith/releases) and add
 them to your agent's skills (Claude Code: save under `~/.claude/skills/`
 or use your client's skill-import), or clone this repo and point your
-agent at `skills/`. Each skill is self-contained to install and run —
-fonts vendored, scripts carrying inline dependencies (`uv run` just
-works) — but install both resume-builder and resume-evaluator for the
-full build → verify loop: the builder's definition of done is the
-evaluator passing.
+agent at `skills/`. Each skill installs and runs standalone — fonts
+vendored, scripts carrying inline dependencies (`uv run` just works) —
+but the four compose into one workflow, and a skill running without
+its siblings degrades explicitly rather than silently: the builder
+without the evaluator labels its output UNVERIFIED, without
+jd-analyzer it marks its inline posting analysis as a degraded
+substitute, and without the tracker it logs only a minimal ledger row.
+**Install all four for the advertised loop**; the minimum useful pair
+is resume-builder + resume-evaluator, because the builder's definition
+of done is the evaluator passing.
 
 ## Status
 
@@ -67,7 +73,7 @@ evaluator passing.
 
 ## A note on personal data
 
-The skills read your materials wherever they already live — pasted into chat, attached, or in place on disk. Nothing has to be moved into any particular folder, and the builder checks that a workspace path is gitignored before writing personal data into any git repo. If you develop *inside this checkout*, `materials/`, `output/`, and `drafts/` are pre-gitignored for scratch use. Everything under `evals/fixtures/` and `examples/` is synthetic or sanitized — real career materials never belong in this repo.
+The skills read your materials wherever they already live — pasted into chat, attached, or in place on disk. Nothing has to be moved into any particular folder, and the builder checks that a workspace path is gitignored before writing personal data into any git repo. One honest boundary: the *files* (vault, ledger, projections) are never transmitted by these skills, but anything quoted into the conversation is processed by whatever host runs your agent — a cloud-hosted session sends that text to its model provider like any other message. If you develop *inside this checkout*, `materials/`, `output/`, and `drafts/` are pre-gitignored for scratch use. Everything under `evals/fixtures/` and `examples/` is synthetic or sanitized — real career materials never belong in this repo.
 
 ## License
 

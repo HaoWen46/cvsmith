@@ -251,6 +251,87 @@ def test_identity_reword_with_supported_number_warns_only(tmp_path):
     assert not ids_at(report, "fail")
 
 
+# ── fabricated identity: zero token overlap is not "drift" ───────────
+
+def test_fabricated_identity_fails(tmp_path):
+    # The reviewer's scenario: a Widget Corp intern projected as a Google
+    # Chief Revenue Officer. No token of either field exists in the vault —
+    # that is the fabrication class, not the rename class, and it must
+    # block, not warn.
+    code, report = run_check(*write_pair(
+        tmp_path,
+        resume=RESUME
+        .replace("organization: Widget Corp", "organization: Google")
+        .replace("title: Software Engineering Intern",
+                 "title: Chief Revenue Officer")))
+    assert code == 1, "an identity with zero vault support must hard-fail"
+    assert "identity_unsupported" in ids_at(report, "fail")
+    fails = details_at(report, "fail")
+    assert "vault" in fails, "the remediation (record it in the vault) must be named"
+
+
+def test_partial_token_overlap_stays_drift_warn(tmp_path):
+    # "Widget Corporation" shares 'widget' with the vault — rename class,
+    # WARN as before. (Also covered by test_org_rename_warns_not_fails;
+    # kept here as the explicit boundary against the zero-overlap FAIL.)
+    code, report = run_check(*write_pair(
+        tmp_path, resume=RESUME.replace("organization: Widget Corp",
+                                        "organization: Widget Corporation")))
+    assert code == 0
+    assert "identity_drift" in ids_at(report, "warn")
+    assert "identity_unsupported" not in ids_at(report, "fail")
+
+
+# ── URLs: prefix of a different account is not support ───────────────
+
+def test_url_prefix_collision_fails(tmp_path):
+    # vault has github.com/samcasey; the projection claims github.com/samcase
+    # (a different account that happens to be a prefix). Substring matching
+    # accepted it; the boundary must not.
+    code, report = run_check(*write_pair(
+        tmp_path,
+        resume=RESUME.replace("https://github.com/samcasey",
+                              "https://github.com/samcase")))
+    assert code == 1, "a URL-prefix collision must not count as vault support"
+    assert "url_unsupported" in ids_at(report, "fail")
+
+
+def test_url_deeper_path_still_supports_profile(tmp_path):
+    # vault records the repo URL; the projection claims the profile above
+    # it — same account, legitimate support.
+    code, report = run_check(*write_pair(
+        tmp_path,
+        vault=VAULT.replace("github.com/samcasey",
+                            "github.com/samcasey/widgets")))
+    assert code == 0, "a deeper path in the vault supports the profile URL"
+    assert "url_unsupported" not in ids_at(report, "fail")
+
+
+# ── ongoing roles: 'present' is unverifiable, so it is surfaced ──────
+
+def test_present_end_is_listed_for_review(tmp_path):
+    code, report = run_check(*write_pair(
+        tmp_path, resume=RESUME.replace("end: 2025-09", "end: present")))
+    assert code == 0, "'present' cannot be machine-verified either way"
+    assert "ongoing_roles" in ids_at(report, "warn")
+    warns = details_at(report, "warn")
+    assert "experience[0]" in warns, "the review list must name the entry"
+
+
+# ── numbers hide in every string field, not just the content keys ────
+
+def test_number_in_coursework_is_checked(tmp_path):
+    code, report = run_check(*write_pair(
+        tmp_path,
+        resume=RESUME.replace(
+            "    gpa: \"3.90/4.0\"\n",
+            "    gpa: \"3.90/4.0\"\n"
+            "    coursework: [\"CS 4820 Advanced Algorithms\"]\n")))
+    assert code == 1, "a number in an unscanned field slipped through"
+    assert "number_unsupported" in ids_at(report, "fail")
+    assert "4820" in details_at(report, "fail")
+
+
 # ── metric direction: explicit markers are compared, order matters ───
 
 def test_reversed_metric_fails(tmp_path):

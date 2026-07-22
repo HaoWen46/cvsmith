@@ -63,8 +63,14 @@ reports; when you meet a new mode, add it here with the same shape.
 - **Symptom**: `invisible_text` FAIL, hidden content quoted in the
   report.
 - **Reality**: production detectors run this exact cross-modal check
-  and treat hits as manipulation/injection. This doesn't lose a few
-  ranking points; it flags the candidate, sometimes account-wide.
+  and treat hits as manipulation/injection (the 2026 hireEZ study
+  documents deployed detectors at 86–93% precision). This doesn't
+  lose a few ranking points; it marks the *candidate* as attempting
+  manipulation. How far the mark travels varies by vendor — from a
+  recruiter-visible flag to rejection, and platform terms permit
+  account-level consequences — so the safe planning assumption is
+  that it persists beyond this one application, not that every
+  vendor imposes the maximum.
 - **Fix**: delete the hidden content entirely. Then address honestly
   whatever gap the stuffing was compensating for (that's a builder +
   jd-analyzer conversation).
