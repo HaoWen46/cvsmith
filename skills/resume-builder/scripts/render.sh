@@ -75,9 +75,12 @@ fi
 # Reproducible output: pin the PDF's creation timestamp to the data
 # file's mtime (unless the caller already pinned one), so re-rendering
 # unchanged data yields byte-identical files.
+# GNU stat first (-c fails loudly on BSD); BSD second. Never the other
+# order: GNU also accepts -f — as "filesystem status", which *succeeds*
+# with a multi-line dump that is not a timestamp.
 if [ -z "${SOURCE_DATE_EPOCH:-}" ]; then
-  SOURCE_DATE_EPOCH=$(stat -f %m "$DATA" 2>/dev/null \
-    || stat -c %Y "$DATA" 2>/dev/null || echo 0)
+  SOURCE_DATE_EPOCH=$(stat -c %Y "$DATA" 2>/dev/null \
+    || stat -f %m "$DATA" 2>/dev/null || echo 0)
   export SOURCE_DATE_EPOCH
 fi
 
