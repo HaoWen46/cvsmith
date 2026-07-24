@@ -134,7 +134,7 @@ the method:
 1. **Measure the budget before drafting.** Render anything through the
    target template once (before content exists, a schema-minimal
    skeleton with three deliberately overlong bullets — see SKILL.md
-   step 5) and run `scripts/check_bullets.py` on it: the summary line
+   step 5) and run `uv run scripts/check_bullets.py` on it: the summary line
    reports *measured capacity* (wrapped bullets' first lines are full
    lines, so the tool calibrates itself to the actual template + font
    + margins — e.g. compact ≈ 112 chars, tighter layouts 130+). No

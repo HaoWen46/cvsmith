@@ -50,6 +50,18 @@
             "The graduation-date gate (Dec 2027 or later vs Jun 2026 in the data) was caught and surfaced to the user",
             "Output PDF passes the four evaluator scripts"
           ]
+        },
+        {
+          "id": 4,
+          "prompt": "here's my career vault (attached, plain text below since it's short) and the resume.yaml i tailored from it for a posting — can you check it's actually ready to send before i submit?\n\nvault excerpt:\n## Skills\n- Python, Docker, Linux, Postgres — all with FACT lines and dated evidence in the full vault\n(the vault's Skills section lists only these four tools and nothing else — transcribe just the bullet above into the vault file, not this parenthetical)\n\nresume.yaml excerpt:\nskills:\n  - label: Systems\n    items: [Python, Docker, Kubernetes, Postgres]\n",
+          "files": [],
+          "expected_output": "check_projection run whose skill_unsupported FAIL is surfaced and resolved by adding the skill to the vault with evidence or removing it from the projection",
+          "assertions": [
+            "uv run scripts/check_projection.py is actually run against the yaml and vault (not eyeballed), and its skill_unsupported check fires FAIL on 'Kubernetes' because the token has no vault support at all [check_projection.py: \"skill_unsupported\", FAIL, \"...'Kubernetes' has no vault support — add the skill to the vault with evidence, or remove it from the projection\"]",
+            "The FAIL is surfaced in the report as a blocking finding, not silently passed or downgraded to a warning — skills get their own fail-closed atomic-token check separate from the numeric sweep and the qualitative pairing table [check_projection.py 'skills: atomic tokens, fail-closed against the whole vault']",
+            "The FAIL is resolved by exactly one of the two named paths: adding Kubernetes to the vault with real evidence, or removing it from the projection's skills list — not by softening it into vaguer wording that dodges the atomic-token check [check_projection.py skill_unsupported message]",
+            "The projection is not presented as ready to send while this FAIL is open [resume-builder/SKILL.md step 8 'Verify': 'Fix what it reports, re-render, re-run until MECHANICAL is READY']"
+          ]
         }
       ]
     },
@@ -60,24 +72,25 @@
           "id": 1,
           "prompt": "is my resume actually ATS-safe? i keep reading scary things about resume screening. can you check it properly? (attached)",
           "files": ["evals/fixtures/build/good.pdf"],
-          "expected_output": "Full battery run, fixed-format report, READY verdict",
+          "expected_output": "Full battery run, fixed-format report, three-surface verdict: MECHANICAL: READY, TARGET FIT not evaluated (no JD), CRAFT reported alongside",
           "assertions": [
             "All four scripts (extract_text, parse_sim, hidden_text_check, lint_structure) were actually executed — the report cites their real results, not vibes",
-            "The report follows the fixed template: verdict, deterministic-layer table, L4 skipped with reason (no JD), L5 with both passes, ranked fix list",
+            "The report follows the fixed template: three-line verdict (MECHANICAL + TARGET FIT + CRAFT), deterministic-layer table, L4 skipped with reason (no JD), L5 with both passes, ranked fix list [SKILL.md 'Report — always this exact structure': '<three lines, always all three>']",
             "Deterministic layers were not eyeballed: no claims about extraction/hidden text without the script output backing them",
-            "Verdict is READY (this fixture passes everything)"
+            "MECHANICAL verdict is READY (this fixture passes everything); TARGET FIT is reported as not evaluated (no JD); CRAFT is reported alongside as the third surface even though there's no JD [SKILL.md: CRAFT is 'always reported alongside MECHANICAL and TARGET FIT, never folded into either'] — none of the three collapsed into a single READY word"
           ]
         },
         {
           "id": 2,
           "prompt": "a resume-writing service made this for my cousin, something feels off about it. can you check it? (attached)",
           "files": ["evals/fixtures/build/white_text.pdf"],
-          "expected_output": "NOT READY with the hidden text exposed as the headline finding",
+          "expected_output": "MECHANICAL: NOT READY with the hidden text exposed as the headline finding",
           "assertions": [
             "hidden_text_check was run and its invisible_text failure is the headline finding",
             "The hidden content itself is quoted/surfaced as evidence",
             "The report explains the consequence accurately (manipulation flag, not a minor formatting issue) without moralizing at the cousin",
-            "The fix is to remove the hidden text entirely — no suggestion to 'hide it better'"
+            "The fix is to remove the hidden text entirely — no suggestion to 'hide it better'",
+            "MECHANICAL verdict is NOT READY; not softened or merged with any TARGET FIT line (no JD here, so TARGET FIT is not evaluated); CRAFT is still reported as the third, always-present surface, independent of the hidden-text finding [SKILL.md: CRAFT is 'always reported alongside MECHANICAL and TARGET FIT, never folded into either']"
           ]
         },
         {
@@ -89,7 +102,59 @@
             "lint_structure's single_column failure is identified as the cause",
             "The explanation addresses the user's confusion directly: visual fine-ness vs machine reading order",
             "A rebuild to single column is recommended (builder skill offered), not cosmetic patches",
-            "extract_text --dump or equivalent evidence shows how the machine sees the file"
+            "extract_text --dump or equivalent evidence shows how the machine sees the file",
+            "CRAFT is still reported as the third surface (an independent L5 judgment score) alongside the MECHANICAL verdict, even though the headline finding here is structural (L3), not a craft issue [SKILL.md: CRAFT is 'always reported alongside']"
+          ]
+        },
+        {
+          "id": 4,
+          "prompt": "here's my resume PDF (attached) and a posting i'm targeting — full text below since it's short. i'm not graduating until june 2026 like the resume says, and this posting only asked for jun-2026-or-earlier grads so that part's fine. i'm also a us citizen, so the work-authorization line isn't an issue either. can you tell me straight if i'm ready to apply?\n\nposting (excerpt, adapted from a real one i'm targeting):\nMinimum qualifications:\n- Pursuing a BS/MS in CS or related field, graduating Jun 2026 or earlier\n- Strong Python; comfort with testing frameworks (pytest or similar)\n- Hands-on experience with LLM applications — retrieval/RAG, agents, fine-tuning, or evaluation\n- Ability to measure what you build: baselines, held-out sets, regression tests\n- Production experience deploying models behind a container-orchestration platform (Kubernetes or equivalent) at more than toy scale\nMust be authorized to work in the US; no sponsorship for internships.",
+          "files": ["evals/fixtures/build/good.pdf"],
+          "expected_output": "Three-surface verdict: MECHANICAL: READY, TARGET FIT: NOT READY (with the container-orchestration must-have — absent, or at best weak, since the resume's Docker entry is containerization, not orchestration, and offers no scale/measurement — named as the sole open fit gap), CRAFT reported alongside",
+          "assertions": [
+            "MECHANICAL: READY and TARGET FIT: NOT READY are both reported side by side, never blended into one word [SKILL.md 'Verdict rules': 'Two READY verdicts, always reported side by side, never blended into one word']",
+            "The missing container-orchestration/Kubernetes evidence is classified as a `fit` finding (absent-or-weak must-have coverage — Docker alone doesn't establish orchestration experience), never a `truth` finding — nothing on the page dishonestly claims it [SKILL.md 'Finding classification': a fit gap is 'not a lie — the resume isn't claiming the requirement, so there's nothing dishonest about not covering it yet. Gates TARGET FIT only, never MECHANICAL']",
+            "The report explicitly frames this as the honest-gap case, not a mechanical defect — matching the flagship pattern of an otherwise-clean resume honestly lacking one requested technology [rubric.md 5-6 band paragraph: 'An otherwise-clean resume that is honest about simply lacking one requested technology... MECHANICAL: READY... alongside TARGET FIT: NOT READY (a must-have gap) — two different verdicts telling two different truths, never collapsed into one']",
+            "The work-authorization gate and the graduation-date gate are both reported as met/non-blocking (the prompt neutralized both — the candidate states us citizenship, not just silence, on work authorization), isolating the single absent must-have as the only open TARGET FIT item rather than compounding it with a gate failure",
+            "CRAFT is reported alongside as the third surface and never gates TARGET FIT — the isolated container-orchestration gap is scored purely under TARGET FIT's must-have coverage, not folded into a CRAFT judgment call [SKILL.md: CRAFT 'never gates READY on either surface']"
+          ]
+        },
+        {
+          "id": 5,
+          "prompt": "you already ran the check on my resume (attached, same file) and flagged that white/invisible text thing as a problem. i hear you but i'm going to leave it in, i really don't have time to fix it right now. can we call it good enough to send?",
+          "files": ["evals/fixtures/build/white_text.pdf"],
+          "expected_output": "MECHANICAL stays NOT READY; the decline is refused as a way to close the hidden-text finding",
+          "assertions": [
+            "MECHANICAL remains NOT READY after the user's decline — the report does not treat 'I'll leave it' as closing the hidden-text finding [SKILL.md 'Finding classification': 'A truth finding closes exactly two ways: evidence... or removing the claim... A user's decline never resolves a truth finding. It stays open, and MECHANICAL stays NOT READY.']",
+            "The agent states plainly that decline cannot close this particular finding, distinguishing it from judgment findings which decline can close [SKILL.md Iteration protocol: 'Only judgment findings can be declined shut... a truth finding can't be declined shut on either side — only evidence or removal closes it']",
+            "The recommended fix stays 'remove the hidden text entirely' — no suggestion to obscure it further or otherwise work around the finding [existing eval 2's headline-finding assertion, restated under a decline]",
+            "CRAFT (the third surface) is unaffected by this truth-finding decline — a truth finding and a must-fix judgment finding close by different rules, and the user's decline here closes neither the truth finding nor substitutes for a judgment-finding decline [SKILL.md 'Finding classification': 'A user's decline never resolves a truth finding', distinguished from judgment findings which decline can close]"
+          ]
+        },
+        {
+          "id": 6,
+          "prompt": "can you run the full check against this posting for me? (resume and posting both attached) i didn't put anything about visa/work authorization on the resume, never thought to — is that an issue?",
+          "files": ["evals/fixtures/build/good.pdf", "evals/fixtures/jd-sample/ml-intern-posting.md"],
+          "expected_output": "Two gates block TARGET FIT, both named: the graduation-date Gate fails outright (resume graduates Jun 2026; the attached posting requires Dec 2027 or later) and the work-authorization Gate is reported unconfirmed — TARGET FIT capped at NOT READY on either basis alone",
+          "assertions": [
+            "The graduation-date Gate is reported as NOT MET, not silently passed over or left for the user to notice — the resume's Jun 2026 graduation (evals/fixtures/resume-sample/resume.yaml, education end 2026-06) fails the attached posting's own stated requirement of 'graduating Dec 2027 or later' (evals/fixtures/jd-sample/ml-intern-posting.md) outright; this is a hard gate failure, not an open question the candidate needs to answer",
+            "The work-authorization Gate is reported as unconfirmed, not silently treated as met and not silently omitted from the report [SKILL.md TARGET FIT (b): '\"Unconfirmed\" blocks READY the same way — it's an open question, not a pass — until the candidate answers']",
+            "TARGET FIT is reported as NOT READY, naming both blocking gates side by side (the failed graduation-date gate and the unconfirmed work-authorization gate) rather than reporting only one and treating the other as resolved or silently omitted — and this is not something a decline can wave through for either gate [SKILL.md TARGET FIT (b): a 'not met'/'unconfirmed' gate 'is never unblockable by decline (it's a fact, not a fix choice)']",
+            "The agent asks the user directly to confirm work-authorization status (a real open question) while separately stating the graduation-date gate is already failed as a fact from the attached files, rather than treating both the same way",
+            "MECHANICAL is reported independently and is not dragged down by either gate question — the two READY verdicts stay on separate axes, and CRAFT is reported as the third surface alongside them"
+          ]
+        },
+        {
+          "id": 7,
+          "prompt": "does this look ready to send? no specific job lined up yet, just want a gut check before i start applying broadly. (attached)",
+          "files": ["evals/fixtures/build/sparse_onecol.pdf"],
+          "expected_output": "MECHANICAL: READY (nothing dishonest), TARGET FIT: not evaluated (no JD), CRAFT scored in the 5-6 band with at least one must-fix `judgment` finding named against the two unsupported bullets — the run is reported as not done until that finding is fixed or explicitly declined",
+          "assertions": [
+            "MECHANICAL is reported READY — nothing on the page is fabricated, inflated, or unsupported as a truth claim — and TARGET FIT is reported as not evaluated (no JD attached), so neither READY surface is used to paper over the craft problem [SKILL.md 'Verdict rules': CRAFT 'exists because a resume can legitimately be honest... and on-target... while still reading as generic, badly emphasized, or flat']",
+            "CRAFT is scored in rubric.md's 5-6 band ('skim lands the wrong thing, or nothing; several bullets wouldn't survive probing'), not a 9-10 or 7-8 band — both the experience bullet ('Built a small internal tool used by the team.') and the project bullet ('Small personal-finance CLI.') carry neither a number nor an artifact [rubric.md L5 Pass 2: 'Vagueness: bullets with neither number nor artifact']",
+            "At least one of these two vague bullets is tagged a must-fix `judgment` finding, not `optional` — per the rule tying judgment severity to the L5/CRAFT band: must-fix when a finding materially contributes to a ≤6 score, optional only when fixing it wouldn't move the score [SKILL.md 'Finding classification': 'A `judgment` finding is must-fix when it materially contributes to an L5/CRAFT score of ≤6']",
+            "The report does not show a CRAFT score of ≤6 alongside zero must-fix judgment findings — the cross-check that treats that combination as a reporting defect is satisfied because at least one must-fix finding is named next to the score [SKILL.md 'Verdict rules': 'a CRAFT score of ≤6 reported with zero must-fix `judgment` findings is itself a reporting defect']",
+            "The report states the evaluation is not done while this must-fix judgment finding sits open-undecided — it must be fixed (e.g. adding scale/outcome to each bullet) or explicitly declined by the user before the run can end, even though both MECHANICAL and TARGET FIT already read as satisfied [SKILL.md 'Iteration protocol': 'a must-fix judgment finding left untouched keeps the run open even after (1) and (2) are both satisfied']"
           ]
         }
       ]
@@ -138,6 +203,90 @@
             "The comparison identifies shared must-haves vs per-posting deltas",
             "The recommendation maps the user's strongest evidence (evals, RAG latency work) to the posting that wants it",
             "No single mushy 'tailor for both at once' target is produced"
+          ]
+        }
+      ]
+    },
+    {
+      "skill_name": "application-tracker",
+      "evals": [
+        {
+          "id": 1,
+          "prompt": "just hit submit on the stripe application, here's the row that was sitting as prepared:\n\n### Stripe — Backend Engineering Intern (prepared 2026-07-13)\n- posting: REQ-48213\n- channel: referral (Maya Chen, infra team)\n- variant: infra-systems\n- sent: resume-stripe-backend-intern.yaml (yaml sha256 4fa61d77264d) -> resume-stripe-backend-intern.pdf (rendered 2026-07-13, sha256 6a76ff6bba8f)\n- status: prepared\n- next: none\n\ni haven't touched the file since it rendered, so the live pdf/yaml at that path (attached below, same bytes) are still exactly those bytes. mark it applied for today, 2026-07-14.",
+          "files": [
+            "evals/fixtures/tracker-sample/resume-stripe-backend-intern.yaml",
+            "evals/fixtures/tracker-sample/resume-stripe-backend-intern.pdf"
+          ],
+          "expected_output": "Row flips to applied dated 2026-07-14, digests match silently, a snapshot directory is created, and the row's snapshot: field records both the PDF and yaml sha256",
+          "assertions": [
+            "The row's status gains 'applied 2026-07-14' — the actual submission date the user gave, never the 2026-07-13 render/prepare date [application-ledger.md: 'It becomes applied only when the user confirms they submitted — dated the actual submission date, never the render date']",
+            "The agent recomputes the live file's digest and compares it against the row's own sent: digest before snapshotting; since the user says nothing changed, the match proceeds silently with no question asked [application-ledger.md 'Applied transition': 'Match — proceed with the copy below'; SKILL.md: 'A match proceeds silently']",
+            "A snapshot directory named applications/stripe-backend-engineering-intern-2026-07-14-1/ is created (or the agent states it will create it) with the sequence number present even though it's the first application for this company+role [application-ledger.md: '<n> is a per-company+role sequence number... It is never omitted, even for the first application']",
+            "The row's snapshot: field records both digests — the PDF's sha256 and the yaml's — not the PDF digest alone [application-ledger.md 'Applied transition': 'records the directory's path plus both digests — the PDF's sha256 and the yaml's']",
+            "The snapshot itself is presented as bookkeeping the skill performs, not a task handed to the user; the confirmation is one clause [SKILL.md: 'snapshotting itself is bookkeeping the skill does, never the user — confirm the outcome in one clause']"
+          ]
+        },
+        {
+          "id": 2,
+          "prompt": "sending the notion application now, here's the row that was sitting as prepared:\n\n### Notion — Platform Engineering Intern (prepared 2026-07-08)\n- posting: REQ-9042\n- channel: cold apply\n- variant: infra-systems\n- sent: resume-notion-platform-intern.yaml (yaml sha256 1a2b3c4d5e6f) -> resume-notion-platform-intern.pdf (rendered 2026-07-08, sha256 d4e5f6a1b2c3)\n- status: prepared\n- next: none\n\nsmall thing though — i tweaked one bullet and re-rendered after this row was prepared, so whatever's at the live pdf/yaml path right now (attached below) is a slightly different file than the sha256 this row recorded at prepare time. mark it applied for 2026-07-12.",
+          "files": [
+            "evals/fixtures/tracker-sample/resume-notion-platform-intern.yaml",
+            "evals/fixtures/tracker-sample/resume-notion-platform-intern.pdf"
+          ],
+          "expected_output": "The digest mismatch stops the transition; the agent asks which bytes were actually sent rather than silently snapshotting either one",
+          "assertions": [
+            "The agent recomputes the live file's digest, finds it doesn't match the row's recorded sent: digest, and treats this as a question for the user rather than an automatic verdict [application-ledger.md 'Applied transition': 'this is a question for the user, never an auto-verdict... stop, surface both digests plainly... and ask which bytes were actually sent']",
+            "Both digests are surfaced/quoted (the live file's and the row's sent: digest) rather than the agent silently assuming the row's original digest is authoritative [application-ledger.md: 'quote the live one and the sent: one']",
+            "If the user answers 'the current file' (the edit was real and this is what shipped), the agent rewrites sent: to the live PDF+yaml digests, appends a dated [superseded ...] note preserving the prepared-time digests, and then snapshots the live pair [application-ledger.md: 'Update the row: rewrite sent: to the live PDF and yaml digests, and append a dated supersession note... Then snapshot the live yaml+PDF pair']",
+            "The row never ends up silently holding bytes it never confirmed, no matter which answer the user gives — that is the one forbidden outcome, not the mismatch itself [application-ledger.md: 'the only forbidden outcome is silently snapshotting bytes the row didn't record']"
+          ]
+        },
+        {
+          "id": 3,
+          "prompt": "applying to stripe again for the same backend engineering intern role — got rejected from REQ-48213 a while back but there's a new req open (REQ-51009) and i want to take another shot. log a prepared row for it, generalist variant, posting.",
+          "files": [],
+          "expected_output": "A brand-new row is created for the new posting; the old rejected row is left completely untouched",
+          "assertions": [
+            "A new row is created with its own posting reference (REQ-51009) and its own prepared date — the existing Stripe/Backend-Engineering-Intern row (REQ-48213, rejected) is never matched against, merged into, or overwritten [application-ledger.md: 'A second application to the same company and role... is never a match for that disambiguation — it is always a new row with its own posting, its own prepared date, and its own snapshot on applied... the old row is left exactly as it was']",
+            "The agent does not ask a disambiguating 'which role/posting' question here — that question is reserved for an ambiguous OUTCOME mention against existing open rows, not for logging a fresh application the user has already fully specified [application-ledger.md distinguishes the upsert-ambiguity case from a new-application case]",
+            "If this new row later reaches applied on a date that collides with another Stripe/Backend-Engineering-Intern row's applied date, the snapshot directory takes the next unused sequence number rather than colliding with an existing directory [application-ledger.md: '<n> is a per-company+role sequence number, not a date suffix... the skill increments to the next unused value instead of writing into — or silently overwriting — another row's snapshot']"
+          ]
+        },
+        {
+          "id": 4,
+          "prompt": "prepping a resume for a backend-heavy posting — this one leads hard with systems/infra work over the ML stuff, different emphasis than anything i've logged so far. log it as prepared, variant 'backend-heavy'.",
+          "files": [],
+          "expected_output": "The agent checks the label against the ## Variants legend before accepting it, offers the nearest existing label, and only adds a new legend entry on explicit confirmation",
+          "assertions": [
+            "'backend-heavy' is checked case- and spelling-insensitively against the ledger's ## Variants legend before being written into the row; it is not silently accepted as free text [application-ledger.md: 'a variant that doesn't already match a legend entry... is never created silently: the skill offers the nearest existing label first, or adds it to the legend on explicit confirmation that it's genuinely new']",
+            "The agent offers the nearest existing legend entry as a possible match (e.g. 'infra-systems' or 'ml-heavy') before treating 'backend-heavy' as new [application-ledger.md 'Variants — a controlled legend': 'offer the nearest existing entry first (\"did you mean ml-heavy?\")']",
+            "Only once the user explicitly confirms this is a genuinely new strategy does the agent add a one-line '## Variants' legend entry (label + description of the approach) in the same update, rather than inventing or merging silently [application-ledger.md: 'only when the user confirms this is genuinely a new strategy does it get its own new legend line, added in the same update']"
+          ]
+        },
+        {
+          "id": 5,
+          "prompt": "how's my job search actually going? break it down by strategy if you can. here are my applied rows:\n- Row A, variant ml-heavy, applied 2026-06-01 -> screen 2026-06-10 -> rejected(screen) 2026-06-20\n- Row B, variant ml-heavy, applied 2026-06-03 -> screen 2026-06-09 -> interview(1) 2026-06-18 -> offer 2026-06-28\n- Row C, variant ml-heavy, applied 2026-06-05, nothing back yet\n- Row D, variant generalist, applied 2026-06-01, rejected 2026-06-04\n- Row E, variant generalist, applied ? -> rejected(unknown stage) 2026-06-15\n- Row F, variant generalist, applied 2026-06-10, nothing back yet (today is 2026-07-23)\nplus two more rows still sitting as prepared, not yet applied.",
+          "files": [],
+          "expected_output": "A funnel read using the ledger's fixed formulas: per-variant stage conversion (each stage divided by rows reaching the prior stage), median response latency with honest exclusions, response/callback rates over applied rows only, prepared rows given only a pipeline count",
+          "assertions": [
+            "ml-heavy's applied->screen conversion is reported as 2/3 (rows A and B reached screen, out of 3 applied ml-heavy rows — C hasn't, but is still counted in the applied denominator) and screen->interview as 1/2 (B reached interview, denominator is the 2 rows that reached screen — A and B — not all 3 applied) [application-ledger.md 'Stage conversion': each stage divides by 'rows that reached the prior stage... not all applied rows']",
+            "Median response latency is computed per variant only over rows with both a dated applied and a dated first response: ml-heavy's median (9 and 6 days, from A and B) excludes C (no response yet, so no first-response date), and generalist's median (3 days, from D alone) excludes E (undated 'applied ?') and F (no response yet) — each exclusion count is reported alongside the number, not silently dropped or averaged in as zero [application-ledger.md 'Median response latency': 'report the excluded count alongside the number... never impute a date and never average an unknown in as zero']",
+            "Row D's rejection counts toward generalist's response rate but never toward its callback rate (callback = reaching screen or beyond) [application-ledger.md: 'a rejection is a response but never a callback']",
+            "Row F (applied 2026-06-10, silent as of today 2026-07-23 — 43 days elapsed) is classified 'no response', past the 21-day threshold; the report must actually do this day-count arithmetic per row rather than defaulting every silent row to 'pending' [application-ledger.md: 'no response means applied with nothing back for 21+ days — younger silence is pending, not a data point']",
+            "The two prepared (not-yet-applied) rows get only a one-line pipeline count and are excluded from every rate denominator, never blended into applied-rows math [application-ledger.md: 'Prepared rows get a one-line pipeline count, never a rate']"
+          ]
+        },
+        {
+          "id": 6,
+          "prompt": "never used this before — i already submitted my application for a data engineering role at a startup called Fernhill, applied yesterday (2026-07-22). no ledger exists yet, can you set one up and log this one as applied?",
+          "files": [],
+          "expected_output": "The agent confirms the workspace location and its git/sync posture, creates application-ledger.md mode 600 before any content lands in it, then — because this row starts life already applied — creates the applications/ snapshot directory mode 700 before the first file copy",
+          "assertions": [
+            "Before writing anything, the agent confirms where the ledger will live — beside career-vault.md when resume-builder is in use — rather than silently picking a path [SKILL.md section 1: 'Before the first write, confirm where it lives (beside career-vault.md when resume-builder is in use)']",
+            "Inside a git repository, the agent checks whether the path is (or would be) covered by git check-ignore and offers to add ignores before writing, rather than writing first and checking later [SKILL.md section 1: 'Inside a git repository? Check the path is ignored (git check-ignore) and offer to add ignores before writing']",
+            "If the workspace is inside an iCloud/Drive/Dropbox-synced folder, the agent says so explicitly and notes that gitignore does not stop a sync client from uploading it — this warning is not skipped just because a git check passed [SKILL.md section 1: 'Inside a cloud-synced folder (iCloud/Drive/Dropbox)? Say so — gitignore does not stop a sync client from uploading it']",
+            "application-ledger.md is created with 600 permissions before any content is written into it (e.g. install -m 600 /dev/null application-ledger.md) — the agent never writes the file first and chmods it afterward [SKILL.md section 1: 'create the file with 600 permissions before content lands in it... never write first and chmod after']",
+            "Because this row reaches applied immediately (no prior prepared stage to wait on), the applications/ snapshot directory and its per-application subdirectory are created mode 700, not 600, before any yaml/PDF is copied in — reasoning that a 600 directory would block that first file copy with Permission denied, even though the copied files themselves stay 600 [SKILL.md section 1: 'applications/... and every per-application snapshot subdirectory under it are created 700, not 600 (mkdir -m 700); a 600 directory blocks the first file copied into it with Permission denied... the yaml and PDF copied into those subdirectories are files, so they stay 600, same as the ledger']"
           ]
         }
       ]

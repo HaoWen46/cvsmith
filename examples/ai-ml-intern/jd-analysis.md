@@ -6,11 +6,11 @@ engineers, code review, and eval gates around it; scope words match the title.
 Register signal: LLM-product startup, energetic-concrete tone ("catch
 regressions before customers do") — one sample of the US-tech register cell.
 
-## Gates (binary — confirm before tailoring)
-- **Graduating Dec 2027 or later** ("pursuing a BS/MS… graduating Dec 2027
-  or later") — enrollment status; cannot be tailored.
-- **US work authorization, no sponsorship** — not a resume line in US
-  convention; the application form asks. Confirm before investing effort.
+## Gates (binary — confirm with the candidate before tailoring)
+| Gate | Requirement | Candidate status | Notes |
+|---|---|---|---|
+| Graduation date | Graduating Dec 2027 or later ("pursuing a BS/MS… graduating Dec 2027 or later") | not met | candidate graduates Jun 2026 (career vault) — enrollment status, cannot be tailored |
+| Work authorization | US work authorization, no sponsorship | unconfirmed | not a resume line in US convention; the application form asks — confirm before investing effort |
 
 ## Must-haves (ranked)
 | # | Requirement | JD's words | Evidence target |

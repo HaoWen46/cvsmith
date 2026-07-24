@@ -1,6 +1,6 @@
 [project]
 name = "cvsmith"
-version = "0.1.1"
+version = "0.1.2"
 description = "Agent skills that build, tailor, and adversarially test resumes"
 requires-python = ">=3.11"
 # No [build-system]: this repo is not a Python package. uv manages the

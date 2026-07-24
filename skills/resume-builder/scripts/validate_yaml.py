@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env -S uv run --script
 # /// script
 # requires-python = ">=3.11"
 # dependencies = [
@@ -20,6 +20,22 @@ classic.typ) and render.sh — not just the schema doc's example block — so
 this validator is never stricter than what actually renders: meta.accent
 (compact-only), meta.template and meta.bullet_lines (render.sh-only),
 experience[].tags (compact-only) and projects[].summary are all known keys.
+
+A third class lives beside the first two, checked only where both dates on
+one entry resolve: chronology. start after end (year, or year+month when
+both sides carry a month) is not a format problem — each field alone can be
+a well-formed YYYY-MM — it is a fact this validator is the only place that
+can catch, since check_projection.py checks presence, not order. `present`
+on an end date is exempt (an ongoing role's own WARN, unchanged from round
+4); same-year entries with only one side's month known are left alone as
+unresolvable rather than guessed at.
+
+`present` itself is only meaningful as an end value — it claims "still
+ongoing," which only makes sense for the field that would otherwise hold a
+resolution date. A start of `present` (or a single-date field like
+awards[].date, which has no end to pair against) is not an unresolvable
+date, it is a nonsense one, and date_of() fails it outright rather than
+leaving it for chronology() to shrug at.
 
 usage: validate_yaml.py resume.yaml [--json]
   exit 0: valid · 1: violations · 2: file unreadable or unparseable
@@ -92,6 +108,32 @@ TYPE_NAMES = {"NoneType": "null", "str": "string", "int": "integer",
 
 def tn(v) -> str:
     return TYPE_NAMES.get(type(v).__name__, type(v).__name__)
+
+
+def _year_month(val) -> tuple[int, int | None] | None:
+    """(year, month-or-None) for a resolvable date value; None for
+    'present'/malformed/missing — those are date_of's job, not chronology's.
+    Month is None for year-only precision; chronology() then compares years
+    only, which still catches an unambiguous reversal without guessing."""
+    if val is None:
+        return None
+    if isinstance(val, str):
+        s = val.strip()
+        if s.casefold() == "present":
+            return None
+        if DATE_RE.match(s):
+            y, m = s.split("-")
+            return int(y), int(m)
+        if YEAR_RE.match(s):
+            return int(s), None
+        return None
+    if isinstance(val, bool):
+        return None
+    if isinstance(val, int):
+        return val, None
+    if isinstance(val, (datetime.date, datetime.datetime)):
+        return val.year, val.month
+    return None
 
 
 def suggest(key, valid) -> str:
@@ -271,7 +313,35 @@ class Validator:
                           f"{path}.{k}[{j}]: entries must be non-empty "
                           f"strings, got {tn(item)}")
 
-    def date_of(self, e: dict, path: str, *keys) -> None:
+    def chronology(self, e: dict, path: str) -> None:
+        """start > end (both resolvable, end not "present") is a lie no
+        format check catches — date_of only validates each field alone.
+        Year-only precision still catches an unambiguous reversal; same-year
+        with only one side carrying a month is left alone (not resolvable
+        enough to call, not this check's job to guess)."""
+        start, end = e.get("start"), e.get("end")
+        sy_sm, ey_em = _year_month(start), _year_month(end)
+        if sy_sm is None or ey_em is None:
+            return
+        sy, sm = sy_sm
+        ey, em = ey_em
+        reversed_ = (sy, sm) > (ey, em) if sm is not None and em is not None \
+            else sy > ey
+        if reversed_:
+            self.flag("chronology", FAIL,
+                      f"{path}: start {start!r} is after end {end!r} — "
+                      "reversed chronology, not a rephrasing; fix the dates "
+                      "or confirm which one is wrong before this ships")
+
+    def date_of(self, e: dict, path: str, *keys,
+                present_ok: frozenset = frozenset()) -> None:
+        """present_ok names which of `keys` may hold 'present' (typically
+        just {"end"}); every other key rejects it. 'present' claims "still
+        ongoing" — only a field with an end to be ongoing *toward* can
+        honestly say that. A start of 'present', or a singleton date field
+        with no end to pair against (awards[].date), is nonsense, not
+        merely unresolved — so it fails here rather than reaching
+        chronology(), which treats 'present' as unresolvable and skips it."""
         for k in keys:
             if k not in e or e[k] is None:
                 continue
@@ -279,7 +349,16 @@ class Validator:
             self.dates += 1
             if isinstance(val, str):
                 s = val.strip()
-                if DATE_RE.match(s) or s.lower() == "present":
+                if s.casefold() == "present":
+                    if k in present_ok:
+                        continue
+                    self.flag("dates", FAIL,
+                              f"{path}.{k}: 'present' is only valid as an "
+                              "end date — this field has no end for "
+                              "'present' to be ongoing toward, so it needs "
+                              "an actual YYYY-MM (or year) value")
+                    continue
+                if DATE_RE.match(s):
                     continue
                 if YEAR_RE.match(s):
                     self.flag("dates", WARN,
@@ -296,9 +375,11 @@ class Validator:
                           f"{path}.{k}: full date {val} — the schema wants "
                           "month precision: YYYY-MM")
                 continue
+            fmt = "YYYY-MM (month 01-12) or 'present'" if k in present_ok \
+                else "YYYY-MM (month 01-12) — 'present' is not valid here"
             self.flag("dates", FAIL,
-                      f"{path}.{k}: {val!r} is not YYYY-MM (month 01-12) "
-                      "or 'present' — templates cannot format it")
+                      f"{path}.{k}: {val!r} is not {fmt} — templates cannot "
+                      "format it")
 
     def entries(self, data: dict, key: str):
         """Validate a section's list shell; yield (path, entry) mappings."""
@@ -472,7 +553,8 @@ def validate(data: dict) -> Validator:
             v.require(e, p, ("institution", "degree", "field"))
             v.str_of(e, p, "institution", "degree", "field", "location")
             v.nonblank(e, p, "institution", "degree", "field")
-            v.date_of(e, p, "start", "end")
+            v.date_of(e, p, "start", "end", present_ok=frozenset({"end"}))
+            v.chronology(e, p)
             v.str_list(e, p, "coursework")
             v.str_list(e, p, "honors")
 
@@ -484,7 +566,8 @@ def validate(data: dict) -> Validator:
             v.require(e, p, ("organization", "title", "bullets"))
             v.str_of(e, p, "organization", "title", "location")
             v.nonblank(e, p, "organization", "title")
-            v.date_of(e, p, "start", "end")
+            v.date_of(e, p, "start", "end", present_ok=frozenset({"end"}))
+            v.chronology(e, p)
             v.str_list(e, p, "bullets")
             v.str_list(e, p, "tags")
             if (g := e.get("group")) is not None and g not in GROUPS:
@@ -502,7 +585,8 @@ def validate(data: dict) -> Validator:
             v.str_of(e, p, "name", "summary", "url")
             v.nonblank(e, p, "name")
             v.url_of(e, p)
-            v.date_of(e, p, "start", "end")
+            v.date_of(e, p, "start", "end", present_ok=frozenset({"end"}))
+            v.chronology(e, p)
             v.str_list(e, p, "bullets")
             v.str_list(e, p, "stack")
 
@@ -553,6 +637,7 @@ CATEGORIES = (
      "classic + render.sh)"),
     ("required_keys", "every required key present"),
     ("dates", "{dates} date(s) well-formed (YYYY-MM / present)"),
+    ("chronology", "no entry starts after it ends"),
     ("shapes", "field shapes match the schema"),
     ("empties", "no nulls, no empty lists — absence is the signal"),
     ("values", "enums and meta knobs in range"),

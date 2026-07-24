@@ -56,6 +56,22 @@ Classify every substantive line of the posting:
 Then rank must-haves by weight using the taxonomy's signals (position
 in posting, repetition, title words, "required" phrasing, specificity).
 
+### 2b. Confirm gates with the candidate — and persist the answer
+
+Every gate found in step 2 blocks binarily; don't leave its answer as
+a spoken aside the evaluator has no way to see later. Ask the user
+directly for each one (work authorization, clearance, degree/license,
+date-based eligibility, any other credential/legal gate the posting
+states) and write the answer into the output file's Gates table as
+it's given: **met** / **not met** / **unconfirmed** — never blank,
+never inferred, and "unconfirmed" is itself the honest, complete
+answer when the user hasn't said. This table is the only place a
+candidate's gate status survives the conversation: `resume-evaluator`
+builds its cold-reader context block from this file, not from a
+conversation it has no access to. Re-ask on a stale re-analysis (step
+1's seen-date check) — gate facts (visa status, expected grad date)
+change between sessions even when the posting hasn't.
+
 ### 3. Decode seniority
 
 Titles lie in both directions. Use the taxonomy's decoder: years asked
@@ -103,8 +119,13 @@ Decoded level: <one line>
 Register signal: <employer type + posting's own tone, one line — one
 sample of the builder's register cell>
 
-## Gates (binary — confirm before tailoring)
-<credential/legal/date gates go here, never in the ranked table>
+## Gates (binary — confirm with the candidate before tailoring)
+| Gate | Requirement | Candidate status | Notes |
+|---|---|---|---|
+<one row per credential/legal/date gate — never in the ranked table.
+ Candidate status is met / not met / unconfirmed, filled in at
+ analysis time per step 2b; "unconfirmed" is a valid, honest row, not
+ a placeholder to come back to>
 
 ## Must-haves (ranked)
 | # | Requirement | JD's words | Evidence target |
@@ -144,11 +165,13 @@ shows the user far from the must-haves, say so plainly — tailoring
 optimizes a real match, it cannot manufacture one.
 
 "Am I qualified?" is answered from this same structure, in order:
-gates first (binary — a missing work authorization ends the
-question), then the ranked must-haves each scored against the user's
-*actual* evidence (strong / weak / absent, same scale the evaluator
-uses), then the one-paragraph story. Never answer from overall vibes
-or title-matching; the ranked table is the answer.
+gates first (binary — read the Gates table's candidate status; a
+"not met" work authorization ends the question, an "unconfirmed" one
+means ask now rather than answer), then the ranked must-haves each
+scored against the user's *actual* evidence (strong / weak / absent,
+same scale the evaluator uses), then the one-paragraph story. Never
+answer from overall vibes or title-matching; the ranked table is the
+answer.
 
 ## Multiple postings
 

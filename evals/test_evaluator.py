@@ -7,7 +7,9 @@ exercise the real render path too.
 
 from __future__ import annotations
 
+import hashlib
 import json
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -108,6 +110,53 @@ def test_transparent_text_over_dark_is_exposed(fixtures):
         "fully transparent text over a dark banner must be surfaced"
     assert "SAMECOLOR_MARKER" in hidden, \
         "same-color-as-background text must be surfaced"
+
+
+def test_partial_edge_text_is_exposed(fixtures):
+    # External review finding 4: hidden_text_check.py's offpage_text check
+    # only caught words wholly beyond a page edge, not words CROSSING one
+    # (half visible, half clipped by any viewer/printer that honors the
+    # page box). One straddling word per edge, plus the wholly-off-page
+    # case the check already caught, all in fixtures/broken-src/
+    # partial_edge_text.typ.
+    code, report = run_script("hidden_text_check", fixtures / "partial_edge_text.pdf")
+    assert code == 1
+    assert "offpage_text" in failed_ids(report)
+
+    by_word = {w["text"]: w for w in report["offpage_words"]}
+    assert by_word["RIGHTCROSSWORD"]["edges"] == ["right"], \
+        "a word straddling the right edge must be caught, not just words " \
+        "wholly beyond it"
+    assert by_word["LEFTCROSSWORD"]["edges"] == ["left"]
+    assert by_word["TOPCROSSWORD"]["edges"] == ["top"]
+    assert by_word["BOTTOMCROSSWORD"]["edges"] == ["bottom"]
+    # the pre-existing wholly-off-page case must still be caught too
+    assert by_word["WHOLLYOFFPAGECONTROL"]["edges"] == ["right"]
+
+    detail = " ".join(c["detail"] for c in report["checks"]
+                       if c["check_id"] == "offpage_text")
+    assert "RIGHTCROSSWORD" in detail and "right" in detail, \
+        "the report must name the word and the edge it crosses"
+
+
+def test_no_false_positive_offpage_on_legit_fixtures(fixtures):
+    # Calibration check for BBOX_EDGE_EPS: every other fixture generate.py
+    # builds — every template x good/sparse/long-meta, the other planted-
+    # failure fixtures, twocol, wonky_headings — must still pass
+    # offpage_text. Real templates keep >=0.5in margins (see the measured-
+    # margin comment on BBOX_EDGE_EPS in hidden_text_check.py), so none of
+    # their word bboxes come anywhere near a page edge.
+    checked = 0
+    for pdf in sorted(fixtures.glob("*.pdf")):
+        if pdf.name == "partial_edge_text.pdf":
+            continue
+        _, report = run_script("hidden_text_check", pdf)
+        offpage = [c for c in report["checks"] if c["check_id"] == "offpage_text"]
+        assert offpage and offpage[0]["level"] == "pass", \
+            f"{pdf.name} false-positived offpage_text: {offpage}"
+        checked += 1
+    assert checked >= 10, \
+        "sweep should cover every legit fixture generate.py builds"
 
 
 # ── malformed PDFs keep the JSON contract ────────────────────────────
@@ -317,6 +366,51 @@ def test_successful_render_leaves_no_temp_files(tmp_path):
     assert pdf.is_file()
     assert not list(tmp_path.glob(".render-*")), \
         "compile temp files must not survive a successful render"
+
+
+def test_render_sh_prints_output_digest(tmp_path):
+    # Attribution (application-tracker's ledger snapshot, in particular)
+    # comes from a digest, not from write-protecting the derived output
+    # path — render.sh must print one every successful render so a
+    # second same-company/role render is distinguishable from the first
+    # without diffing PDF bytes by hand.
+    pdf = tmp_path / "resume.pdf"
+    src = REPO / "evals/fixtures/resume-sample/resume.yaml"
+    proc = render_to(src, pdf)
+    assert proc.returncode == 0, proc.stderr
+    m = re.search(r"^sha256: ([0-9a-f]{12})$", proc.stdout, re.MULTILINE)
+    assert m, f"no sha256 digest line in stdout:\n{proc.stdout}"
+    want = hashlib.sha256(pdf.read_bytes()).hexdigest()[:12]
+    assert m.group(1) == want, "printed digest must match the actual output bytes"
+
+    # The ledger's `sent:` line promises an exact yaml+PDF snapshot, so
+    # render.sh must also hash the input yaml — a second, additive line,
+    # never a replacement for the PDF digest above.
+    ym = re.search(r"^yaml sha256: ([0-9a-f]{12})$", proc.stdout, re.MULTILINE)
+    assert ym, f"no yaml sha256 digest line in stdout:\n{proc.stdout}"
+    want_yaml = hashlib.sha256(src.read_bytes()).hexdigest()[:12]
+    assert ym.group(1) == want_yaml, \
+        "printed yaml digest must match the actual input yaml bytes"
+
+
+def test_render_sh_digest_changes_on_content_change(tmp_path):
+    # The overwrite itself is fine (iterating re-renders the same derived
+    # path on purpose) — what must never happen silently is two different
+    # sets of bytes reporting the same digest, since that digest is the
+    # only signal a ledger row has that its snapshot is stale.
+    pdf = tmp_path / "resume.pdf"
+    src = (REPO / "evals/fixtures/resume-sample/resume.yaml").read_text()
+    first = render_to(REPO / "evals/fixtures/resume-sample/resume.yaml", pdf)
+    assert first.returncode == 0, first.stderr
+    d1 = re.search(r"^sha256: ([0-9a-f]{12})$", first.stdout, re.MULTILINE).group(1)
+
+    changed = tmp_path / "changed.yaml"
+    changed.write_text(src.replace("Sam Casey", "Sam Casey Jr"))
+    second = render_to(changed, pdf)
+    assert second.returncode == 0, second.stderr
+    d2 = re.search(r"^sha256: ([0-9a-f]{12})$", second.stdout, re.MULTILINE).group(1)
+
+    assert d1 != d2, "changed content must produce a different digest"
 
 
 def test_grouped_experience_renders_and_routes(tmp_path):

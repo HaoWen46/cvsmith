@@ -132,6 +132,189 @@ def test_bad_month_is_caught(tmp_path):
     assert "2025-13" in f[0]["detail"]
 
 
+def test_reversed_experience_dates_fail(tmp_path):
+    # start after end, both resolvable, end not "present" — this is not a
+    # format problem (date_of already passes both), it's a chronology lie
+    yml = textwrap.dedent("""\
+        basics:
+          name: Test Person
+          email: test@example.com
+        experience:
+          - organization: Somewhere Labs
+            title: Intern
+            start: 2025-09
+            end: 2025-06
+            bullets: [Did a thing.]
+        """)
+    path = tmp_path / "resume.yaml"
+    path.write_text(yml)
+    code, report = run_validator(path)
+    assert code == 1
+    f = fails(report)
+    ids = [c["check_id"] for c in f]
+    assert "chronology" in ids, f"reversed start/end must fail: {f}"
+    detail = " ".join(c["detail"] for c in f if c["check_id"] == "chronology")
+    assert "experience[0]" in detail
+    assert "2025-09" in detail and "2025-06" in detail
+
+
+def test_reversed_education_dates_fail(tmp_path):
+    yml = textwrap.dedent("""\
+        basics:
+          name: Test Person
+          email: test@example.com
+        education:
+          - institution: Somewhere State
+            degree: B.S.
+            field: Computer Science
+            start: 2026-09
+            end: 2022-06
+        """)
+    path = tmp_path / "resume.yaml"
+    path.write_text(yml)
+    code, report = run_validator(path)
+    assert code == 1
+    f = fails(report)
+    ids = [c["check_id"] for c in f]
+    assert "chronology" in ids, f"reversed education dates must fail: {f}"
+    assert "education[0]" in " ".join(
+        c["detail"] for c in f if c["check_id"] == "chronology")
+
+
+def test_year_only_reversed_dates_fail(tmp_path):
+    # year-only precision is still enough to catch an unambiguous reversal
+    yml = textwrap.dedent("""\
+        basics:
+          name: Test Person
+          email: test@example.com
+        experience:
+          - organization: Somewhere Labs
+            title: Intern
+            start: "2026"
+            end: "2024"
+            bullets: [Did a thing.]
+        """)
+    path = tmp_path / "resume.yaml"
+    path.write_text(yml)
+    code, report = run_validator(path)
+    assert code == 1
+    ids = [c["check_id"] for c in fails(report)]
+    assert "chronology" in ids
+
+
+def test_ongoing_role_end_present_does_not_trigger_chronology(tmp_path):
+    # the round-4 ongoing-role WARN must not regress into a chronology FAIL
+    yml = textwrap.dedent("""\
+        basics:
+          name: Test Person
+          email: test@example.com
+        experience:
+          - organization: Somewhere Labs
+            title: Intern
+            start: 2025-09
+            end: present
+            bullets: [Did a thing.]
+        """)
+    path = tmp_path / "resume.yaml"
+    path.write_text(yml)
+    code, report = run_validator(path)
+    assert code == 0, f"'present' must never be treated as reversed: {report}"
+    assert not fails(report)
+
+
+# ── 'present' is only meaningful as an end value ──────────────────────
+
+def test_experience_start_present_fails(tmp_path):
+    # start: present, end: 2025-06 is an impossible chronology that the
+    # old code let through silently: date_of accepted 'present' anywhere,
+    # and chronology() treats an unresolvable 'present' start as nothing
+    # to compare — so neither check ever saw the entry as broken.
+    yml = textwrap.dedent("""\
+        basics:
+          name: Test Person
+          email: test@example.com
+        experience:
+          - organization: Somewhere Labs
+            title: Intern
+            start: present
+            end: 2025-06
+            bullets: [Did a thing.]
+        """)
+    path = tmp_path / "resume.yaml"
+    path.write_text(yml)
+    code, report = run_validator(path)
+    assert code == 1, f"start: present must fail, not render an impossible chronology: {report}"
+    f = fails(report)
+    assert len(f) == 1, f"expected exactly the planted violation: {f}"
+    assert f[0]["check_id"] == "dates"
+    assert "experience[0].start" in f[0]["detail"]
+    assert "end date" in f[0]["detail"]
+
+
+def test_education_start_present_fails(tmp_path):
+    yml = textwrap.dedent("""\
+        basics:
+          name: Test Person
+          email: test@example.com
+        education:
+          - institution: Somewhere State
+            degree: B.S.
+            field: Computer Science
+            start: present
+            end: 2022-06
+        """)
+    path = tmp_path / "resume.yaml"
+    path.write_text(yml)
+    code, report = run_validator(path)
+    assert code == 1, f"start: present must fail for education too: {report}"
+    f = fails(report)
+    assert len(f) == 1, f"expected exactly the planted violation: {f}"
+    assert f[0]["check_id"] == "dates"
+    assert "education[0].start" in f[0]["detail"]
+
+
+def test_project_start_present_fails(tmp_path):
+    yml = textwrap.dedent("""\
+        basics:
+          name: Test Person
+          email: test@example.com
+        projects:
+          - name: Ledger Lite
+            start: present
+            end: 2025-06
+            bullets: [Built a thing.]
+        """)
+    path = tmp_path / "resume.yaml"
+    path.write_text(yml)
+    code, report = run_validator(path)
+    assert code == 1, f"start: present must fail for projects too: {report}"
+    f = fails(report)
+    assert len(f) == 1, f"expected exactly the planted violation: {f}"
+    assert f[0]["check_id"] == "dates"
+    assert "projects[0].start" in f[0]["detail"]
+
+
+def test_award_date_present_fails(tmp_path):
+    # awards[].date is a singleton — no 'end' to pair 'present' against,
+    # the same absurdity the start: present acceptance enabled elsewhere
+    yml = textwrap.dedent("""\
+        basics:
+          name: Test Person
+          email: test@example.com
+        awards:
+          - name: Dean's List
+            date: present
+        """)
+    path = tmp_path / "resume.yaml"
+    path.write_text(yml)
+    code, report = run_validator(path)
+    assert code == 1, f"awards[].date: present must fail: {report}"
+    f = fails(report)
+    assert len(f) == 1, f"expected exactly the planted violation: {f}"
+    assert f[0]["check_id"] == "dates"
+    assert "awards[0].date" in f[0]["detail"]
+
+
 def test_link_missing_url_is_caught(tmp_path):
     bad = mutated(
         tmp_path, "resume-sample",

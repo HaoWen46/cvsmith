@@ -1,0 +1,44 @@
+# Synthetic fixture — "Sam Casey" does not exist. Round-6 regression
+# case for external review finding 7: with the round-5 inline meta rail
+# (dates/location trailing the body text with a small fixed gap instead
+# of a flush-right column), a long institution/organization/title string
+# pushes the meta text close to — or past — the line-wrap point. This
+# fixture pairs maximally long left-side content with meta on the same
+# row, on every row() call site, to check the rail degrades gracefully:
+# wraps onto its own line rather than overlapping or clipping.
+# See evals/test_sparse_density.py.
+
+meta:
+  target_field: ai-ml
+  page_budget: 1
+
+basics:
+  name: Sam Casey
+  email: sam.casey@example.com
+  phone: "+1 (555) 010-4477"
+  location: Seattle, WA
+
+education:
+  - institution: The University of Washington College of Engineering, Paul G. Allen School of Computer Science and Engineering
+    degree: B.S.
+    field: Computer Science, Data Science, and Applied Mathematics
+    start: 2022-09
+    end: 2026-06
+
+experience:
+  - organization: Meridian Laboratories for Applied Machine Learning and Distributed Systems Research International
+    title: Senior Software Engineering and Machine Learning Infrastructure Intern
+    location: Seattle, Washington, United States of America
+    start: 2025-06
+    end: 2025-09
+    bullets:
+      - Built a small internal tool used by the team.
+
+projects:
+  - name: ledgerlite
+    bullets:
+      - Small personal-finance CLI.
+
+skills:
+  - label: Languages
+    items: [Python, Rust]

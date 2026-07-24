@@ -59,6 +59,52 @@ confirmed workspace and jump to step 4 (steps 3 and 5 still re-derive
 market and register from the new posting, never from the last
 application).
 
+**Check for an application ledger too, and read it before tailoring
+if it's there.** If `application-ledger.md` exists in the workspace,
+read it silently as part of intake — never demand the user create one
+first; this is pull-based, same as the vault. Two things to pull out:
+prior rows for this company/role (feeds step 4's and
+application-tracker's dup/disambiguation — don't draft a fifth
+variant for a company already applied to without surfacing the
+earlier ones first), and, if the ledger has a `## Learnings` section,
+its recorded conclusions.
+
+**Read the rows' own outcomes, not only `## Learnings`.** A
+`## Learnings` entry exists only after the user separately asked for a
+funnel read; the ordinary sequence — apply, get rejected, tailor the
+next one — never produces one. Reading only that section is what made
+logged outcomes fail to reach the next CV at all. So before choosing a
+variant, compute the per-variant funnel straight off the applied rows,
+using application-tracker's fixed definitions verbatim (callback =
+row ever reached screen or beyond, a furthest-stage-ever fact; both
+rates over applied rows; 21-day pending floor; channel-stratified, or
+state the channel mix). Only where a variant has enough applied rows
+to mean anything — under 5 applied rows on a variant, report the count
+and draw nothing from it. State in one line what the rows showed and
+what it changed ("ml-heavy: 2 callbacks / 9 applied, generalist: 0 /
+6, both cold — leading with the ML work"), or say plainly that the
+rows are too thin to steer this draft. This is a read, never a write:
+persisting conclusions into `## Learnings` stays application-tracker's
+job.
+
+Where a `## Learnings` entry and the rows disagree, the rows win and
+say so — entries are dated and appended, never rewritten, so an older
+conclusion can outlive the evidence it was drawn from. Prefer the most
+recent entry on any given question, ignore an entry whose `basis:`
+row-count is now a strict subset of what the rows show today, and
+never stack two entries that contradict each other without naming
+which one you followed and why. When a learning bears on this application —
+a variant tag that under- or over-performed, a phrasing or emphasis
+choice flagged as a mistake — let it inform this draft's variant
+choice or emphasis in step 5, and say in one line which learning
+influenced what ("skipping the metrics-heavy opening this time — the
+ledger's Learnings note it read as boastful for early-career roles").
+No ledger, or no `## Learnings` section in it? Say nothing extra and
+proceed; this step is silent when there's nothing to read, never a
+prompt to start a ledger. (Persisting new conclusions into
+`## Learnings` is application-tracker's job, not this skill's — this
+step only consumes what's already there.)
+
 Users don't follow filing rituals. Adapt to however material shows up:
 
 - **Already in the conversation** — pasted text, attachments, offhand
@@ -140,8 +186,23 @@ posting already exists from an earlier session, check its seen-date
 before tailoring against it: the posting is task input (fetched fresh
 at use), so if the date is weeks old, re-fetch the source first —
 gone means warn the user the role may be closed; changed means
-re-analyze. No posting → build a strong general version for the
-field; say so and move on.
+re-analyze. No posting → build a general version aimed at the field's
+typical priorities — the expected evidence its field guide
+(`references/fields/<field>.md`) names, not a specific posting's ranked
+requirements. Be precise about what that is and isn't: it is tailored
+to what the field's readers generally screen for, and the evaluator can
+confirm it is mechanically sound and well-crafted *for that field's
+reader* — but with no posting there is no requirement set to score
+coverage against, so "strong general version" never means "validated
+competitive for a particular role or level" (the evaluator's no-JD
+`DONE` says exactly this — see resume-evaluator's Run status). Say so
+and move on. If step 1 pulled prior rows or `##
+Learnings` conclusions from `application-ledger.md` for this company
+or a comparable role, weigh them now — variant choice and emphasis are
+decided in this step and in step 5's drafting, and a documented
+learning ("the metrics-first opening underperformed for new-grad
+roles") is exactly the kind of evidence that should move the choice
+before drafting starts, not after another application repeats it.
 
 jd-analyzer not installed (this skill running standalone)? Say so,
 then decompose the posting inline — ranked must-haves, the JD's own
@@ -165,7 +226,7 @@ candidate now (the register cell decides — typst-guide §Choosing a
 template; step 7 still confirms with the user), then calibrate —
 render a throwaway skeleton yaml written per data-schema.md (basics,
 one entry, three deliberately overlong bullets) through
-`scripts/render.sh -t <candidate>` and run `scripts/check_bullets.py`
+`scripts/render.sh -t <candidate>` and run `uv run scripts/check_bullets.py`
 on the PDF for measured line capacity; three bullets, not one, so the
 wrapped-line medians have enough votes. Plan the space division —
 bullets per entry, chars per bullet — so the first real render
@@ -197,8 +258,12 @@ a general version is plain `resume.yaml`.
 
 render.sh validates the file against the schema first — fix its
 findings before reading any typst error. When drafting from a vault,
-also run `scripts/check_projection.py resume.yaml career-vault.md` —
-a missing hard fact means the vault gets the fact, with the user's
+also run `uv run scripts/check_projection.py <the file you just named>
+career-vault.md` — the file just named above, `resume.yaml` or
+`resume-<company>-<role>.yaml`, never the other one; a stray generic
+`resume.yaml` left over from an earlier session can pass while the
+actual tailored file you're about to send has an unchecked fact. A
+missing hard fact means the vault gets the fact, with the user's
 answer, before the yaml keeps it.
 
 ### 7. Render
@@ -225,16 +290,58 @@ template ships with, or margins below its shipped margins.
 
 ### 8. Verify — mandatory, not optional
 
-Run the `resume-evaluator` skill on the rendered PDF (with the
-jd-analyzer output if step 4 ran) — and hand it the yaml path too:
-`meta.target_field`, `meta.page_budget`, and `meta.lang` are scoring
-context the PDF alone cannot carry. A two-page academic CV judged
-against the default one-page budget is a false failure the yaml
-already prevents. Fix what it reports, re-render, re-run until L0–L3
-pass clean. Show the user the final report.
+Run the `resume-evaluator` skill on the rendered PDF — hand it the
+yaml path too: `meta.target_field`, `meta.page_budget`, and `meta.lang`
+are scoring context the PDF alone cannot carry. A two-page academic CV
+judged against the default one-page budget is a false failure the yaml
+already prevents. If step 4 ran, hand it the jd-analyzer output file
+as well — that file is where the evaluator's cold-reader context block
+(target reader, market, the candidate's persisted gate statuses)
+actually comes from, not from anything said in this conversation. Fix
+what it reports, re-render, re-run until MECHANICAL is READY and
+TARGET FIT reflects the current coverage (or the user has explicitly
+chosen to stop short of it) **and** every must-fix `judgment` finding
+the evaluator raised is either fixed or explicitly declined by the
+user — the evaluator's run-termination rule (its "Iteration protocol")
+binds here too: a must-fix judgment finding left open-undecided means
+this step isn't done, even once both READY verdicts already stand.
+Decline is always available for judgment findings (style is the
+user's call), but silence on one is not a way to end this step. Show
+the user the final report — all three lines (MECHANICAL, TARGET FIT,
+CRAFT), never collapsed into fewer words: a CV that is honest and
+on-target but generic ships as "READY" on both surfaces with its
+CRAFT score and any declined must-fix findings stated plainly, not
+hidden behind the two READY words.
 `check_projection` also prints a directional metric-pair audit —
 confirm each pair it lists for manual review against the vault before
-shipping.
+shipping — and, mandatorily on every run, a claim -> source pairing
+section: every content claim in the yaml — numeric or qualitative,
+bullets and summary and honors alike, not just the ones with a number
+in them — next to the exact vault line(s) that support it (or its
+FAIL/manual-audit/informational status). **Read that section after
+every check_projection pass, not just when it warns, and read every
+row — the informational (`info`) and qualitative rows included, not
+only the ones marked `warn`** — attest, pairing by pairing, that the
+claim and its listed source describe the SAME achievement, not merely
+that their numbers (or words) match. The claim_semantic_mismatch WARN
+is an automatic, narrow subset of what this section covers; a claim
+can clear that check by lexical luck (a single swapped word inside an
+otherwise-verbatim source line, for instance) and still be wrong,
+which is exactly what the pairing section — read by a human, not a
+ratio — is for. A pairing for a claim the vault never structures into
+its own entry (`basics.summary`, a citation, any field outside
+experience/education/projects), and every claim with no number at all
+to check presence against, is labeled `info`, never `warn` or `pass`,
+regardless of its printed ratio — that path has no threshold that
+honestly separates a rephrase from a fabrication, so `info` means only
+"nothing was mechanically flagged, and nothing was confirmed either,"
+and those rows need the same read as any other. Any pairing where the
+claim and its source do not describe the same achievement is a
+**truth finding** under resume-evaluator's finding classification
+(fabrication/inflation, not a style choice): **must-fix**, and it
+resolves only by evidence (fix the vault entry or the claim so they
+agree) or by removing the claim — never by the user's decline, same
+as every other truth finding in this pipeline.
 
 This applies to *every* later edit, not just the first build: folding
 in an answer, a cold-read fix, or a cut re-runs the same render and
@@ -259,7 +366,7 @@ releases) before the user submits anywhere.
 ### 9. After the send
 
 When a projection ships for a real application, offer — in one line —
-to log a **prepared** row (channel + sent version) in
+to log a **prepared** row (channel + sent version + variant label) in
 `application-ledger.md` beside the vault; the row turns applied only
 when the user confirms submission, never at render. Respect a no.
 Outcome updates and funnel reads are the `application-tracker`
@@ -270,13 +377,28 @@ per application:
 ```markdown
 ### <Company> — <Role> (prepared YYYY-MM-DD)
 - channel: posting | referral (<who>) | recruiter outreach | other
-- sent: <projection>.yaml -> <pdf> (rendered YYYY-MM-DD)
+- variant: <strategy tag>
+- sent: <projection>.yaml (yaml sha256 <12-hex>) -> <pdf> (rendered YYYY-MM-DD, sha256 <12-hex>)
 - status: prepared
 ```
 
+`render.sh` prints both `sha256: <12-hex>` (the PDF) and
+`yaml sha256: <12-hex>` (the input yaml) alongside `rendered:` on
+every successful render — carry both values into `sent:` so the row
+still points at the exact bytes that shipped even if the same derived
+output path gets re-rendered later. `variant` is a reusable strategy
+label (not the filename) — the same tag recurs across applications so
+callback rates can group by it; application-tracker keeps these labels
+in a `## Variants` legend so spelling drift can't silently split one
+strategy's numbers in two — this fallback path doesn't maintain that
+legend itself, another reason to install application-tracker rather
+than stay on it.
+
 — and offer to install application-tracker for outcome tracking; its
 application-ledger reference carries the full format and funnel
-doctrine, which this fallback deliberately does not duplicate.
+doctrine (including the applied-transition snapshot this fallback
+does not attempt), which this fallback deliberately does not
+duplicate.
 
 ## Iterating with the user
 

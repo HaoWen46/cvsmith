@@ -1,0 +1,44 @@
+# Synthetic fixture — "Sam Casey" does not exist. Regression case for
+# the density-dependent reading-order bug (external review finding 3):
+# a sparse but perfectly normal CV — one ordinary job, one project, no
+# summary/publications/awards — used to have its Experience/Education
+# date ranges reordered after SKILLS by poppler's default (non -layout)
+# text extraction, purely because there wasn't enough other content on
+# the page to keep the right-aligned date column from reading as an
+# independent column. Padding the same structure with more content used
+# to make it pass; it must pass exactly as-is. See evals/test_sparse_density.py.
+
+meta:
+  target_field: ai-ml
+  page_budget: 1
+
+basics:
+  name: Sam Casey
+  email: sam.casey@example.com
+  phone: "+1 (555) 010-4477"
+  location: Seattle, WA
+
+education:
+  - institution: University of Washington
+    degree: B.S.
+    field: Computer Science
+    start: 2022-09
+    end: 2026-06
+
+experience:
+  - organization: Meridian Labs
+    title: Software Engineering Intern
+    location: Seattle, WA
+    start: 2025-06
+    end: 2025-09
+    bullets:
+      - Built a small internal tool used by the team.
+
+projects:
+  - name: ledgerlite
+    bullets:
+      - Small personal-finance CLI.
+
+skills:
+  - label: Languages
+    items: [Python, Rust]

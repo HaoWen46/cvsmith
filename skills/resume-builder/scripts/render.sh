@@ -166,3 +166,37 @@ fi
 
 mv -f "$TMP_OUT" "$OUT"
 echo "rendered: $OUT"
+
+# Digest, not write-protection: re-rendering the same derived path while
+# iterating is the normal path, so this never blocks an overwrite. It
+# prints the bytes' fingerprint so a caller (application-tracker's
+# applied-transition snapshot, in particular) can tell "still the file I
+# logged" from "silently replaced" without diffing PDFs by hand.
+digest=""
+if command -v sha256sum >/dev/null; then
+  digest=$(sha256sum "$OUT" | awk '{print $1}')
+elif command -v shasum >/dev/null; then
+  digest=$(shasum -a 256 "$OUT" | awk '{print $1}')
+fi
+if [ -n "$digest" ]; then
+  echo "sha256: ${digest:0:12}"
+else
+  echo "note: sha256sum/shasum not found — digest unavailable" >&2
+fi
+
+# Second digest, of the input yaml — additive, same reasoning as the PDF
+# digest above: the ledger's `sent:` line is meant to be an exact
+# yaml+PDF snapshot, and until now only the PDF half was ever hashed.
+# Printed from $DATA, not from a copy, so it reflects exactly the bytes
+# that were fed to this render.
+yaml_digest=""
+if command -v sha256sum >/dev/null; then
+  yaml_digest=$(sha256sum "$DATA" | awk '{print $1}')
+elif command -v shasum >/dev/null; then
+  yaml_digest=$(shasum -a 256 "$DATA" | awk '{print $1}')
+fi
+if [ -n "$yaml_digest" ]; then
+  echo "yaml sha256: ${yaml_digest:0:12}"
+else
+  echo "note: sha256sum/shasum not found — yaml digest unavailable" >&2
+fi

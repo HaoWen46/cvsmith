@@ -56,6 +56,14 @@ INK_LUMINANCE = 200        # a pixel darker than this counts as ink (0-255)
 LIGHT_INK_LUMINANCE = 140  # "solid" ink for contrast confidence
 MIN_GLYPH_CONTRAST = 45    # luminance spread below this = no visible glyphs
 BBOX_INSET = 0.15          # crop inset to dodge antialiased neighbors
+# Tolerance for the offpage/edge-crossing test below. Measured word bboxes
+# across every legitimate fixture (good.pdf + every template's sparse/
+# long-meta variants, generated via evals/fixtures/generate.py) never came
+# closer than 34.89pt (top, twocol.pdf "Jordan") to any page edge — real
+# templates keep >=0.5in margins, so no legitimate word's glyph metrics
+# come anywhere near 0. This tolerance only absorbs float/rounding slop
+# at the boundary itself, not real glyph overhang.
+BBOX_EDGE_EPS = 0.5
 ZERO_WIDTH = {"​", "‌", "‍", "⁠", "﻿", "­"}
 
 INJECTION_MARKERS = (      # imperative-injection tells, casefolded substrings
@@ -69,6 +77,21 @@ META_STUFF_WARN_TOKENS = 8    # unseen comma/semicolon tokens before WARN
 def page_words(page):
     """Words with bboxes from pdfplumber, tolerant defaults."""
     return page.extract_words(use_text_flow=False, keep_blank_chars=False)
+
+
+_ALNUM_RE = re.compile(r"[^\W_]", re.UNICODE)
+
+
+def is_decorative(text: str) -> bool:
+    """A pure-punctuation extraction token that carries no resume
+    content — a dot-leader glyph ("." or "...."), a bare "·"/"|"
+    separator. It has no alphanumeric character at all. These are real,
+    visible ink (they still get every integrity check below), but they
+    are template decoration, not words the resume is 'made of', so they
+    must not inflate the `words_checked` metric a human reads as a
+    content measure (round-2 review finding 5: a right-aligned dot
+    leader was 46–53% of the extractor's word count)."""
+    return bool(text.strip()) and _ALNUM_RE.search(text) is None
 
 
 def crop_luminance(img, bbox, scale):
@@ -159,10 +182,11 @@ def main() -> int:
     invisible: list[str] = []
     faint: list[str] = []
     tiny: list[str] = []
-    offpage: list[str] = []
+    offpage: list[dict] = []
     all_words: list[str] = []
     zero_width_hits = 0
     total_words = 0
+    decorative_tokens = 0
     xmp_raw = ""
 
     with pdf:
@@ -183,10 +207,35 @@ def main() -> int:
                 total_words += 1
                 text = w["text"]
                 all_words.append(text)
+                if is_decorative(text):
+                    decorative_tokens += 1
                 zero_width_hits += sum(text.count(z) for z in ZERO_WIDTH)
 
-                if w["x1"] < 0 or w["top"] < 0 or w["x0"] > pw or w["bottom"] > ph:
-                    offpage.append(text)
+                # Any bbox edge past the page box is clipped visible text —
+                # not just words wholly beyond an edge (old: x1<0 / x0>pw /
+                # top<0 / bottom>ph, which missed a word straddling the
+                # boundary, e.g. x0=575..x1=715 on a 612pt-wide page: x0 <
+                # pw so the old right-edge test never fired). Testing each
+                # word's own near/far coordinate against its own edge
+                # catches both the wholly-offpage case (a word entirely
+                # beyond an edge still has its far coordinate past it) and
+                # the partial/crossing case in one pass.
+                crossed = []
+                if w["x0"] < -BBOX_EDGE_EPS:
+                    crossed.append("left")
+                if w["x1"] > pw + BBOX_EDGE_EPS:
+                    crossed.append("right")
+                if w["top"] < -BBOX_EDGE_EPS:
+                    crossed.append("top")
+                if w["bottom"] > ph + BBOX_EDGE_EPS:
+                    crossed.append("bottom")
+                if crossed:
+                    offpage.append({
+                        "text": text,
+                        "bbox": [round(w["x0"], 2), round(w["top"], 2),
+                                 round(w["x1"], 2), round(w["bottom"], 2)],
+                        "edges": crossed,
+                    })
                     continue
 
                 height_pt = w["bottom"] - w["top"]
@@ -207,7 +256,14 @@ def main() -> int:
                 elif lo > LIGHT_INK_LUMINANCE:
                     faint.append(text)
 
-    report.metrics["words_checked"] = total_words
+    # words_checked is the CONTENT-word count a reader takes as a size
+    # measure — decorative dot-leader / separator glyphs are excluded so
+    # a template's right-aligned date leader can't inflate it (round-2
+    # review finding 5). The raw extraction total and the decorative
+    # count are reported alongside so nothing is hidden.
+    report.metrics["words_checked"] = total_words - decorative_tokens
+    report.metrics["extracted_tokens_total"] = total_words
+    report.metrics["decorative_tokens"] = decorative_tokens
     report.metrics["dpi"] = args.dpi
 
     if images is not None:  # no PASS line for a check that did not run
@@ -236,9 +292,13 @@ def main() -> int:
         report.add("microscopic_text", PASS, f"no text under {MIN_FONT_PT}pt")
 
     if offpage:
+        sample = "; ".join(
+            f"{o['text']!r} crosses {'/'.join(o['edges'])} edge (bbox {o['bbox']})"
+            for o in offpage[:10])
         report.add("offpage_text", FAIL,
-                   f"{len(offpage)} word(s) positioned outside the page box: "
-                   f"{' '.join(offpage[:10])!r}")
+                   f"{len(offpage)} word(s) positioned outside or crossing the "
+                   f"page box, clipped visible text: {sample}")
+        report.extra["offpage_words"] = offpage
     else:
         report.add("offpage_text", PASS, "all text inside the page box")
 

@@ -28,6 +28,9 @@ FIXTURES_DIR = Path(__file__).resolve().parent
 REPO_ROOT = FIXTURES_DIR.parent.parent
 RENDER_SH = REPO_ROOT / "skills/resume-builder/scripts/render.sh"
 GOOD_YAML = FIXTURES_DIR / "resume-sample/resume.yaml"
+SPARSE_YAML = FIXTURES_DIR / "sparse-sample/resume.yaml"
+LONG_META_YAML = FIXTURES_DIR / "long-meta-sample/resume.yaml"
+TEMPLATES = ("onecol", "compact", "classic")
 
 
 def run(cmd: list[str]) -> None:
@@ -48,6 +51,22 @@ def main() -> None:
 
     # the good one, through the real pipeline
     run(["bash", str(RENDER_SH), str(GOOD_YAML), "-o", str(out / "good.pdf")])
+
+    # sparse one-job/one-project regression (external review finding 3):
+    # one per template, since the reading-order bug it guards against was
+    # template-specific, not shared through a common code path.
+    for tpl in TEMPLATES:
+        run(["bash", str(RENDER_SH), str(SPARSE_YAML), "-t", tpl,
+             "-o", str(out / f"sparse_{tpl}.pdf")])
+
+    # long institution/organization/title + long location, one per
+    # template (external review finding 7, round-6): stresses the
+    # inline meta rail's graceful-degradation requirement — the rail
+    # must wrap rather than overlap or clip once left-side content is
+    # long enough to crowd it.
+    for tpl in TEMPLATES:
+        run(["bash", str(RENDER_SH), str(LONG_META_YAML), "-t", tpl,
+             "-o", str(out / f"long_meta_{tpl}.pdf")])
 
     # the planted failures
     for src in sorted((FIXTURES_DIR / "broken-src").glob("*.typ")):
