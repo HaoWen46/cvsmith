@@ -558,3 +558,24 @@ def test_unparseable_yaml_exits_2(tmp_path):
         capture_output=True, text=True)
     assert proc.returncode == 2
     assert "error:" in proc.stderr
+
+
+# ── round-6 review finding 7: meta.target_level is type/enum checked ──
+
+def test_target_level_list_is_a_shape_fail(tmp_path):
+    # `target_level: [intern]` (a list) gives the evaluator no bar to
+    # read against — a FAIL, not a silent accept.
+    p = mutated(tmp_path, "resume-sample",
+                "target_level: intern", "target_level: [intern]")
+    code, report = run_validator(p)
+    assert code == 1
+    assert any(c["check_id"] == "shapes" and "target_level" in c["detail"]
+               for c in fails(report))
+
+
+def test_unknown_target_level_warns(tmp_path):
+    p = mutated(tmp_path, "resume-sample",
+                "target_level: intern", "target_level: architect")
+    code, report = run_validator(p)
+    warns = [c for c in report["checks"] if c["level"] == "warn"]
+    assert any("target_level" in c["detail"] for c in warns)

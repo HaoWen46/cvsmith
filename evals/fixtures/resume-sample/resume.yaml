@@ -5,6 +5,8 @@
 meta:
   target_field: ai-ml
   target_level: intern
+  template: compact
+  bullet_lines: 2
   page_budget: 1
 
 basics:

@@ -96,6 +96,11 @@ CONTENT_SECTIONS = ("education", "experience", "projects",
                     "skills", "publications", "awards")
 GROUPS = {"research", "teaching", "industry"}
 TARGET_FIELDS = {"ai-ml", "swe", "academic", "generic"}
+# Seniority the CV aims at — the bar the evaluator's cold reader judges
+# against on a no-JD run (round-6 review finding 7). A closed set so the
+# evaluator can attach seniority-specific criteria to each.
+TARGET_LEVELS = {"intern", "new-grad", "junior", "mid", "senior",
+                 "staff", "principal", "lead", "manager"}
 PAPERS = {"us-letter", "a4"}
 DATE_RE = re.compile(r"^\d{4}-(0[1-9]|1[0-2])$")
 YEAR_RE = re.compile(r"^\d{4}$")
@@ -453,6 +458,23 @@ def validate(data: dict) -> Validator:
                 v.flag("values", WARN,
                        f"meta.target_field: {val!r} — schema knows "
                        "ai-ml | swe | academic | generic")
+            # Round-6 review finding 7: target_level must be a scalar
+            # string from the known set — `target_level: [intern]` (a
+            # list) or a typo would silently give the evaluator no bar to
+            # read against. Type is a FAIL (a list never yields a level);
+            # an unknown-but-string value is a WARN (the evaluator falls
+            # back to the field default and says so).
+            if (val := m.get("target_level")) is not None:
+                if not isinstance(val, str):
+                    v.flag("shapes", FAIL,
+                           f"meta.target_level: expected a string like "
+                           f"'intern' | 'senior', got {tn(val)}")
+                elif val not in TARGET_LEVELS:
+                    v.flag("values", WARN,
+                           f"meta.target_level: {val!r} — schema knows "
+                           f"{' | '.join(sorted(TARGET_LEVELS))}; the "
+                           "evaluator reads an unknown value at the field's "
+                           "default bar")
             if (val := m.get("lang")) is not None and not isinstance(val, str):
                 v.flag("shapes", FAIL,
                        f"meta.lang: expected a string, got {tn(val)}")

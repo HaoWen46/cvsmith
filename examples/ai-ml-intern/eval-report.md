@@ -27,16 +27,28 @@ run open. CRAFT never gates either READY verdict above; it names the
 craft gap the two verdicts don't).
 
 ## Run status
-**NOT DONE — TARGET FIT NOT READY** (graduation gate not met, a
-calendar fact; work-authorization gate unconfirmed). MECHANICAL is
-READY and CRAFT is 8/10 (≥ 7), so nothing on the truth or craft axes
-holds the run open — but this is a JD-targeted run, and TARGET FIT is
-below READY for reasons no rewrite fixes. The run ends only if the user
-sees this and chooses to ship anyway — which would read `DONE (shipped
-below target fit — user's call)`, never a bare `DONE` — or retargets to
-an eligible posting. (A no-JD run of this same file would read `DONE
-(no JD — not validated against any target)`: MECHANICAL READY + CRAFT
-≥ 7, TARGET FIT not evaluated.)
+**NOT DONE — eligibility gate not met (graduation date) + gate
+unconfirmed (work authorization).** MECHANICAL is READY and CRAFT is
+8/10 (≥ 7), so nothing on the truth or craft axes holds the run open —
+but this is a JD-targeted run and TARGET FIT is below READY for two
+distinct reasons, and the terminal label depends on which the user
+acts on (see "Verdict rules"):
+- The graduation-date gate is a **failed hard eligibility gate** — the
+  candidate cannot qualify, and no rewrite changes it. If the user
+  sends anyway the run ends `NOT SENDABLE AS-IS — eligibility gate not
+  met (graduation date); user shipping anyway`, **never** `DONE
+  (shipped …)`: applying while ineligible is not a coverage-gap
+  tradeoff.
+- The work-authorization gate is **unconfirmed but answerable** — the
+  honest next step is the answer, not shipping past it, so that alone
+  keeps the run `NOT DONE — gate unconfirmed (work authorization);
+  answer it before sending`.
+
+Retargeting to an eligible, work-auth-neutral posting is the only path
+to a plain `DONE` here. (A no-JD run of this same file would read
+`DONE (no JD — level-read only, not scored against a posting)`:
+MECHANICAL READY + CRAFT ≥ 7, and the cold reader's level read against
+`meta.target_level: intern` — not a posting score.)
 
 ## Deterministic layers
 | Layer | Result | Notes |
@@ -85,6 +97,16 @@ the JD's real terms (harness, regressions, red-team, held-out) —
 nothing bolted on.
 
 ## L5 — recruiter simulation: 8/10
+**Level read (`meta.target_level: intern`):** clears the intern/new-grad
+bar comfortably — one real ML internship with owned, measured work
+(eval harness, latency win), a research stint, and shipped side
+projects. At this level *potential and fundamentals* are what the reader
+weighs, and the evidence is above the bar, not merely at it; missing
+senior-scale ownership is not a gap for an intern target. (Were
+`target_level` set to `senior`, the same evidence would read *below*
+bar — no cross-team/org-level ownership — which is exactly what the
+level read exists to surface.)
+
 (L5 and CRAFT are the same /10 — rubric.md — so both are 8/10 here: the
 skim/deep-read alone would land 9, but the page-economy finding below
 caps the band at 8.)

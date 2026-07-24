@@ -941,15 +941,21 @@ BASICS_SECTION_RE = re.compile(r"\bbasics\b|\bcontact\b")
 
 
 def basics_lines(vault_raw: str) -> list[str]:
-    """Normalized non-blank lines under the vault's `## Basics` (or
-    `## Contact`) section — the candidate's OWN identity block. Round-3
-    review finding 2: contact checks searched the whole vault, so a
-    colleague's email sitting in a Q&A/Context line elsewhere could
-    "support" the candidate's own email field. Scoping email / phone /
-    location to Basics makes the check ownership-aware. Empty if the
-    vault has no such heading; callers fall back to the whole vault
-    then, degrading to the old behavior rather than failing every
-    contact field on an unstructured vault."""
+    """Normalized non-blank CLEAN lines under the vault's `## Basics`
+    (or `## Contact`) section — the candidate's OWN identity block.
+    Round-3 review finding 2: contact checks searched the whole vault,
+    so a colleague's email in a Q&A/Context line could "support" the
+    candidate's own email field. Scoping email/phone/location/name/link
+    to Basics makes the check ownership-aware.
+
+    Round-6 review finding 1: excluded lines WITHIN Basics
+    (NOT-CLAIMABLE / PENDING-EVIDENCE / a prose denial / CUT:) are
+    dropped here too — a dead handle or an unconfirmed reply address the
+    vault itself marks unusable must not become accepted identity
+    evidence just because it sits under Basics. Only clean Basics lines
+    count. Empty if the vault has no such heading; callers fall back to
+    the whole clean vault then, degrading rather than failing every
+    field on an unstructured vault."""
     out: list[str] = []
     in_basics = False
     for raw_line in unwrap_lines(vault_raw):
@@ -960,7 +966,7 @@ def basics_lines(vault_raw: str) -> list[str]:
         if head and len(head.group(1)) <= 2:
             in_basics = bool(BASICS_SECTION_RE.search(head.group(2)))
             continue
-        if in_basics:
+        if in_basics and not is_excluded_line(norm):
             out.append(norm)
     return out
 
@@ -1041,20 +1047,36 @@ def has_negation(normalized_text: str) -> bool:
     return bool(NEGATION_RE.search(normalized_text))
 
 
+# Improvement verbs a resume claims — the achievement a negator can
+# flip. An auxiliary negation ("did not", "could not", "was not able
+# to") counts as STRONG only when it GOVERNS one of these within a few
+# words; that is what separates "did not reduce latency" (an achievement
+# negation, round-6 review finding 2) from an incidental "those don't
+# agree on who's first" (round-5 false positive — "agree" is not here).
+ACHIEVE_VERB = (r"reduc\w*|cut|cutting|lower\w*|decreas\w*|increas\w*|"
+                r"improv\w*|rais\w*|rose|grow\w*|grew|boost\w*|drop\w*|"
+                r"slash\w*|trim\w*|shrink\w*|shrank|sav\w*|accelerat\w*|"
+                r"speed\w*|sped|deliver\w*|ship\w*|shipped|built|build|"
+                r"achiev\w*|hit|reach\w*|exceed\w*|halv\w*|doubl\w*|"
+                r"optimiz\w*|eliminat\w*")
 # The negation-DROP check (below) fires on the STRONG subset only: forms
 # that clearly negate an ACHIEVEMENT — "never <verb>", "failed/unable
-# to", and a negator on a result noun ("no/zero/without/lack of
-# reduction"). The generic auxiliaries ("did not", "don't", "isn't")
-# are deliberately EXCLUDED here: round-5 review turned up a false
-# positive where a vault line's incidental "those don't agree on who's
-# first" (a naming meta-comment, nothing to do with the claim's result)
-# shared a stray number with the claim and hard-failed it. A generic
-# n't in descriptive prose is too weak a signal to invert a claim on;
-# an achievement-negating form is not.
+# to", a negator on a result noun ("no/zero/without/lack of reduction"),
+# and (round-6) a generic auxiliary negation that GOVERNS an improvement
+# verb ("did not reduce", "could not lower", "was not able to cut").
+# A bare generic n't with no achievement verb near it ("those don't
+# agree") is still deliberately EXCLUDED — round-5 review turned up a
+# false positive where such an incidental negation shared a stray number
+# with a claim and hard-failed it. Achievement-governing is the line.
 STRONG_NEGATION_RE = re.compile(
     r"\bnever\b|\bfailed\s+to\b|\bunable\s+to\b|"
     rf"\b(?:no|zero|without)\s+(?:any\s+)?(?:{OUTCOME_NOUN})\b|"
-    rf"\black\s+of\s+(?:{OUTCOME_NOUN})\b")
+    rf"\black\s+of\s+(?:{OUTCOME_NOUN})\b|"
+    rf"\b(?:did|does|do|could|would|was|were|has|have|had)\s*n['’]?t\b"
+    rf"[^.;]{{0,15}}?\b(?:{ACHIEVE_VERB})\b|"
+    rf"\b(?:did|does|do|could|would|was|were|has|have|had)\s+not\b"
+    rf"[^.;]{{0,15}}?\b(?:{ACHIEVE_VERB})\b|"
+    rf"\bnot\s+able\s+to\b[^.;]{{0,12}}?\b(?:{ACHIEVE_VERB})\b")
 
 
 def has_strong_negation(normalized_text: str) -> bool:
@@ -2274,13 +2296,30 @@ def main() -> int:
         i_clean = False
         tokens = [t for t in re.findall(r"[a-z0-9]{3,}", needle)
                   if t not in IDENTITY_STOP]
-        if tokens and not any(token_present(t, own_scope) for t in tokens):
-            add("identity_unsupported", FAIL,
+        # Round-6 review finding 4: the candidate's OWN name is held to a
+        # stricter bar than an org/title reformat. A partial match — the
+        # resume name shares SOME tokens with Basics but not all ("Sam
+        # Blake" vs the vault's "Sam Casey") — is a WRONG NAME, not a
+        # benign "rename/reformat", and must FAIL (a CV carrying the
+        # wrong surname must never reach MECHANICAL READY). A reformat
+        # that keeps every token ("Casey, Sam", "Samuel" only if the
+        # vault records it) still passes as drift. So for basics.name:
+        # every significant token must be present in Basics, or it fails.
+        missing_name_tokens = is_own_name and tokens and not all(
+            token_present(t, own_scope) for t in tokens)
+        if (tokens and not any(token_present(t, own_scope) for t in tokens)) \
+                or missing_name_tokens:
+            detail = (
+                f"{path}: candidate name '{value}' does not match the name "
+                "in the vault's Basics (a resume carrying the wrong name is "
+                "not sendable) — fix the name, or record this exact variant "
+                "in Basics if it is a real alias") if is_own_name else (
                 f"{path}: '{value}' shares no token with the vault — the "
                 "fabrication class, not the rename class. If this is a "
                 "real rename/alias, record it in the vault first (with "
                 "the user's confirmation); projections never contain an "
                 "identity the vault lacks")
+            add("identity_unsupported", FAIL, detail)
         else:
             add("identity_drift", WARN,
                 f"{path}: '{value}' not found verbatim in the vault — "
@@ -2456,11 +2495,27 @@ def main() -> int:
             nums = set(re.findall(r"\d+(?:\.\d+)?", norm))
             neg_line = None
             if nums:
-                neg_line = next(
-                    (ln for ln in all_vault_lines
-                     if all(number_in(n, ln) for n in nums)
-                     and has_strong_negation(normalize(ln))
-                     and len(content_words(normalize(ln)) & claim_words) >= 2), None)
+                # Round-6 review finding 3: only treat a negated line as
+                # the claim's source when NO clean (non-negated) line
+                # already covers the claim's numbers with real overlap.
+                # Without this guard the number-anchored search hard-
+                # failed a correctly-supported "Cut API latency 40%
+                # across 3 services" because a DIFFERENT entry happened
+                # to say "no reduction in API error rate 40% across 3
+                # services" — same numbers, two shared words, but the
+                # claim had its own clean supporting fact. A clean source
+                # anywhere means this is not a dropped-negation case.
+                clean_covers = any(
+                    all(number_in(n, ln) for n in nums)
+                    and not has_strong_negation(normalize(ln))
+                    and len(content_words(normalize(ln)) & claim_words) >= 2
+                    for ln in all_vault_lines)
+                if not clean_covers:
+                    neg_line = next(
+                        (ln for ln in all_vault_lines
+                         if all(number_in(n, ln) for n in nums)
+                         and has_strong_negation(normalize(ln))
+                         and len(content_words(normalize(ln)) & claim_words) >= 2), None)
             if neg_line is None:
                 cline, cscore = best_matching_line(
                     claim_words, all_vault_lines, word_df, word_df_n)

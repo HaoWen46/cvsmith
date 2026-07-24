@@ -2402,6 +2402,75 @@ def test_deterioration_noun_and_made_worse_conflict(tmp_path):
         assert "claim_direction_conflict" in ids_at(report, "warn"), bad
 
 
+def test_excluded_basics_line_is_not_identity_evidence(tmp_path):
+    # Round-6 finding 1: an email/URL only on a NOT-CLAIMABLE /
+    # PENDING-EVIDENCE line WITHIN Basics is not accepted evidence.
+    vault = (
+        "# Career vault\n## Basics\n- FACT: Sam Casey\n"
+        "- PENDING-EVIDENCE: possibly reachable at sam.pending@example.com\n"
+        "- NOT-CLAIMABLE: dead handle github.com/sam-old, do not use\n")
+    resume = ("basics:\n  name: Sam Casey\n"
+              "  email: sam.pending@example.com\n"
+              "  links: [{label: GH, url: \"https://github.com/sam-old\"}]\n")
+    code, report = run_check(*write_pair(tmp_path, resume=resume, vault=vault))
+    assert code == 1, "excluded Basics data must not verify identity fields"
+    fails = ids_at(report, "fail")
+    assert "contact_unsupported" in fails or "url_misattributed" in fails \
+        or "url_unsupported" in fails
+
+
+def test_did_not_reduce_is_a_dropped_negation(tmp_path):
+    # Round-6 finding 2: an auxiliary negation governing an achievement
+    # verb ("did not reduce") is a strong negation the claim drops.
+    vault = VAULT + (
+        "- FACT: did not reduce build time 55% on the CI pipeline\n")
+    resume = RESUME + ("      - Reduced build time 55% on the CI pipeline.\n")
+    code, report = run_check(*write_pair(tmp_path, resume=resume, vault=vault))
+    assert code == 1
+    assert "claim_negation_dropped" in ids_at(report, "fail")
+
+
+def test_correct_claim_not_rejected_by_unrelated_negated_line(tmp_path):
+    # Round-6 finding 3 (regression guard): a correctly-supported claim
+    # must NOT fail because a DIFFERENT entry has a negated line sharing
+    # its numbers and a couple of words.
+    vault = (
+        "# Career vault\n## Basics\n- FACT: Sam Casey\n"
+        "## Experience\n"
+        "### Globex — Engineer (Jan 2022 – Present) [group: industry]\n"
+        "- FACT: cut API latency 40% across 3 services\n"
+        "### Initech — Analyst (Jan 2020 – Dec 2021) [group: industry]\n"
+        "- FACT: no reduction in API error rate 40% across 3 services\n")
+    resume = (
+        "basics:\n  name: Sam Casey\n"
+        "experience:\n  - organization: Globex\n    title: Engineer\n"
+        "    start: 2022-01\n    end: present\n"
+        "    bullets: [\"Cut API latency 40% across 3 services.\"]\n")
+    code, report = run_check(*write_pair(tmp_path, resume=resume, vault=vault))
+    assert "claim_negation_dropped" not in ids_at(report, "fail"), (
+        "a claim with its own clean supporting line must not be rejected "
+        "by an unrelated negated line elsewhere in the vault")
+
+
+def test_wrong_candidate_surname_fails_not_just_drifts(tmp_path):
+    # Round-6 finding 4: a wrong surname (shares the first name) must
+    # FAIL, not downgrade to identity_drift WARN.
+    vault = "# Career vault\n## Basics\n- FACT: Sam Casey · sam@example.com\n"
+    resume = "basics:\n  name: Sam Blake\n  email: sam@example.com\n"
+    code, report = run_check(*write_pair(tmp_path, resume=resume, vault=vault))
+    assert code == 1
+    assert "identity_unsupported" in ids_at(report, "fail")
+
+
+def test_name_reformat_keeping_all_tokens_is_only_drift(tmp_path):
+    # The guard: a reformat that keeps every name token ("Casey, Sam")
+    # stays a WARN, not a FAIL.
+    vault = "# Career vault\n## Basics\n- FACT: Sam Casey · sam@example.com\n"
+    resume = "basics:\n  name: \"Casey, Sam\"\n  email: sam@example.com\n"
+    code, report = run_check(*write_pair(tmp_path, resume=resume, vault=vault))
+    assert "identity_unsupported" not in ids_at(report, "fail")
+
+
 def test_incidental_negation_in_prose_does_not_false_fail(tmp_path):
     # The guard that broke first: a vault line with an incidental generic
     # negation ("those don't agree on who's first") that shares a stray

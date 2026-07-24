@@ -557,16 +557,19 @@ append a dated entry:
 - 2026-07-23: ml-heavy reaches screen at roughly 2x generalist's rate
   (4/9 vs 2/9); basis: 9 applied ml-heavy rows (7 posting, 2 referral),
   9 applied generalist rows (all posting) — both past the 5-applied-
-  row-per-variant floor below which no conclusion is drawn, and the
-  funnel read behind this was channel-stratified first, since ml-heavy
-  carries the only referrals; the 2x holds within posting-only too
-  (3/7 vs 2/9), so it isn't just the referral effect.
+  row-per-variant floor below which no conclusion is drawn; the funnel
+  read behind this was channel-stratified first (the 2x holds within
+  posting-only too, 3/7 vs 2/9, so it isn't just the referral effect);
+  targets: comparable — both variants went to mid-level industry SWE/ML
+  roles of similar selectivity over the same Jun–Jul window, so the
+  difference is attributable to CV content, not target mix.
 ```
 
 One line per entry: the date, the conclusion in the same terms the
-user heard it, and a `basis:` clause naming exactly how many applied
-rows per variant it rests on and their channel mix. Two caveats are
-load-bearing and must be in the `basis:`, never dropped:
+user heard it, and a `basis:` clause. **Three** caveats are
+load-bearing and every one MUST appear in the `basis:` — an entry
+missing any of them is not a valid conclusion and the builder must not
+act on it:
 
 - **The sample floor.** `resume-builder` draws nothing from a variant
   with fewer than 5 applied rows (`resume-builder/SKILL.md`), so a
@@ -579,7 +582,21 @@ load-bearing and must be in the `basis:`, never dropped:
   "2x" finding.
 - **The channel mix**, the identical channel-stratification the funnel
   read itself had to report above, so a conclusion can never be quoted
-  back later stripped of the caveat that made it honest. Entries are **appended, never rewritten**: when a
+  back later stripped of the caveat that made it honest.
+- **Target comparability** (`targets:` in the `basis:`). Channel is the
+  only confound the ledger stratifies; level, field, selectivity, and
+  timing are not, and a variant sent to easier/earlier targets can beat
+  another on target mix alone (see "Per-variant comparisons" above). So
+  the `basis:` must state, in a `targets:` clause, whether the variants
+  being compared went to *comparable* jobs — similar level, field,
+  selectivity, and time window. If they did not, the entry says so and
+  states no multiple ("ml-heavy's rows skew junior and earlier — not
+  comparable to generalist's; no content conclusion drawn"). An entry
+  with a bare rate and no `targets:` clause is incomplete by
+  definition, and `resume-builder` treats it as an observation to
+  investigate, never a conclusion to steer the next draft.
+
+Entries are **appended, never rewritten**: when a
 later read revises or narrows an earlier conclusion (more rows came
 in, the picture changed), that gets its own new dated entry — the old
 one stays, visibly stale-dated, because what was believed when is

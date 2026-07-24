@@ -28,11 +28,15 @@ integrity is never a pass.
 came from resume-builder** (the builder passes the yaml path when it
 invokes this skill): `meta.page_budget` feeds `--page-budget`,
 `meta.lang` triggers the non-English scope note below. `meta.target_field`
-picks the field conventions L4/L5 score against, but it never reaches
-L4/L5 as the yaml itself — it gets distilled into the **cold-reader
-context block** (see "Judgment layers need a cold reader") alongside
-any JD-derived gate confirmations, and that small block is what the
-judgment layers actually see. Standalone on a bare PDF, ask the user
+picks the field conventions L4/L5 score against, and **`meta.target_level`
+sets the seniority bar** the cold reader judges against (rubric.md's
+seniority-bar table) — the difference between reading a CV for an intern
+role and a staff one. Neither reaches L4/L5 as the yaml itself — both
+get distilled into the **cold-reader context block** (see "Judgment
+layers need a cold reader"): `Target reader:` from target_field,
+`Target level:` from target_level, alongside any JD-derived gate
+confirmations, and that small block is what the judgment layers actually
+see. Standalone on a bare PDF, ask the user
 for field and page budget (default: 1 page for students/early-career)
 — never assume the defaults silently when the resume is visibly senior
 or academic.
@@ -463,7 +467,12 @@ keeps that gap legible instead of silent:
 <coverage score /10 + per-requirement table: requirement, evidence, strength>
 
 ## L5 — recruiter simulation
-<what landed in 6s; what a skeptic flags; score /10>
+<what landed in 6s; what a skeptic flags; score /10.
+ **Level read** (always, one line): read against `meta.target_level`
+ per rubric.md's seniority-bar table — does the evidence clear that
+ level's bar, sit at it, or fall below it? On a no-JD run this IS the
+ competitiveness signal. If target_level was absent, say so and name
+ the default (early-career) bar used.>
 
 ## Fix list (ranked)
 1. <highest-impact fix, concrete> — kind: truth/fit/judgment, severity:
@@ -486,15 +495,28 @@ run cannot end until **all three** hold:
 1. MECHANICAL is READY — every L0–L3 FAIL cleared, every open truth
    finding closed by evidence or by removing the claim (`fit` findings
    never gate this).
-2. TARGET FIT is at a terminal acceptable state: READY (every open
-   must-fix `fit` finding closed by real coverage — the JD's top-ranked
-   requirements actually covered), OR **`not evaluated` because there
-   is no JD** (a general CV — nothing to be competitive against, so this
-   condition is simply satisfied, never a reason the run can't end), OR
-   the user has seen a TARGET FIT verdict below READY and chosen to stop
-   anyway — that choice ships a mechanically sound file that isn't
-   competitive for this posting, and every subsequent report keeps
-   saying so, not just the first.
+2. TARGET FIT is at a terminal acceptable state — but which states are
+   terminal depends on WHY it is below READY (the same cause-split the
+   `## Run status` labels use; a below-READY target fit is never one
+   undifferentiated "user chose to stop"):
+   - READY (every open must-fix `fit` finding closed by real coverage —
+     the JD's top-ranked requirements actually covered): terminal.
+   - **`not evaluated` because there is no JD**: terminal (a general CV
+     has nothing to be competitive against).
+   - A below-READY caused ONLY by an **ordinary coverage gap**, which
+     the user has seen and chosen to ship past: terminal — the file is
+     mechanically sound and the candidate eligible; shipping is a real
+     tradeoff the user can own (`DONE (shipped below target fit …)`).
+   - A **failed hard eligibility gate** (the candidate cannot qualify):
+     NOT a "done" terminal state. The user may still stop the loop, but
+     the run ends `NOT SENDABLE AS-IS`, never `DONE` — the tool does not
+     bless applying while ineligible as completion, it records the
+     user's choice as theirs.
+   - An **unconfirmed gate**: not terminal on its own — it stays
+     `NOT DONE — answer it first`, because the honest next step is the
+     answer, not shipping past an open question.
+   Every subsequent report keeps saying which of these it is, not just
+   the first.
 3. Every must-fix `judgment` finding is closed — fixed, or explicitly
    declined by the user. Open-undecided is not a close: a must-fix
    judgment finding left untouched keeps the run open even after (1)

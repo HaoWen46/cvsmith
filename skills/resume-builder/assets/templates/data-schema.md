@@ -27,6 +27,14 @@ Conventions:
 ```yaml
 meta:                    # optional; knobs for template + evaluator
   target_field: ai-ml    # ai-ml | swe | academic | generic — field conventions
+  target_level: intern   # intern | new-grad | junior | mid | senior |
+                         # staff | principal | lead | manager — the
+                         # seniority the CV aims at. The evaluator's
+                         # cold reader judges evidence against THIS bar
+                         # on a no-JD run, so a general CV is assessed
+                         # for level-competitiveness, not just field
+                         # style. String from the set above (a list or
+                         # typo is flagged by validate_yaml).
   page_budget: 1         # default 1 for students/early-career
   paper: us-letter       # us-letter (default) | a4 — match the target market
   lang: en               # BCP-47-ish code for PDF metadata + hyphenation

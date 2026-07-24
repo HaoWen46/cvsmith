@@ -115,6 +115,26 @@ reader wants the same evidence the builder was told to prioritize:
 No context block (standalone review, no yaml/JD)? Default to the swe
 reader and say so in the report.
 
+**Seniority bar (`meta.target_level`).** The reader above judges
+evidence against the bar of the level the CV aims at — the same field,
+read for a `staff` role, is not read for an `intern` one. On a no-JD
+run this is what makes the assessment a level-competitiveness read, not
+just field style. Apply the target level as the deep-read expectation:
+
+| `meta.target_level` | What the reader expects the evidence to show |
+|---|---|
+| intern / new-grad | coursework, projects, one real internship or research stint; *potential* and fundamentals over track record. Missing industry scale is normal, not a gap. |
+| junior / mid | shipped production work owned end-to-end, measurable outcomes, growing scope; a portfolio of "I built and ran X". |
+| senior | ownership of ambiguous/cross-team problems, design judgment, mentoring/leverage beyond own output; scope and impact, not task lists. |
+| staff / principal / lead | org-level impact, technical direction others follow, initiatives not tickets; the evidence should read as "moved the org", and its absence is the finding. |
+| manager | team outcomes, hiring/growth, delivery through others; individual-contributor bullets without team results are the mismatch. |
+
+Report the level read explicitly (report format's Run status / L5):
+whether the evidence plausibly clears the target level's bar, at, or
+below it. If `meta.target_level` is absent, say so and read at the
+field's default early-career bar (intern/new-grad), flagging that as an
+assumption rather than a silent choice.
+
 ### Pass 1 — the six-second skim
 
 Recruiters triage survivors of machine ranking in seconds. Simulate

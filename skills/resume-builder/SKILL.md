@@ -78,14 +78,23 @@ variant, compute the per-variant funnel straight off the applied rows,
 using application-tracker's fixed definitions verbatim (callback =
 row ever reached screen or beyond, a furthest-stage-ever fact; both
 rates over applied rows; 21-day pending floor; channel-stratified, or
-state the channel mix). Only where a variant has enough applied rows
-to mean anything — under 5 applied rows on a variant, report the count
-and draw nothing from it. State in one line what the rows showed and
-what it changed ("ml-heavy: 2 callbacks / 9 applied, generalist: 0 /
-6, both cold — leading with the ML work"), or say plainly that the
-rows are too thin to steer this draft. This is a read, never a write:
-persisting conclusions into `## Learnings` stays application-tracker's
-job.
+state the channel mix). **Two gates before any variant difference
+steers this draft, not one:** (1) each variant has ≥ 5 applied rows —
+under that, report the count and draw nothing; (2) the variants being
+compared went to **comparable targets** — similar level, field,
+selectivity, and time window (application-ledger's "Target
+comparability" rule). Channel is stratified, but level/selectivity/
+timing are not, so a variant that happens to have gone to easier or
+earlier roles can win on target mix alone. If the targets aren't
+comparable, say so and DON'T reshape the draft on that difference —
+"ml-heavy's rows skew junior and earlier, so its higher callback rate
+isn't attributable to content; not changing the emphasis on that
+basis." State in one line what the rows showed and what it changed
+("ml-heavy: 2 callbacks / 9 applied, generalist: 0 / 6, both cold, both
+mid-level SWE over the same window — leading with the ML work"), or say
+plainly the rows are too thin OR too incomparable to steer this draft.
+This is a read, never a write: persisting conclusions into
+`## Learnings` stays application-tracker's job.
 
 Where a `## Learnings` entry and the rows disagree, the rows win and
 say so — entries are dated and appended, never rewritten, so an older
