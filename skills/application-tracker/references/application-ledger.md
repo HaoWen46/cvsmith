@@ -492,6 +492,26 @@ content for it. The same stratification (or disclosed mix) applies to
 stage conversion and median latency above, not response/callback rate
 alone.
 
+**Channel is the only confound the ledger can actually stratify — name
+the others, because they are real and uncontrolled.** A variant is
+chosen for a job, and jobs differ in more than submission channel:
+seniority/level of the target role, field, employer selectivity, how
+eligible the candidate was for each, and *when* each was sent (a market
+that cooled over the season). The ledger records channel and can split
+on it; it does **not** control for the rest. So a raw "ml-heavy beats
+generalist" can really be "ml-heavy happened to go to more junior /
+less selective / earlier-season roles" — the content may be innocent.
+Before a funnel read steers the next draft, say this out loud: state
+what each variant was *aimed at* (rough level and selectivity mix, and
+the date span), and if a variant's targets skew easier or its rows are
+older, discount the comparison accordingly or decline to draw one. The
+honest conclusion is often "these variants weren't sent to comparable
+jobs, so the difference isn't attributable to the CV" — and a draft
+must never be made worse on a difference that the target mix, not the
+content, produced. `resume-builder` reads this the same way (its
+`## Learnings`/funnel step): a per-variant number without its target
+mix is not actionable.
+
 Keep every denominator honest: applied rows only, `?` dates counted
 and disclosed as exclusions rather than dropped invisibly, so two runs
 against the same ledger always produce the same numbers. The evidence

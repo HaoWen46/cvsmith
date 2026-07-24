@@ -2346,6 +2346,76 @@ def test_deteriorated_outcome_verb_conflicts(tmp_path):
     assert "claim_direction_conflict" in ids_at(report, "warn")
 
 
+# ── round-5 review: name/link ownership, more negation/outcome forms ──
+
+def test_candidate_name_only_in_qa_line_is_not_ownership(tmp_path):
+    # Round-5 finding 1: a manager's name in a Q&A/Context line is not
+    # the candidate's — basics.name is scoped to `## Basics`.
+    vault = VAULT + (
+        "\n## Q&A log\n- CONTEXT: my manager Jordan Blake gave a reference\n")
+    resume = RESUME.replace("name: Sam Casey", "name: Jordan Blake")
+    code, report = run_check(*write_pair(tmp_path, resume=resume, vault=vault))
+    assert code == 1
+    assert "identity_unsupported" in ids_at(report, "fail")
+
+
+def test_project_name_is_not_scoped_to_basics(tmp_path):
+    # The guard: only basics.name is Basics-scoped; a project name lives
+    # in the Projects section and must still verify there.
+    vault = VAULT + (
+        "\n## Projects\n### Ledgerlite (2023)\n- FACT: a finance CLI\n")
+    resume = RESUME + "\nprojects:\n  - name: Ledgerlite\n    bullets: [A finance CLI.]\n"
+    code, report = run_check(*write_pair(tmp_path, resume=resume, vault=vault))
+    assert "identity_unsupported" not in ids_at(report, "fail")
+
+
+def test_basics_link_only_in_qa_line_fails(tmp_path):
+    # Round-5 finding 1: a colleague's profile link in a Q&A line is not
+    # the candidate's basics link.
+    vault = VAULT + (
+        "\n## Q&A log\n- CONTEXT: reference from github.com/jblake-mgr\n")
+    resume = RESUME.replace(
+        "https://github.com/samcasey", "https://github.com/jblake-mgr")
+    code, report = run_check(*write_pair(tmp_path, resume=resume, vault=vault))
+    assert code == 1
+    assert "url_misattributed" in ids_at(report, "fail")
+
+
+def test_zero_and_lack_of_reduction_are_dropped_negations(tmp_path):
+    # Round-5 finding 2: "zero reduction"/"lack of improvement" are
+    # achievement negations; a claim dropping them fails.
+    vault = VAULT + (
+        "- FACT: zero reduction in build time of 55% on the CI pipeline\n")
+    resume = RESUME + ("      - Reduced build time 55% on the CI pipeline.\n")
+    code, report = run_check(*write_pair(tmp_path, resume=resume, vault=vault))
+    assert code == 1
+    assert "claim_negation_dropped" in ids_at(report, "fail")
+
+
+def test_deterioration_noun_and_made_worse_conflict(tmp_path):
+    # Round-5 finding 2: noun form + "made X worse" phrase.
+    vault = VAULT + ("- FACT: cut API latency 40% across 3 services\n")
+    for bad in ("Deterioration in API latency 40% across 3 services.",
+                "Made API latency 40% worse across 3 services."):
+        resume = RESUME + f"      - {bad}\n"
+        code, report = run_check(*write_pair(tmp_path, resume=resume, vault=vault))
+        assert "claim_direction_conflict" in ids_at(report, "warn"), bad
+
+
+def test_incidental_negation_in_prose_does_not_false_fail(tmp_path):
+    # The guard that broke first: a vault line with an incidental generic
+    # negation ("those don't agree on who's first") that shares a stray
+    # number with the claim must NOT hard-fail — only achievement-
+    # negating forms drive the number-anchored negation-drop.
+    vault = VAULT + (
+        "- FACT: co-authored (2nd author) a workshop paper; the notes "
+        "list 3 names but don't agree on who's first\n")
+    resume = RESUME + (
+        "      - Co-authored a workshop paper (2nd author) with 3 collaborators.\n")
+    code, report = run_check(*write_pair(tmp_path, resume=resume, vault=vault))
+    assert "claim_negation_dropped" not in ids_at(report, "fail")
+
+
 # ── round 8, finding 8: audit-count honesty ────────────────────────────
 # The old verdict line counted ONLY warn-level pairings toward "needs
 # manual audit" — but an info-level pairing is exactly as mechanically

@@ -76,6 +76,13 @@ judgment layers (never the yaml itself, never conversation history):
 ```
 Target reader: <derived from meta.target_field via rubric.md's
   reader-by-field table — ai-ml / swe / academic / generic>
+Target level: <meta.target_level verbatim (intern / new-grad / mid /
+  senior / staff / …), or "not specified" if the yaml omits it. The
+  cold reader judges evidence AT THIS LEVEL — a bar a staff role clears
+  is not the bar a new-grad role sets — so a no-JD run assesses
+  level-competitiveness, not just field style (round-5 review
+  finding 8). "not specified" → say the level was not given and read at
+  the field's default early-career bar, flagging that as an assumption.>
 Market: <the jd-analysis Market line, or "not specified — no JD">
 Gate status: <every gate row, each with its status (met / not met /
   unconfirmed) — from the jd-analysis's ## Gates table if one exists,
@@ -88,7 +95,15 @@ priority order — the same order whether a jd-analysis exists or a raw
 posting was pasted in; the difference is only how much evidence is on
 hand, never a different rule:
 
-1. **A persisted jd-analysis** recorded the status: use it verbatim.
+1. **A persisted jd-analysis** recorded the status: use it — UNLESS the
+   attached files or the prompt now contradict it. Priority is not
+   staleness-blind: a persisted `unconfirmed` that the user has since
+   answered ("I'm a US citizen") becomes `met`; a persisted `met` that
+   a newer attached fact contradicts (the resume now shows a later
+   graduation than the analysis assumed) is re-settled from the fact
+   and the conflict is named in the report ("jd-analysis recorded X;
+   the attached resume now shows Y — using Y"). Persisted status is the
+   default, not an override of fresher evidence in front of you.
 2. **No persisted analysis, but the gate is a checkable fact** in the
    attached files (graduation date vs. a stated cutoff, degree level,
    a named certification present on the resume): derive `met` / `not
@@ -254,8 +269,11 @@ of:
    a decline to "unblock" here.
 
 **TARGET FIT** — does this CV cover the highest-ranked requirements of
-*this* job. Reported only when a JD analysis exists; otherwise `TARGET
-FIT: not evaluated (no JD)`. READY requires **all** of:
+*this* job. Evaluated whenever there is a target to score against —
+**a persisted jd-analysis OR a raw posting pasted in** (the raw posting
+still yields ranked requirements and gate statuses per the evidence
+rule above); it is `not evaluated (no JD)` only when there is **no
+posting at all**. READY requires **all** of:
 
 (a) Every **must-have** requirement of the JD is covered by visible
     evidence on the page — rubric.md's "strong" per-requirement
@@ -336,15 +354,36 @@ keeps that gap legible instead of silent:
     because "DONE" otherwise overclaims:
     - JD-targeted and TARGET FIT READY: `DONE` outright — sound,
       well-crafted, and competitive for this posting.
-    - No JD: `DONE (no JD — not validated against any target)`. CRAFT
-      measures craft, not fit for a field or level, and there is no
-      posting to score against, so this says the document is honest and
-      well-made, **not** that it is competitive for any particular role.
-  - `DONE (shipped below target fit — user's call)` — MECHANICAL READY
-    and CRAFT ≥ 7, but TARGET FIT is below READY and the user has seen
-    that and chosen to ship anyway (see the iteration protocol). Never
-    plain `DONE`: the file is mechanically sound but is not competitive
-    for this posting, and every report keeps saying so.
+    - No JD: `DONE (no JD — level-read only, not scored against a
+      posting)`. With no posting there is no requirement set to score
+      coverage against, so this is not "validated competitive for a
+      role". But it is more than field style: the cold reader read the
+      evidence at `meta.target_level` (the seniority bar), so the report
+      names whether the CV's evidence plausibly clears that level's bar
+      — and if `meta.target_level` was "not specified", it says so and
+      names the default bar it used. CRAFT still measures craft, not
+      fit; the level read is L4/L5's, reported alongside.
+  - TARGET FIT below READY, MECHANICAL READY + CRAFT ≥ 7, and the user
+    chose to ship anyway — the label MUST name **why** target fit is
+    below READY, because the three causes are not equally shippable and
+    collapsing them into one line overstates the weakest:
+    - Failed HARD eligibility gate (graduation date, degree, work
+      authorization the candidate does NOT hold): `NOT SENDABLE AS-IS —
+      eligibility gate not met (<gate>); user shipping anyway`. The
+      candidate does not qualify; no rewrite changes it. This is not a
+      "below target fit — user's call" tradeoff — it is applying while
+      ineligible, and the label must say so, not soften it to "shipped".
+    - Unconfirmed gate (answerable, just not yet answered): `NOT DONE —
+      gate unconfirmed (<gate>); answer it before sending`. The honest
+      next step is the answer, not shipping past it — this stays NOT
+      DONE, not a DONE variant.
+    - Ordinary coverage gap (a must-have the CV doesn't cover strongly):
+      `DONE (shipped below target fit — coverage gap on <requirement>,
+      user's call)`. The file is mechanically sound and the candidate is
+      eligible; it just isn't the strongest possible fit, and shipping
+      is a real tradeoff the user can own.
+    Never a bare `DONE` for any of these, and every subsequent report
+    keeps saying which of the three it is.
   - `NOT DONE — CRAFT n/10 (k open must-fix)` — CRAFT ≤ 6 with the
     other two surfaces otherwise complete. Name the must-fix
     `judgment` findings that produced the band and continue the
@@ -399,14 +438,18 @@ keeps that gap legible instead of silent:
 <exactly one, per the CRAFT completion rules in "Verdict rules":
    DONE
  | DONE (no JD — not validated against any target)
- | DONE (shipped below target fit — user's call)
- | NOT DONE — <reason>
+ | DONE (shipped below target fit — coverage gap on <requirement>, user's call)
+ | NOT SENDABLE AS-IS — eligibility gate not met (<gate>); user shipping anyway
+ | NOT DONE — <reason>   (includes: gate unconfirmed (<gate>); answer it before sending)
  | SHIPPED WITH KNOWN WEAKNESS — CRAFT n/10, k must-fix declined
  This is the single line that says whether the run is finished; the
  three verdicts above describe the document, this says whether there is
  more to do. "DONE" unqualified means honest, well-crafted, AND
- competitive for a scored posting; the parenthesized variants say
- plainly what a bare DONE would overclaim.>
+ competitive for a scored posting; every other variant says plainly
+ what a bare DONE would overclaim — and a below-READY target fit is
+ split by cause (coverage gap = a shippable tradeoff; a failed hard
+ eligibility gate = the candidate does not qualify, never softened to
+ "shipped"; an unconfirmed gate = answer it, stays NOT DONE).>
 
 ## Deterministic layers
 | Layer | Result | Notes |

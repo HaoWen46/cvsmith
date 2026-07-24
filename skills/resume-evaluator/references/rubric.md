@@ -18,11 +18,17 @@ For each **must-have** requirement, classify the resume's evidence:
   outcome, or only a skills-list token)
 - **absent** — nothing routes to this requirement
 
-Rows the analyzer lists under Gates are go/no-go facts, not evidence
-targets — exclude them from the /10 coverage score. Their candidate
-status (met / not met / unconfirmed) comes from the cold-reader
-context block's Gate status line, sourced from the jd-analysis file —
-read it, don't re-derive it from the resume. A "not met" gate is a
+Gate rows are go/no-go facts, not evidence targets — exclude them from
+the /10 coverage score. Their candidate status (met / not met /
+unconfirmed) is whatever the cold-reader context block's Gate status
+line already says — the L5 reader **reads that line, it does not
+re-derive gate status on its own**. That line was settled UPSTREAM,
+before dispatch, by SKILL.md's evidence-priority rule ("Judgment layers
+need a cold reader": persisted jd-analysis → a fact in the attached
+files → the user's own statement → otherwise `unconfirmed`); the "don't
+re-derive" rule here is only the division of labor — the context block
+owns settling the status, the cold reader consumes it — not a claim
+that status can come only from a persisted file. A "not met" gate is a
 named go/no-go finding at the top of the TARGET FIT verdict regardless
 of the coverage score; an "unconfirmed" gate is named too (it's a
 question for the user, not a pass). The score still measures tailoring

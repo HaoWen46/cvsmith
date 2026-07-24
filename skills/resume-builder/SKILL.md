@@ -156,6 +156,14 @@ country/region — not the user's). Posting on hand? Run step 4 first
 and take market and level from its decoded-level line; field you
 still infer from the posting and materials. No posting? Infer all
 three from materials and stated goal. Confirm all three in one line.
+**Persist both field and level into the yaml** — `meta.target_field`
+and `meta.target_level` (intern / new-grad / mid / senior / staff / …).
+The level is not just for your own tailoring: the evaluator's
+cold-reader context reads `meta.target_level` so a no-JD run can judge
+whether the evidence clears that seniority's bar, not only the field's
+style (round-5 review finding 8). A projection with a field but no
+level leaves the evaluator reading at a default early-career bar and
+saying so — set the level so the read is real.
 The market sets paper size, language, page budget, and the
 photo/personal-data rules. US/Canada target → **skip
 `references/regional.md` entirely**; its baseline is already this

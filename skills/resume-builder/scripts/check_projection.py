@@ -996,32 +996,69 @@ def phone_supported(resume_digits: str, vault_phones: set[str]) -> bool:
 # line carries that the CLAIM has DROPPED, not the mere presence of a
 # negator — so "never reduced latency" (vault) vs "Reduced latency"
 # (claim) fails, while a claim that keeps the "never" does not.
+# The metric/outcome nouns a "no <noun>" / "lack of <noun>" phrase
+# negates. Kept to result nouns so a bare "no" in a legitimate qualifier
+# ("cut error rate with no added cost") still doesn't trip this.
+OUTCOME_NOUN = (r"reduction|increase|decrease|decline|improvement|change|"
+                r"gain|growth|savings?|boost|rise|drop|cut|speedup|"
+                r"speed-up|impact|effect|benefit")
 NEGATION_RE = re.compile(
     r"\bnever\b|\bfailed\s+to\b|\bunable\s+to\b|\bdid\s+not\b|"
     r"\bcould\s+not\b|\bwas\s+not\b|\bwere\s+not\b|"
     r"\b(?:did|does|do|could|would|was|were|is|are|has|had|ca|wo)n['’]?t\b|"
-    # Round-4 review finding 1: "no reduction in API latency of 40%" is a
-    # negation of the achievement itself — "no" governing a result noun,
-    # NOT the same as a bare "no" in a legitimate qualifier ("cut error
-    # rate with no added cost"). Only the outcome nouns below count, so
-    # the qualifier case still doesn't trip this.
-    r"\bno\s+(?:reduction|increase|decrease|decline|improvement|change|"
-    r"gain|growth|savings?|boost|rise|drop|cut|speedup|speed-up)\b")
-# Verbs that assert a WORSE outcome. A resume claims improvements; a
-# bullet asserting a worsening is almost always a reversed metric
+    # Round-4/5 review finding: "no reduction in API latency of 40%",
+    # "zero reduction", "lack of reduction", "without any improvement" —
+    # a negator governing a result noun negates the achievement itself.
+    rf"\b(?:no|zero|without)\s+(?:any\s+)?(?:{OUTCOME_NOUN})\b|"
+    rf"\black\s+of\s+(?:{OUTCOME_NOUN})\b")
+# "made/left/rendered X worse|slower|costlier|higher" — a worsening
+# stated as a phrase rather than a single verb (round-5 review finding 2:
+# "made latency worse" against an improvement fact).
+MADE_WORSE_RE = re.compile(
+    r"\b(?:made|left|rendered|kept)\b[^.;]{0,40}?"
+    r"\b(?:worse|slower|costlier|higher|weaker|worse-performing)\b")
+# Verbs/nouns that assert a WORSE outcome. A resume claims improvements;
+# a bullet asserting a worsening is almost always a reversed metric
 # ("Worsened API latency" off the vault's "cut API latency"). Round-3
-# review finding 3; "deteriorated"/"worsening" added round-4 finding 1.
+# finding 3; noun forms (deterioration/degradation/…) added round-5.
 NEGATIVE_OUTCOME = {
     "worsened", "worsen", "worsening", "degraded", "degrade", "degrading",
-    "regressed", "regress", "deteriorated", "deteriorate", "deteriorating",
-    "slowed", "slow", "inflated", "inflate", "ballooned", "balloon",
-    "hurt", "damaged", "damage", "weakened", "weaken", "harmed", "harm",
-    "broke", "broken", "crippled", "cripple",
+    "degradation", "regressed", "regress", "regression", "deteriorated",
+    "deteriorate", "deteriorating", "deterioration", "slowed", "slow",
+    "slowdown", "slowing", "inflated", "inflate", "inflation", "ballooned",
+    "balloon", "hurt", "damaged", "damage", "weakened", "weaken",
+    "harmed", "harm", "broke", "broken", "crippled", "cripple",
 }
+
+
+def asserts_worse_outcome(normalized_text: str, words: set[str]) -> bool:
+    """True when the text claims a WORSE result — a NEGATIVE_OUTCOME
+    word, or a 'made X worse'-style phrase. Round-5 review finding 2."""
+    return bool(words & NEGATIVE_OUTCOME) or bool(MADE_WORSE_RE.search(normalized_text))
 
 
 def has_negation(normalized_text: str) -> bool:
     return bool(NEGATION_RE.search(normalized_text))
+
+
+# The negation-DROP check (below) fires on the STRONG subset only: forms
+# that clearly negate an ACHIEVEMENT — "never <verb>", "failed/unable
+# to", and a negator on a result noun ("no/zero/without/lack of
+# reduction"). The generic auxiliaries ("did not", "don't", "isn't")
+# are deliberately EXCLUDED here: round-5 review turned up a false
+# positive where a vault line's incidental "those don't agree on who's
+# first" (a naming meta-comment, nothing to do with the claim's result)
+# shared a stray number with the claim and hard-failed it. A generic
+# n't in descriptive prose is too weak a signal to invert a claim on;
+# an achievement-negating form is not.
+STRONG_NEGATION_RE = re.compile(
+    r"\bnever\b|\bfailed\s+to\b|\bunable\s+to\b|"
+    rf"\b(?:no|zero|without)\s+(?:any\s+)?(?:{OUTCOME_NOUN})\b|"
+    rf"\black\s+of\s+(?:{OUTCOME_NOUN})\b")
+
+
+def has_strong_negation(normalized_text: str) -> bool:
+    return bool(STRONG_NEGATION_RE.search(normalized_text))
 
 
 def vault_blocks(vault_raw: str) -> list[dict]:
@@ -1938,9 +1975,9 @@ def main() -> int:
         # ("Worsened API latency 40%") its matching vault line does not
         # ("cut API latency 40%"). A resume claims improvements; a
         # worsening verb here is almost always a reversed metric.
-        elif (claim_words & NEGATIVE_OUTCOME) and not (
-                content_words(normalize(line)) & NEGATIVE_OUTCOME):
-            bad = ", ".join(sorted(claim_words & NEGATIVE_OUTCOME))
+        elif asserts_worse_outcome(norm, claim_words) and not \
+                asserts_worse_outcome(normalize(line), content_words(normalize(line))):
+            bad = ", ".join(sorted(claim_words & NEGATIVE_OUTCOME)) or "made … worse"
             add("claim_direction_conflict", WARN,
                 f"{path}: the claim asserts a WORSENED outcome ({bad}) that "
                 "its matching vault line does not — a resume states "
@@ -2154,9 +2191,31 @@ def main() -> int:
         # Right boundary unchanged: /user must not ride on /username,
         # but a deeper path (/user/repo) still supports /user.
         pattern = r"(?<![\w.\-])" + re.escape(u) + r"(?![\w-])"
+        # Round-5 review finding 1: a `basics.links[].url` is the
+        # candidate's OWN profile link — its CLEAN support must be in
+        # `## Basics`, like name/email/phone; a link found in the clean
+        # vault only OUTSIDE Basics (a colleague's profile in a
+        # Q&A/Context line) is a misattribution. This narrows only the
+        # clean-support scope; the denied/cut cascade below is unchanged,
+        # so a Basics link on a NOT-CLAIMABLE line still fails url_denied,
+        # not url_unsupported. Other urls (projects/publications) keep the
+        # whole-vault scope.
+        is_basics_link = path.startswith("basics") and bool(contact_pool)
+        if is_basics_link:
+            if re.search(pattern, contact_flat):
+                continue
+            if re.search(pattern, haystack):
+                u_clean = False
+                add("url_misattributed", FAIL,
+                    f"{path}: {url} (normalized '{u}') is a Basics profile "
+                    "link but appears in the clean vault only OUTSIDE Basics "
+                    "(a colleague's link in a Q&A/Context line is not yours) "
+                    "— record your own profile URL in the vault's Basics")
+                continue
+            # fall through to the denied/cut/unsupported cascade below
         if block is not None and re.search(pattern, block["haystack"]):
             continue
-        if re.search(pattern, haystack):
+        if not is_basics_link and re.search(pattern, haystack):
             if block is not None:
                 u_clean = False
                 add("url_misattributed", FAIL,
@@ -2194,17 +2253,28 @@ def main() -> int:
     i_clean = True
     for path, value, entry_key in found["identity"]:
         needle = " ".join(normalize(value).split())
+        # Round-5 review finding 1: the candidate's own `name`
+        # (basics.name specifically) is an OWNERSHIP field like
+        # email/phone/location — it must appear in the vault's
+        # `## Basics`, not anywhere in the vault. Without this, a
+        # manager's name mentioned only in a Q&A/Context line verified
+        # the candidate's name field. Only basics.name is scoped:
+        # projects[].name, awards[].name, and org/title/institution/
+        # degree legitimately live in their own sections, so they still
+        # match the whole vault.
+        is_own_name = path == "basics.name" and contact_pool
+        own_scope = contact_flat if is_own_name else haystack
         # Round 9, finding 1: both tests here were raw substring tests,
         # the same defect as entry scoping — a fabricated "Ace" counted
         # as verbatim-present because it sits inside the vault's real
         # "SpaceX", so an invented employer was reported as a matched
         # identity field. Both are whole-token matches now.
-        if not needle or token_present(needle, haystack):
+        if not needle or token_present(needle, own_scope):
             continue  # verbatim in the vault: supported by definition
         i_clean = False
         tokens = [t for t in re.findall(r"[a-z0-9]{3,}", needle)
                   if t not in IDENTITY_STOP]
-        if tokens and not any(token_present(t, haystack) for t in tokens):
+        if tokens and not any(token_present(t, own_scope) for t in tokens):
             add("identity_unsupported", FAIL,
                 f"{path}: '{value}' shares no token with the vault — the "
                 "fabrication class, not the rename class. If this is a "
@@ -2216,7 +2286,7 @@ def main() -> int:
                 f"{path}: '{value}' not found verbatim in the vault — "
                 f"fine if it's a rename/reformat, worth a look if not")
         for token in re.findall(r"\d+(?:\.\d+)?", needle):
-            if not number_in(token, haystack):
+            if not number_in(token, own_scope):
                 add("number_unsupported", FAIL,
                     f"'{token}' at {path} has no vault support — "
                     f"\"{excerpt(value, token)}\" (rewording must not "
@@ -2370,16 +2440,41 @@ def main() -> int:
                 f"confirmation in the vault — claim: \"{full(text)}\" | "
                 f"denied vault line: \"{full(dline)}\"")
             continue
-        cline, cscore = best_matching_line(
-            claim_words, all_vault_lines, word_df, word_df_n)
-        if (cline is not None and cscore >= CLAIM_LINE_OVERLAP_THRESHOLD
-                and has_negation(normalize(cline)) and not has_negation(norm)):
-            add("claim_negation_dropped", FAIL,
-                f"{path}: this claim's own matching vault line NEGATES what "
-                "the claim asserts, and the claim dropped the negation "
-                "(\"never …\", \"did not …\") — that inverts the fact; keep "
-                "the vault's wording or remove the claim — claim: "
-                f"\"{full(text)}\" | vault: \"{full(cline)}\"")
+        # Negation-drop: the claim restates a vault line but drops a
+        # meaning-flipping negation the line carries. The claim itself
+        # must NOT be negated (an honest claim that KEEPS the "never"
+        # stays clean). Two anchors, whichever finds a negated source:
+        #   - NUMBER-anchored (round-5 fix): a vault line that shares
+        #     every one of the claim's numbers and carries a negation the
+        #     claim lacks. Numbers + negation is a strong combined signal,
+        #     so this fires without a lexical-overlap floor — a dropped
+        #     "zero reduction … 55%" scores only ~0.4 on words alone
+        #     ("reduced" ≠ "reduction") yet is unmistakable on the number.
+        #   - LEXICALLY-anchored: for a claim with no numbers, the best
+        #     content-word match, gated at the usual 0.5 bar.
+        if not has_negation(norm):
+            nums = set(re.findall(r"\d+(?:\.\d+)?", norm))
+            neg_line = None
+            if nums:
+                neg_line = next(
+                    (ln for ln in all_vault_lines
+                     if all(number_in(n, ln) for n in nums)
+                     and has_strong_negation(normalize(ln))
+                     and len(content_words(normalize(ln)) & claim_words) >= 2), None)
+            if neg_line is None:
+                cline, cscore = best_matching_line(
+                    claim_words, all_vault_lines, word_df, word_df_n)
+                if (cline is not None and cscore >= CLAIM_LINE_OVERLAP_THRESHOLD
+                        and has_strong_negation(normalize(cline))):
+                    neg_line = cline
+            if neg_line is not None:
+                add("claim_negation_dropped", FAIL,
+                    f"{path}: this claim's own matching vault line NEGATES "
+                    "what the claim asserts, and the claim dropped the "
+                    "negation (\"never …\", \"no reduction …\", \"did not "
+                    "…\") — that inverts the fact; keep the vault's wording "
+                    f"or remove the claim — claim: \"{full(text)}\" | vault: "
+                    f"\"{full(neg_line)}\"")
 
     # ── claim -> source pairing: mandatory, always-emitted visibility ─
     # Every content claim (content strings only — same scope as the

@@ -71,7 +71,9 @@
         {
           "id": 1,
           "prompt": "is my resume actually ATS-safe? i keep reading scary things about resume screening. can you check it properly? (attached)",
-          "files": ["evals/fixtures/build/good.pdf"],
+          "files": [
+            "evals/fixtures/build/good.pdf"
+          ],
           "expected_output": "Full battery run, fixed-format report, three-surface verdict: MECHANICAL: READY, TARGET FIT not evaluated (no JD), CRAFT reported alongside",
           "assertions": [
             "All four scripts (extract_text, parse_sim, hidden_text_check, lint_structure) were actually executed — the report cites their real results, not vibes",
@@ -83,7 +85,9 @@
         {
           "id": 2,
           "prompt": "a resume-writing service made this for my cousin, something feels off about it. can you check it? (attached)",
-          "files": ["evals/fixtures/build/white_text.pdf"],
+          "files": [
+            "evals/fixtures/build/white_text.pdf"
+          ],
           "expected_output": "MECHANICAL: NOT READY with the hidden text exposed as the headline finding",
           "assertions": [
             "hidden_text_check was run and its invisible_text failure is the headline finding",
@@ -96,7 +100,9 @@
         {
           "id": 3,
           "prompt": "recruiter said my resume 'didn't parse well' in their system?? it looks totally fine on my screen. what's wrong with it (attached)",
-          "files": ["evals/fixtures/build/twocol.pdf"],
+          "files": [
+            "evals/fixtures/build/twocol.pdf"
+          ],
           "expected_output": "The looks-fine-vs-parses-badly gap explained via the column detection finding",
           "assertions": [
             "lint_structure's single_column failure is identified as the cause",
@@ -109,7 +115,9 @@
         {
           "id": 4,
           "prompt": "here's my resume PDF (attached) and a posting i'm targeting — full text below since it's short. i'm not graduating until june 2026 like the resume says, and this posting only asked for jun-2026-or-earlier grads so that part's fine. i'm also a us citizen, so the work-authorization line isn't an issue either. can you tell me straight if i'm ready to apply?\n\nposting (excerpt, adapted from a real one i'm targeting):\nMinimum qualifications:\n- Pursuing a BS/MS in CS or related field, graduating Jun 2026 or earlier\n- Strong Python; comfort with testing frameworks (pytest or similar)\n- Hands-on experience with LLM applications — retrieval/RAG, agents, fine-tuning, or evaluation\n- Ability to measure what you build: baselines, held-out sets, regression tests\n- Production experience deploying models behind a container-orchestration platform (Kubernetes or equivalent) at more than toy scale\nMust be authorized to work in the US; no sponsorship for internships.",
-          "files": ["evals/fixtures/build/good.pdf"],
+          "files": [
+            "evals/fixtures/build/good.pdf"
+          ],
           "expected_output": "Three-surface verdict: MECHANICAL: READY, TARGET FIT: NOT READY (with the container-orchestration must-have — absent, or at best weak, since the resume's Docker entry is containerization, not orchestration, and offers no scale/measurement — named as the sole open fit gap), CRAFT reported alongside",
           "assertions": [
             "MECHANICAL: READY and TARGET FIT: NOT READY are both reported side by side, never blended into one word [SKILL.md 'Verdict rules': 'Two READY verdicts, always reported side by side, never blended into one word']",
@@ -122,7 +130,9 @@
         {
           "id": 5,
           "prompt": "you already ran the check on my resume (attached, same file) and flagged that white/invisible text thing as a problem. i hear you but i'm going to leave it in, i really don't have time to fix it right now. can we call it good enough to send?",
-          "files": ["evals/fixtures/build/white_text.pdf"],
+          "files": [
+            "evals/fixtures/build/white_text.pdf"
+          ],
           "expected_output": "MECHANICAL stays NOT READY; the decline is refused as a way to close the hidden-text finding",
           "assertions": [
             "MECHANICAL remains NOT READY after the user's decline — the report does not treat 'I'll leave it' as closing the hidden-text finding [SKILL.md 'Finding classification': 'A truth finding closes exactly two ways: evidence... or removing the claim... A user's decline never resolves a truth finding. It stays open, and MECHANICAL stays NOT READY.']",
@@ -134,7 +144,10 @@
         {
           "id": 6,
           "prompt": "can you run the full check against this posting for me? (resume and posting both attached) i didn't put anything about visa/work authorization on the resume, never thought to — is that an issue?",
-          "files": ["evals/fixtures/build/good.pdf", "evals/fixtures/jd-sample/ml-intern-posting.md"],
+          "files": [
+            "evals/fixtures/build/good.pdf",
+            "evals/fixtures/jd-sample/ml-intern-posting.md"
+          ],
           "expected_output": "Two gates block TARGET FIT, both named: the graduation-date Gate fails outright (resume graduates Jun 2026; the attached posting requires Dec 2027 or later) and the work-authorization Gate is reported unconfirmed — TARGET FIT capped at NOT READY on either basis alone",
           "assertions": [
             "The graduation-date Gate is reported as NOT MET, not silently passed over or left for the user to notice — the resume's Jun 2026 graduation (evals/fixtures/resume-sample/resume.yaml, education end 2026-06) fails the attached posting's own stated requirement of 'graduating Dec 2027 or later' (evals/fixtures/jd-sample/ml-intern-posting.md) outright; this is a hard gate failure, not an open question the candidate needs to answer",
@@ -147,7 +160,9 @@
         {
           "id": 7,
           "prompt": "does this look ready to send? no specific job lined up yet, just want a gut check before i start applying broadly. (attached)",
-          "files": ["evals/fixtures/build/sparse_onecol.pdf"],
+          "files": [
+            "evals/fixtures/build/sparse_onecol.pdf"
+          ],
           "expected_output": "MECHANICAL: READY (nothing dishonest), TARGET FIT: not evaluated (no JD), CRAFT scored in the 5-6 band with at least one must-fix `judgment` finding named against the two unsupported bullets — the run is reported as not done until that finding is fixed or explicitly declined",
           "assertions": [
             "MECHANICAL is reported READY — nothing on the page is fabricated, inflated, or unsupported as a truth claim — and TARGET FIT is reported as not evaluated (no JD attached), so neither READY surface is used to paper over the craft problem [SKILL.md 'Verdict rules': CRAFT 'exists because a resume can legitimately be honest... and on-target... while still reading as generic, badly emphasized, or flat']",
@@ -165,7 +180,9 @@
         {
           "id": 1,
           "prompt": "found this internship posting, what are they actually looking for? feels like a lot of buzzwords (attached)",
-          "files": ["evals/fixtures/jd-sample/ml-intern-posting.md"],
+          "files": [
+            "evals/fixtures/jd-sample/ml-intern-posting.md"
+          ],
           "expected_output": "Fixed-format analysis: ranked must-haves with evidence targets, decoded level, vocabulary map, culture noise separated",
           "assertions": [
             "Output follows the fixed format from SKILL.md (must-have table, nice-to-haves, vocabulary map, culture noise, notes)",
@@ -221,7 +238,7 @@
           "assertions": [
             "The row's status gains 'applied 2026-07-14' — the actual submission date the user gave, never the 2026-07-13 render/prepare date [application-ledger.md: 'It becomes applied only when the user confirms they submitted — dated the actual submission date, never the render date']",
             "The agent recomputes the live file's digest and compares it against the row's own sent: digest before snapshotting; since the user says nothing changed, the match proceeds silently with no question asked [application-ledger.md 'Applied transition': 'Match — proceed with the copy below'; SKILL.md: 'A match proceeds silently']",
-            "A snapshot directory named applications/stripe-backend-engineering-intern-2026-07-14-1/ is created (or the agent states it will create it) with the sequence number present even though it's the first application for this company+role [application-ledger.md: '<n> is a per-company+role sequence number... It is never omitted, even for the first application']",
+            "A snapshot directory named applications/stripe-backend-engineering-intern-2026-07-14-1/ is created (the concrete directory, presented as bookkeeping the skill performs — not merely a statement that it 'will' be created later, and not a task handed to the user) with the sequence number present even though it's the first application for this company+role [application-ledger.md: '<n> is a per-company+role sequence number... It is never omitted, even for the first application']",
             "The row's snapshot: field records both digests — the PDF's sha256 and the yaml's — not the PDF digest alone [application-ledger.md 'Applied transition': 'records the directory's path plus both digests — the PDF's sha256 and the yaml's']",
             "The snapshot itself is presented as bookkeeping the skill performs, not a task handed to the user; the confirmation is one clause [SKILL.md: 'snapshotting itself is bookkeeping the skill does, never the user — confirm the outcome in one clause']"
           ]

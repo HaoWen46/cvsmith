@@ -67,6 +67,11 @@ TOP_KEYS = {"meta", "basics", "summary", "education", "experience",
             "projects", "skills", "publications", "awards"}
 META_KEYS = {
     "target_field",   # builder/evaluator routing; never changes rendering
+    "target_level",   # seniority the CV aims at (intern/new-grad/mid/
+                      # senior/staff/…); persisted so a no-JD evaluation
+                      # can judge competitiveness AT THAT LEVEL, not just
+                      # field style (round-5 review finding 8). Never
+                      # changes rendering.
     "page_budget",    # render.sh page-count warning
     "paper",          # all templates: set page(paper: ...)
     "lang",           # all templates: set text(lang: ...)

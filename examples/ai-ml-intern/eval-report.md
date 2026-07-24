@@ -84,11 +84,21 @@ Nice-to-haves: HNSW (strong), OSS with 1.4k stars + 27 contributors
 the JD's real terms (harness, regressions, red-team, held-out) —
 nothing bolted on.
 
-## L5 — recruiter simulation: 9/10
+## L5 — recruiter simulation: 8/10
+(L5 and CRAFT are the same /10 — rubric.md — so both are 8/10 here: the
+skim/deep-read alone would land 9, but the page-economy finding below
+caps the band at 8.)
+
 **Six-second skim:** lands "Sam Casey — CS @ UW — ML intern with
 eval/RAG numbers". The 480→210 ms and 1,200-ticket figures pop; GitHub
 star count anchors the projects section. Visual hierarchy is clean;
-nothing competes with the strongest facts.
+nothing competes with the strongest facts. **Page economy (caps the
+band at 8):** the compact template sets ≈9pt body type yet the content
+ends at 522pt on a 792pt page — 34% blank below the last line. Dense
+type over a third-empty page is a mixed signal (rubric.md Pass 1 "page
+economy"): either the type should be larger / spacing more generous, or
+the layout should use the room. A fixable craft issue, not a truth or
+fit one — optional, not must-fix.
 
 **Skeptical read:** every major claim carries a number or artifact and
 would survive probing ("how did you catch the regressions?" — the
