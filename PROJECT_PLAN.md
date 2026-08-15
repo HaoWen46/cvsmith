@@ -16,6 +16,8 @@ Engineering exists to support that outcome; no checker score, PDF build, or inte
 6. Iterate until the recommendation is `READY TO SEND`, or stop with `DO NOT APPLY` when the target itself is nonviable.
 7. Bind a confirmed application to its target, recommendation, and sent file hashes; record later stages and use comparable patterns to inform the next variant.
 
+Optional evidence-creation branch: only after an explicit user request or confirmation, `hiring-project-planner` may turn the current target into a research-backed project-and-demonstration handoff or a no-project decision when the payoff window fails; it stops before implementation, and no planned capability becomes candidate or resume evidence until later work verifies it.
+
 ## Architecture
 
 | Component | Owns | Does not own |
@@ -23,10 +25,11 @@ Engineering exists to support that outcome; no checker score, PDF build, or inte
 | `candidate-evidence` | Source intake, revision checks, conflicts, relationships, currentness, and reversible lifecycle | JD fit, comparative resume selection, prose, or page placement |
 | `resume-builder` | Target-specific evidence selection, positioning, prose, layout, rendering, iteration | Durable source intake, global archive decisions, or final independent recommendation |
 | `jd-analyzer` | Posting-grounded gates and ranked target contract | Candidate evidence invention or resume prose |
+| `hiring-project-planner` | Current-research reduction and the smallest credible build-and-proof handoff for a supplied target | Candidate intake, resume prose, project implementation, or proof that a project exists |
 | `resume-evaluator` | Objective battery orchestration and human hiring judgment | Automated meaning or employer-outcome prediction |
 | `application-tracker` | At-send identity, status history, descriptive outcome learning | Causal claims about variants |
 
-The candidate evidence index plus semantic documents are the reusable private source record; the JD analysis is a separate disposable target contract; the resume YAML is one target-specific projection; the PDF is the application artifact; the evaluation report is the current decision; the application ledger is the feedback record.
+The candidate evidence index plus semantic documents are the reusable private source record; the JD analysis and optional hiring-project brief are separate disposable target contracts; the resume YAML is one target-specific projection; the PDF is the application artifact; the evaluation report is the current decision; the application ledger is the feedback record.
 
 ## Invariants
 
@@ -39,6 +42,7 @@ The candidate evidence index plus semantic documents are the reusable private so
 - Outcome comparisons are scoped associations, never causal proof.
 - Missing input or verification remains explicit and never becomes a pass by default.
 - The main agent reads every substantive index capsule before target filtering, chooses every investigation and lifecycle change, checks decisive originals, and owns every selection; subagents return bounded source facts only.
+- A hiring-project brief starts from a supplied target without candidate dependencies, reduces before ideating, uses current decision-changing research, leaves selection with the main agent, and stops before implementation.
 - Age, fashionable technology, and a prior target omission never decide durable lifecycle alone; archived evidence retains substance, sources, reason, and a concrete revival condition.
 
 ## Objective tools
@@ -61,4 +65,4 @@ Outcome evidence: applied rows retain exact at-send context, stage progression i
 
 The current checkout contains an uncommitted redesign; an installed or previously built archive does not contain this contract.
 
-Remaining release work is evidence, not more architecture: run focused and full deterministic tests, rebuild and inspect the flagship example, pressure-test all five skills with fresh agents on contrasting cases, inspect packaged archives, and record the limits observed.
+Remaining release work is evidence, not more architecture: run focused and full deterministic tests, rebuild and inspect the flagship example, pressure-test all six skills with fresh agents on contrasting cases, inspect packaged archives, and record the limits observed.

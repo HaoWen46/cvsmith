@@ -1,0 +1,50 @@
+[
+  {
+    "query": "Given this current AI platform JD, research what a small purpose-built project should demonstrate and hand me a plan another coding agent can execute",
+    "should_trigger": true
+  },
+  {
+    "query": "Turn this backend infrastructure posting into a high-payoff project-and-demo brief; I have no resume or existing projects in this session",
+    "should_trigger": true
+  },
+  {
+    "query": "Create a self-contained research dispatch so another agent can investigate current proof standards before we choose what to build for this JD",
+    "should_trigger": true
+  },
+  {
+    "query": "What is the smallest project that could credibly demonstrate the central skills in this job description before applications close?",
+    "should_trigger": true
+  },
+  {
+    "query": "Compare two coherent project proof packages for this role, choose one after current research, and stop before implementation",
+    "should_trigger": true
+  },
+  {
+    "query": "What does this job posting actually require? Extract its gates and rank the requirements",
+    "should_trigger": false
+  },
+  {
+    "query": "Here are my GitHub repositories and old project reports; organize them into reusable candidate evidence",
+    "should_trigger": false
+  },
+  {
+    "query": "Tailor my existing resume to this role using the evidence index I attached",
+    "should_trigger": false
+  },
+  {
+    "query": "Implement the EventRail project from the approved plan and run its test suite",
+    "should_trigger": false
+  },
+  {
+    "query": "Review this existing portfolio repository and tell me whether its claims are supported",
+    "should_trigger": false
+  },
+  {
+    "query": "Suggest some fun side-project ideas; I do not have a target role or job description",
+    "should_trigger": false
+  },
+  {
+    "query": "I already built the project; write three resume bullets and add them to my CV",
+    "should_trigger": false
+  }
+]

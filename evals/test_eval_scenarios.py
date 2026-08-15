@@ -5,7 +5,14 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
 EVALS = REPO / "evals/evals.json"
-SKILLS = {"candidate-evidence", "resume-builder", "resume-evaluator", "jd-analyzer", "application-tracker"}
+SKILLS = {
+    "application-tracker",
+    "candidate-evidence",
+    "hiring-project-planner",
+    "jd-analyzer",
+    "resume-builder",
+    "resume-evaluator",
+}
 
 
 def load() -> dict:
@@ -50,4 +57,25 @@ def test_candidate_evidence_scenarios_cover_lifecycle_and_artifact_intake():
     block = next(item for item in load()["skills"] if item["skill_name"] == "candidate-evidence")
     text = json.dumps(block).casefold()
     for cue in ("archive", "fixed age", "source revision", "target-neutral", "github", "project report", "untrusted"):
+        assert cue in text
+
+
+def test_hiring_project_planner_scenarios_cover_reduction_research_and_boundary():
+    block = next(item for item in load()["skills"] if item["skill_name"] == "hiring-project-planner")
+    text = json.dumps(block).casefold()
+    for cue in (
+        "fresh session",
+        "current research",
+        "candidate evidence",
+        "augment the jd",
+        "main agent",
+        "research dispatch",
+        "plausible answers",
+        "percentage",
+        "acceptance quota",
+        "no project recommended",
+        "execution window",
+        "do not implement",
+        "every jd term",
+    ):
         assert cue in text

@@ -1,6 +1,6 @@
 # cvsmith
 
-cvsmith is a small set of agent skills for organizing reusable candidate evidence, producing the strongest role-specific resume a candidate can safely defend, testing the resulting PDF, and learning from real application outcomes.
+cvsmith is a small set of agent skills for organizing reusable candidate evidence, producing the strongest role-specific resume a candidate can safely defend, testing the resulting PDF, learning from real application outcomes, and optionally planning a current JD-specific project that could create missing hiring evidence.
 
 The product is the workflow, not a scoring program: understand the candidate and target, select and frame evidence, render a professional document, inspect it like a recruiter and interviewer, revise while material value remains, then record what was actually sent.
 
@@ -11,6 +11,7 @@ The product is the workflow, not a scoring program: understand the candidate and
 | `candidate-evidence` | Target-neutral source intake, refresh, conflict handling, reversible archive, and portable evidence index |
 | `resume-builder` | Target-specific evidence selection, positioning, drafting, Typst rendering, and iteration |
 | `jd-analyzer` | Current-posting gates, ranked requirements, level, and evidence targets |
+| `hiring-project-planner` | Current research, target reduction, and a bounded project-and-demonstration handoff or explicit no-project decision; never implementation |
 | `resume-evaluator` | Objective PDF checks plus agent-owned exposure, fit, craft, and send recommendation |
 | `application-tracker` | At-send target and file identity, stages, outcomes, and scoped learnings |
 
@@ -43,7 +44,7 @@ The intended path is to invoke the skills through a capable agent; the commands 
 
 ## Install
 
-Use the skill directories directly from a checkout, symlink or copy each `skills/<name>/` directory into the personal skill directory recognized by the host, or package all five:
+Use the skill directories directly from a checkout, symlink or copy each `skills/<name>/` directory into the personal skill directory recognized by the host, or package all six:
 
 ```sh
 uv run scripts/package_release.py

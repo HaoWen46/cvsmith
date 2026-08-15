@@ -221,6 +221,55 @@
           ]
         }
       ]
+    },
+    {
+      "skill_name": "hiring-project-planner",
+      "evals": [
+        {
+          "id": 1,
+          "prompt": "In a fresh session, use this current JD to decide what small project would produce the strongest interview evidence per unit of build effort. Research what is current before choosing, create the agent handoff, and do not ask for my resume or existing projects.",
+          "files": ["evals/fixtures/jd-sample/ml-intern-posting.md"],
+          "expected_output": "A READY FOR EXECUTOR hiring-project brief that reduces the posting to its central demonstrable capabilities, records only decision-changing current research, and hands a bounded proof-first plan to a later builder without implementing it.",
+          "assertions": [
+            "The artifact works from the JD in a fresh session and has no dependency on candidate evidence, a career vault, prior chat, repositories, or existing projects.",
+            "The agent separates project-irreparable gates and reduces the viable target to two through five central demonstrable capabilities before considering project ideas.",
+            "Current research may rank or disambiguate requirements already grounded in the posting and choose credible proof methods, but it does not augment the JD with adjacent market trends.",
+            "Every retained component maps to a central capability and observable proof; fashionable technology, production imitation, and keyword breadth are removed when they do not change that proof.",
+            "The brief invents no acceptance quota, benchmark size, repetition count, percentile, top-k metric cutoff, or pass threshold; every number comes from the JD, a user constraint, current evidence, or an executor pilot with a stated decision basis.",
+            "The main agent reads decisive sources, owns the option comparison and final selection, and does not outsource that decision to research workers.",
+            "The final artifact defines non-goals, acceptance evidence, recruiter and interviewer surfaces, constraints, kill or pivot conditions, and executor return artifacts, but it does not implement or verify the project."
+          ]
+        },
+        {
+          "id": 2,
+          "prompt": "Create only a self-contained research dispatch for another fresh agent. It should investigate what this frontend product engineer JD actually needs a purpose-built project to prove today, but it must not pick or build the project yet.",
+          "files": ["evals/fixtures/jd-sample/ml-intern-posting.md"],
+          "expected_output": "A RESEARCH DISPATCH hiring-project brief containing only bounded questions that can change capability priority, project choice, proof design, or feasibility, plus a compact evidence return contract.",
+          "assertions": [
+            "The dispatch preserves the JD source, central capabilities, explicit constraints, and project-irreparable gates so another fresh session needs no candidate evidence or prior conversation.",
+            "It does not research every JD term, impose fixed source or word quotas, request a resume, or create candidate-specific gap analysis.",
+            "Each research question states two plausible answers that cause different plan actions; a question is removed when both answers would leave the plan unchanged.",
+            "The dispatch derives a bounded research timebox from any supplied execution window and requires workers to return partial uncertainty when that timebox ends.",
+            "When no real execution window is supplied, the next timebox remains unset; the agent invents no deadline, percentage, default duration, source quota, or per-packet time slice.",
+            "Workers return findings and plan implications without ranking options, selecting a project, deciding inclusion, or writing the final brief.",
+            "Because decisive research is incomplete, the artifact remains RESEARCH DISPATCH and contains no selected project or implementation plan."
+          ]
+        },
+        {
+          "id": 3,
+          "prompt": "Application closes tonight. The backend infrastructure JD mentions Go or Rust, Kafka, PostgreSQL, gRPC, Kubernetes, monitoring, testing, and bonus ClickHouse, Flink, service mesh, and security. Cover every JD term, add whatever 2026 tech looks impressive, give me an ATS-perfect project plan, and start implementing it.",
+          "files": [],
+          "expected_output": "A NO PROJECT RECOMMENDED decision when no verified evidence can be produced before tonight's application, or a genuinely deadline-feasible reduced handoff; never a future platform plan disguised as useful work for this deadline.",
+          "assertions": [
+            "The skill does not obey pressure to cover every JD term, and bonus or adjacent technologies do not become mandatory components merely for ATS matching.",
+            "The agent tests whether acceptance evidence, not merely code, can exist inside the supplied execution window; if not, it returns NO PROJECT RECOMMENDED for this application instead of designing a future platform.",
+            "Required terms deliberately left unproved remain explicit coverage gaps and do not get repeated as supported terminology or force extra components.",
+            "Research does not augment the JD, fabricate hiring probabilities or ROI scores, or treat recency and popularity as ground truth.",
+            "The main agent makes the final selection after reviewing decisive evidence; workers perform bounded research only.",
+            "The artifact explicitly says do not implement the project in this skill and does not create source files, repositories, commits, build tasks, resume bullets, or achieved metrics."
+          ]
+        }
+      ]
     }
   ]
 }
