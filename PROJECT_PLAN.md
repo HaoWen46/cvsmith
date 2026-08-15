@@ -1,322 +1,64 @@
-# cvsmith — Project Plan
+# cvsmith product contract
 
-**Agent skills that teach AI agents how to build, tailor, and adversarially test resumes — rendered with Typst, verified with the same classes of checks 2026 screening stacks run.**
+## Objective
 
-Living doc: architecture, principles, status, and roadmap. Workflow
-detail lives in the four `SKILL.md` files (source of truth); this file
-holds what spans them. History lives in git, not here.
-Last updated: 2026-07-21.
+Increase a candidate's chance of reaching interviews and offers by helping an agent produce the strongest role-specific resume available from the candidate's real material, while avoiding claims or presentation tactics likely to backfire under ordinary hiring scrutiny.
 
----
+Engineering exists to support that outcome; no checker score, PDF build, or internal completion label is the product goal.
 
-## 1. Problem statement (why this exists)
+## Workflow
 
-As of mid-2026, most high-volume resume screening runs some version of
-an LLM-mediated pipeline: **parse → structure into fields → embed
-against the job description → score → rank**. Design assumptions (a
-conservative model of 2026 screening; sources §9; perishable claims
-live under freshness stamps in
-`skills/resume-builder/references/screening-2026.md`):
+1. Build or refresh a reusable target-neutral candidate evidence workspace from supplied material and focused follow-up questions.
+2. Analyze the actual current posting into strict eligibility gates, ranked requirements, level, market, and evidence targets.
+3. Choose a positioning thesis, select the strongest relevant evidence, and write assertive interview-defensible content.
+4. Render a conventional single-column tagged PDF and run objective compatibility checks.
+5. Have an agent inspect the actual PDF for practical exposure, target fit, recruiter skim, interviewer probing, and remaining high-value improvements.
+6. Iterate until the recommendation is `READY TO SEND`, or stop with `DO NOT APPLY` when the target itself is nonviable.
+7. Bind a confirmed application to its target, recommendation, and sent file hashes; record later stages and use comparable patterns to inform the next variant.
 
-1. **Parsing is the gate.** If extraction fails or sections misroute,
-   the candidate is eliminated before any intelligence evaluates them.
-2. **Keyword stuffing is dead and actively harmful.** Screeners use
-   semantic matching and flag manipulation; the target is honest
-   semantic coverage, not token overlap.
-3. **Hidden text is detected, and the flag sticks to the person.**
-   Production detectors cross-check rendered pixels against extracted
-   text (86–93% precision, ~$0.0001–0.01/file — arXiv 2605.28999);
-   documented vendor responses range from recruiter-visible
-   manipulation flags to automated rejection. A builder must *prove*
-   it produced nothing that looks like hidden content.
-4. **Generic AI prose is a negative signal.** Polish is free now;
-   differentiators are specificity, quantification, verifiable claims.
-5. **The market is a barbell.** Entry-level tech postings down, AI
-   postings growing — field-aware tailoring is the leverage point.
+## Architecture
 
-Existing tools are static SaaS checkers or scripts wrapping an LLM API.
-cvsmith is neither: portable agent skills (SKILL.md conventions —
-Claude Code / Cowork / Agent SDK, readable by any framework honoring
-them) that make a capable agent behave like an expert resume engineer
-with a verification loop.
+| Component | Owns | Does not own |
+|---|---|---|
+| `candidate-evidence` | Source intake, revision checks, conflicts, relationships, currentness, and reversible lifecycle | JD fit, comparative resume selection, prose, or page placement |
+| `resume-builder` | Target-specific evidence selection, positioning, prose, layout, rendering, iteration | Durable source intake, global archive decisions, or final independent recommendation |
+| `jd-analyzer` | Posting-grounded gates and ranked target contract | Candidate evidence invention or resume prose |
+| `resume-evaluator` | Objective battery orchestration and human hiring judgment | Automated meaning or employer-outcome prediction |
+| `application-tracker` | At-send identity, status history, descriptive outcome learning | Causal claims about variants |
 
-## 2. Product principles
+The candidate evidence index plus semantic documents are the reusable private source record; the JD analysis is a separate disposable target contract; the resume YAML is one target-specific projection; the PDF is the application artifact; the evaluation report is the current decision; the application ledger is the feedback record.
 
-1. **Evaluator > builder.** Anyone can generate a resume; the moat is
-   the harness that runs a PDF through the same classes of checks
-   screening stacks use.
-   Build → test → iterate — TDD for resumes. A resume is done when it
-   *passes*, not when it exists.
-2. **Skills, not services.** No server, no API keys on the core path.
-   Deterministic checks are bundled scripts; judgment runs on the host
-   agent.
-3. **Honesty is a feature.** Never fabricate, never stuff, never hide
-   text — and the evaluator proves it. Ethics and self-interest agree
-   here (detection is real). The evaluator's report never softens to
-   please anyone; a reassuring false PASS is the one forbidden output.
-4. **Meet users where they are.** No filing rituals, no required
-   folders, no assumption this repo is even present. Intake adapts to
-   pasted text, attachments, files in place, remote pointers, or
-   nothing at all.
-5. **The vault makes it persistent.** One user-owned `career-vault.md`
-   is the exhaustive evidence base; every resume is a *projection* of
-   it (per target: `resume-<company>-<role>.yaml`). Projections never
-   contain a fact the vault lacks — that invariant keeps N tailored
-   variants simultaneously honest, and makes application #14 cost
-   minutes. A file, not agent memory: the user owns and ports it.
-6. **Conventions follow the target, not the user.** Two axes beyond
-   field: *audience* (HR pipeline vs. faculty reader vs. both) and
-   *market* (the job's country, never the user's). Parse mechanics are
-   invariant everywhere; evidence emphasis, register, paper, language,
-   and personal-data rules follow the target.
-7. **Activate, don't enumerate.** For vast situational knowledge
-   (register across industry × culture, unlisted markets/fields),
-   references name the axis, pin the invariants, and aim the model's
-   own latent knowledge via procedure: name the cell, sample 2–3 real
-   artifacts from it, confirm with the user. Literal text is reserved
-   for what latent knowledge gets wrong: post-cutoff screening facts,
-   the model's own failure modes (padding, agreeable capitulation,
-   slop vocabulary), and invariants that keep iteration measurable
-   (schema, rubrics, report formats). Deterministic checks stay
-   scripts. Field/market files grow on demand, never speculatively.
-8. **Doctrine is versioned and scheduled; inputs are fetched; nothing
-   is re-derived per query.** Three knowledge tiers: stable mechanics
-   (bundled, never researched at runtime), slow-cycle facts (stamped
-   `Last verified` / `Verify by`; the repo re-verifies on schedule —
-   monthly CI cron fails on stale stamps), task-scoped facts (the
-   posting, the company — always fetched fresh; that's input, not
-   research). Same question, same answer — or iteration stops being
-   measurable.
-9. **Typst, not LaTeX.** Typst ≥ 0.15 emits tagged PDF/UA-1 + PDF/A-2a
-   dual — a real structure tree for parsers — with syntax an agent can
-   reason about. Templates are pure functions of the data file.
+## Invariants
 
-## 3. Deliverables
+- Record-risk facts remain consistent with records or likely third-party checks; favorable framing may be aggressive when the candidate can defend it naturally and no realistic contradiction is exposed.
+- Eligibility gates are narrow binary constraints; years, tools, degree preferences with equivalency, and seniority are ranked evidence requirements rather than automatic refusal rules.
+- Objective software reports only observable file or exact-value properties; lexical similarity never certifies meaning, defensibility, quality, or completion.
+- CRAFT is a diagnostic quality score; no numeric threshold ends iteration.
+- `READY TO SEND` requires no objective failure, all gates met, acceptable practical exposure, credible target representation, professional presentation, and no accessible high-value improvement.
+- Prepared is not applied; an outcome is attributed only to the target and bytes actually sent.
+- Outcome comparisons are scoped associations, never causal proof.
+- Missing input or verification remains explicit and never becomes a pass by default.
+- The main agent reads every substantive index capsule before target filtering, chooses every investigation and lifecycle change, checks decisive originals, and owns every selection; subagents return bounded source facts only.
+- Age, fashionable technology, and a prior target omission never decide durable lifecycle alone; archived evidence retains substance, sources, reason, and a concrete revival condition.
 
-Four skills, one repo; installable individually as `.skill` packages
-or used from a checkout.
+## Objective tools
 
-| Skill | One-liner |
-|---|---|
-| `resume-builder` | Vault-first intake → evidence drafting → `resume.yaml` → Typst render → mandatory evaluator loop |
-| `resume-evaluator` | Adversarial harness: L0–L3 deterministic scripts + L4 JD-alignment + L5 recruiter-skim judgment, fixed report |
-| `jd-analyzer` | Posting → ranked must-haves with evidence targets, decoded seniority, vocabulary map, market |
-| `application-tracker` | Ledger beside the vault: prepared vs. applied, outcome capture, funnel reads |
+The renderer validates YAML, checks exact resume/evidence-index mismatches when an index is available, compiles with vendored fonts, checks extractability, measures page fill, and measures bullet wrapping before atomically publishing the PDF.
 
-`jd-analyzer` stays separate on purpose: building is per-person,
-tailoring is per-application, and the evaluator consumes the analyzer's
-output as its L4 rubric. `application-tracker` owns the post-send seam
-— logging what was actually sent where, outcomes, and callback-rate
-reads — so the builder can hand off cleanly once a resume is done.
-Small skills with clean interfaces compose better and trigger more
-precisely.
+The evaluator battery independently checks text extraction, basic field routing, hidden or off-page content, and PDF structure; each report includes the PDF digest it read.
 
-## 4. Repository layout (current)
+These tools reduce avoidable compatibility and manipulation risk; they do not simulate a proprietary employer system or replace direct artifact review.
 
-```
-cvsmith/
-├── README.md · LICENSE (MIT) · PROJECT_PLAN.md · MAINTENANCE.md
-├── pyproject.toml · uv.lock          # uv-managed env (dev deps; scripts also carry PEP 723)
-├── .github/
-│   ├── scripts/check_freshness.py    # Verify-by stamp checker (monthly cron = strict)
-│   └── workflows/ci.yml              # skill lint · freshness · template render · evaluator pytest
-├── skills/
-│   ├── resume-builder/
-│   │   ├── SKILL.md                  # workflow (vault-first intake … mandatory verify; user-conflict protocol)
-│   │   ├── references/
-│   │   │   ├── screening-2026.md     # the pipeline + why each rule exists   [stamped]
-│   │   │   ├── writing-rules.md      # bullet formula · anti-slop · honesty mechanics · Register
-│   │   │   ├── career-vault.md       # vault format + projection rules
-│   │   │   ├── regional.md           # market table · photo/personal-data doctrine · fallback   [stamped]
-│   │   │   ├── tools-and-sources.md  # knowledge tiers · external-tool catalog · board APIs
-│   │   │   ├── typst-guide.md        # template API · constraints · overflow triage
-│   │   │   └── fields/{ai-ml[stamped], swe, academic, generic}.md
-│   │   ├── assets/
-│   │   │   ├── fonts/source-sans-3/  # vendored OFL — identical render everywhere
-│   │   │   └── templates/{onecol.typ, data-schema.md}
-│   │   └── scripts/render.sh         # yaml → PDF/UA-1+A-2a, font + text-layer + budget checks
-│   ├── resume-evaluator/
-│   │   ├── SKILL.md                  # L0–L5 protocol · fixed report · iteration rules
-│   │   ├── references/{rubric.md, failure-modes.md}
-│   │   └── scripts/{_report.py, extract_text.py, parse_sim.py,
-│   │               hidden_text_check.py, lint_structure.py}   # PEP 723, standalone via uv run
-│   ├── jd-analyzer/
-│   │   ├── SKILL.md                  # decompose · decode level+market · evidence targets · output format
-│   │   └── references/requirement-taxonomy.md
-│   └── application-tracker/
-│       ├── SKILL.md                  # pull-based ledger capture · funnel reads · honest handoffs
-│       └── references/application-ledger.md   # ledger format + doctrine (moved from resume-builder)
-├── scripts/package_release.py        # release packager (stdlib; contract-checks .skill zips)
-├── evals/
-│   ├── evals.json                    # 3 prompts + graded assertions per skill (M4)
-│   ├── test_evaluator.py             # 15 tests: planted failures caught, zero false positives
-│   └── fixtures/
-│       ├── resume-sample/ · academic-sample/        # synthetic personas (Sam Casey / Dana Okafor)
-│       ├── materials-sample/ · jd-sample/           # messy inputs + synthetic posting
-│       ├── broken-src/*.typ · generate.py           # planted failures, built not committed
-│       └── build/                                   # gitignored output
-└── examples/ai-ml-intern/            # real outputs of following the skills, incl. honest NOT-READY verdict
-```
+## Success evidence
 
-Skill anatomy is canonical: frontmatter `name` + pushy `description`
-(the only always-in-context cost, a few hundred words across all four),
-body loads on trigger (≤ ~180 lines each), references load only behind
-explicit conditions (e.g. US target → regional.md never loads).
+Artifact evidence: objective checks pass, reviewers remember the intended thesis, important requirements have visible credible evidence, claims survive probing, and the page has no accessible high-value revision.
 
-## 5. Cross-component contracts
+Behavioral evidence: independent agents can follow the skills on unseen cases, reach sensible recommendations, and avoid threshold optimization or unsupported confidence.
 
-The workflows live in the SKILL.md files. What must stay consistent
-*between* components:
+Outcome evidence: applied rows retain exact at-send context, stage progression is recorded, and repeated patterns across comparable targets guide future variants without overstating causality.
 
-- **`resume.yaml` schema** — defined in
-  `skills/resume-builder/assets/templates/data-schema.md`. Templates
-  are pure functions of it; the evaluator's parse simulation checks
-  that rendered output routes back into the same fields. Notable keys:
-  `meta.{target_field, page_budget, paper, lang}`,
-  `experience[].group` (research/teaching/industry → grouped
-  standard-headed sections).
-- **Evaluator layers** — L0 extraction, L1 parse sim, L2 integrity
-  (raster-vs-text), L3 structure: scripts only, exit 0/1, `--json`
-  contract (`verdict`, `checks[]` with pass/warn/fail, `metrics`).
-  L4 JD-alignment and L5 human sim: agent judgment per `rubric.md`.
-  Deterministic layers are never eyeballed; judgment layers are never
-  scripted.
-- **jd-analyzer output** — fixed markdown format (must-have table with
-  evidence targets, vocabulary map, culture noise, notes) consumed by
-  the builder for tailoring and by the evaluator as the L4 rubric.
-  Location/market flows through it to the builder.
-- **Evaluator report** — fixed template (verdict, layer table, L4/L5
-  scores, ranked fix list). The builder is not done until this passes;
-  the report never softens.
-- **Sibling dependency** — builder invokes evaluator (and jd-analyzer
-  when a posting exists); when a sibling skill isn't installed, run
-  its scripts directly / follow its workflow and say which judgment
-  layers were skipped. Same pattern post-send: the builder offers the
-  prepared-row log in application-tracker's ledger format and, when
-  the tracker isn't installed, appends to the ledger directly using
-  that format.
+## Current state
 
-## 6. Status & roadmap
+The current checkout contains an uncommitted redesign; an installed or previously built archive does not contain this contract.
 
-| Milestone | Status |
-|---|---|
-| M0 scaffold (repo, CI, schema draft) | **done** |
-| M1 render path (`onecol.typ`, `render.sh`, fixture) | **done** — 1 page, tagged, extraction-clean |
-| M2 evaluator harness (4 scripts, planted-failure fixtures, tests) | **done** — every plant caught, zero false positives |
-| M3 the first three SKILL.md files + reference library | **done** — 3 skills, 13 references |
-| M4 eval loop | **done** — 18 independent-agent runs, 2 iterations (Fable 5: 15/15 vs 10/15; Sonnet 5: 26/26 vs 21/26). Three repo bugs found by the runs, fixed. Contamination lesson recorded (eval metadata stays grader-side). Description trigger-optimization remains a backlog item |
-| M5 release | **done** — v0.1.0 tagged; `.skill` packages on GitHub Releases; three templates; worked example |
-
-Post-v0.1 backlog, in rough priority order:
-
-1. **Description trigger-optimization** — deferred from M4 to
-   post-v0.1. Blocked from agent sessions (`claude -p` gets 401 when
-   nested); run from a normal terminal when convenient. The 22-query
-   eval set is tracked at `evals/trigger-eval-resume-builder.json`
-   (the old m4-workspace copy is gitignored — cloners lacked it);
-   the command is the skill-creator's
-   `python -m scripts.run_loop --eval-set <that file> --skill-path
-   skills/resume-builder --model <session model> --max-iterations 3`.
-   Proxy result 2026-07-21 (after the scoped-description rewrite): a
-   blind fresh-context harness — 3 independent judges per query, seeing
-   only the message + the three skill descriptions — scored 22/22 with
-   every vote unanimous, including correct first-skill routing (JD
-   tailoring → jd-analyzer first; check-only → evaluator). Results in
-   `m4-workspace/trigger-eval-results-2026-07-21.json`
-   (maintainer-local, gitignored). The run_loop from a real terminal
-   remains the sanctioned closure.
-2. ~~`compact.typ` / styled second template~~ — **done**: Inter-based
-   designed variant (accent name/headers, gray meta, tag rows,
-   `meta.accent` knob), parse-verified; heading letter-spacing found
-   to fracture extraction per-font and banned in typst-guide. The
-   user-conflict "split" offer is now concrete.
-3. **Localization** — month names + L1 heading taxonomy beyond
-   English (DE/FR/ES first); until then the toolkit is strongest for
-   English-language applications into any market, and says so.
-4. **Photo support** — only with proper tagged-PDF alt text and the
-   regional doctrine's narrow opt-in; never a hack.
-5. **Field files on demand** — finance/consulting/etc. get literal
-   guides only when real usage shows the generic+register procedure
-   falling short.
-6. **v0.2+ scope candidates** — highest-value next expansion (review
-   round 3): an **interview-preparation skill**, driven by the career
-   vault's FACT lines and Q&A log plus the ledger's stage data — it
-   picks up exactly where application-tracker's handoff stops today.
-   Cover letters and LinkedIn profile text remain candidates (the
-   architecture extends: intake → analyze → draft → verify). Outcome
-   tracking/handoff already shipped as the application ledger
-   (application-tracker `references/application-ledger.md`).
-7. **Typst Universe** — maybe publish the template standalone; not a
-   v0.1 concern.
-8. **`meta.section_order` (allowlisted)** — drivers: academic
-   publications-early, experienced education-last; only if real usage
-   hits the limitation (field guides now state the fixed order
-   honestly instead of implying reorder support).
-9. **DOCX / plain-text export** — PDF-only is a deliberate scope
-   choice (tagged PDF is the parse-safe format); a Word/plain-text
-   path is future work for employers who explicitly request it
-   (common in academia/government/agency recruiting).
-
-## 7. Toolchain & operations
-
-- **Typst ≥ 0.15** (verified 0.15.1): `--pdf-standard ua-1,a-2a` dual
-  export works; hard constraint: PDF/UA-1 fails without
-  `set document(title: ...)` — templates always emit title/author.
-- **Python ≥ 3.11 via uv**: `uv sync` for the dev env
-  (pyproject/uv.lock); evaluator scripts carry PEP 723 inline deps so
-  `uv run` works standalone outside this repo. Poppler
-  (`pdftotext`/`pdfinfo`) for extraction checks and pdf2image.
-- **No LLM API keys anywhere** — judgment layers run on the host agent.
-- **CI** (all on push/PR; monthly cron): SKILL.md frontmatter lint,
-  freshness stamps (strict on cron), fixture render through every
-  template, full evaluator pytest. Fixture PDFs are generated, never
-  committed.
-- **Maintenance** — MAINTENANCE.md: what decays, cadence (market facts
-  each recruiting season ~6mo, vendor mechanics ~12mo), tool-update
-  protocol (`uv lock --upgrade` quarterly; fixture tests are the
-  regression net). The repo checks the calendar so user sessions never
-  re-check the world.
-
-## 8. Risks & open questions
-
-- **End-to-end proof is one eval cycle deep.** M4's 18 agent runs
-  exercised the instructions (100% of assertions with-skill);
-  real-user usage beyond eval fixtures is still the open question.
-- **ATS behavior is a black box.** Open-library simulation ≠ vendor
-  parsers. Mitigations: conservative rules, dual-extractor agreement,
-  failure-modes catalog grown from real reports, consented
-  commercial-parser ground-truth path when a real-world failure
-  appears.
-- **Trigger quality unknown.** Descriptions are written pushy but
-  untuned; description-optimization is backlog #1.
-- **Single-maintainer freshness.** Stamps + cron surface staleness,
-  but re-verification still needs a human or scheduled agent to act.
-- **English-centricity** (months, L1 taxonomy) is stated, not solved —
-  backlog #3.
-- **Evaluator self-agreement** — two layers of defense now: M4's
-  independent-agent runs check the doctrine isn't circular, and the
-  cold-reader protocol (evaluator SKILL.md) moves L4/L5 judgment into
-  a fresh-context subagent so the context that wrote a resume never
-  scores its own skim. Scripts were always immune; judgment now is
-  too, where hosts support subagents.
-
-## 9. Research base (2026-verified)
-
-Jobscan "How AI Resume Screening Works" (Jul 2026) · ATS Verification
-"AI Resume Screening in 2026" (Jun 2026) · HBR "AI Has Broken Hiring"
-(Jun 2026) · arXiv 2605.28999 "Measuring Real-World Prompt Injection in
-LLM Resume Screening" (May 2026) · Indeed Hiring Lab labor update (Jan
-2026) · Metaintro new-grad market analysis (Apr 2026) · CNBC
-entry-level AI-skills report (Apr 2026) · Ladders recruiter
-eye-tracking study (6.0s in 2012; 7.4s in the 2018 follow-up) ·
-Typst 0.15 release (Jun 2026). Vendor primary sources for mechanism
-claims: Greenhouse Real Talent product page
-(https://www.greenhouse.com/uk/product-features/greenhouse-real-talent)
-· Ashby product docs
-(https://docs.ashbyhq.com/ai-assisted-application-review) and blog
-"AI-Assisted Application Review in Practice"
-(https://www.ashbyhq.com/blog/recruiting/ai-assisted-application-review-in-practice)
-· Workday "AI for Talent" HiredScore datasheet (workday.com).
-Perishable claims from these are frozen into stamped references
-(`screening-2026.md`, `fields/ai-ml.md`, `regional.md`) and re-verified
-per MAINTENANCE.md, not per query.
+Remaining release work is evidence, not more architecture: run focused and full deterministic tests, rebuild and inspect the flagship example, pressure-test all five skills with fresh agents on contrasting cases, inspect packaged archives, and record the limits observed.

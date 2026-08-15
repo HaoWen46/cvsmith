@@ -6,7 +6,7 @@ Updated: 2026-08-15
 
 ## Read first
 
-- [Agent behavior, portfolio retrieval, and hiring evidence](agent-behavior-and-hiring-evidence.md) records the current primary-source review, local pressure tests, bounded design conclusions, unsupported claims, and the experiments required before changing the production skill.
+- [Agent behavior, portfolio retrieval, and hiring evidence](agent-behavior-and-hiring-evidence.md) records the current primary-source review, local pressure tests, adopted evidence boundary, unsupported claims, and remaining validation before release claims.
 
 ## Research-note contract
 

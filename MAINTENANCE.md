@@ -1,66 +1,25 @@
-# Maintenance — keeping the perishable parts true
+# Maintenance
 
-Most of cvsmith is stable mechanics. The parts that decay are listed
-here, with their re-verification protocol. The design principle:
-**users' agents never re-research doctrine at query time — the repo
-re-verifies on a schedule.** CI checks the calendar (monthly cron
-warns/fails on stale stamps); a maintainer (human or scheduled agent)
-does the refresh.
+Keep the skills compact, current, and behaviorally useful; history belongs in git rather than in agent instructions.
 
-## Stamp convention
+## Change rule
 
-Perishable references carry, near the top:
+Change the owning contract instead of adding a second explanation, sidecar status, or script that pretends to decide semantic judgment.
 
-```
-Last verified: YYYY-MM
-Verify by: YYYY-MM
-```
+Every paragraph or list item stays on one physical line; every instruction must change agent behavior or be removed.
 
-`.github/scripts/check_freshness.py` scans every `skills/**/references/*.md`:
-past-due stamps warn on normal CI runs and fail the monthly scheduled
-run. When re-verification finds nothing changed, still bump both dates
-— "recently confirmed" is information. The script verifies dates only;
-re-verification must consult the primary docs that could falsify each
-claim, not just the listed marketing pages.
+When a defect is found, add the smallest reproduction at the level that owns it, redesign that level, and delete stale tests and docs tied to the old architecture.
 
-## What to re-verify, where, how
+## Verification
 
-| Claim cluster | Lives in | Cadence | How to check |
-|---|---|---|---|
-| Screening-pipeline behavior (semantic matching, manipulation flags, hidden-text detection stats) | resume-builder `references/screening-2026.md` | 12 mo | search recent vendor docs (Workday/Greenhouse/Ashby release notes; primary pages: https://www.greenhouse.com/uk/product-features/greenhouse-real-talent · https://docs.ashbyhq.com/ai-assisted-application-review (product docs — primary over the Ashby blog) · https://www.ashbyhq.com/blog/recruiting/ai-assisted-application-review-in-practice · Workday "AI for Talent" HiredScore datasheet on workday.com), arXiv for injection-detection papers, Jobscan/ATS-research posts |
-| Hot evidence & market direction for AI/ML | resume-builder `references/fields/ai-ml.md` | 6 mo (each recruiting season: ~Feb, ~Aug) | Indeed Hiring Lab, BLS JOLTS, a scan of 20 current JD postings for the skill vocabulary actually asked |
-| Recruiting-season calendar, ghost-posting signals | jd-analyzer `references/requirement-taxonomy.md` | 12 mo | new-grad hiring guides, recruiter-community write-ups |
-| Board API endpoints (Greenhouse/Lever/Ashby) | jd-analyzer `SKILL.md` (§1 Ingest) | opportunistic (they break loudly) | curl one known company per endpoint |
-| Regional conventions (photo/personal-data/page norms) | resume-builder `references/regional.md` | 24 mo | spot-check 3 drifting cells (DACH photo, Korea/Singapore photo decline, Singapore personal-data) against current local career-center or government employment guidance |
+Run focused tests while editing, then `uv run pytest evals/ -q`; render the flagship, run the four PDF layers, inspect its page image, and verify the projection inventory against its candidate evidence index or legacy vault.
 
-## Tool updates (pinned, deliberate)
+Package into a temporary output directory with `uv run scripts/package_release.py -o <dir>` and inspect that every documented local path exists in the archive.
 
-- Quarterly: `uv lock --upgrade && uv run pytest evals/ -q` — the
-  planted-fixture tests are the regression net; an extractor behavior
-  change surfaces as a test failure, not silent drift.
-- Typst: bump `TYPST_VERSION` in ci.yml when release notes touch PDF
-  export/tagging; re-run the suite; re-render `examples/` PDFs.
-- Fonts are vendored and never drift.
+Agent behavior cannot be inferred from script tests; before release, use fresh agents on at least one strong case, one sparse case, one unsafe-claim case, and one ineligible target, then compare their artifacts and recommendations with the contract.
 
-## Release checklist
+Do not publish hardcoded test counts, instruction word counts, review-round totals, or universal employer behavior claims; task-specific current facts belong in the task, not in a permanent skill reference.
 
-1. Package each skill into `dist/`: `uv run scripts/package_release.py`
-   — repo-local; excludes `__pycache__`/evals, parses frontmatter as
-   YAML (name must match the shipped directory, description
-   non-empty), and enforces the doc-reference contract.
-2. Verify each `.skill` zip carries every `scripts/`, `references/`,
-   and `assets/` path its bundled docs mention — the packager enforces
-   this and deletes any zip that fails, so a clean exit 0 *is* the
-   verification.
-3. Tag; `gh release create` with the `.skill` assets.
+## Release
 
-## Why not re-verify per query (recorded so it isn't relitigated)
-
-Per-query research would (a) burn latency/cost on facts that change
-twice a year, (b) churn advice — identical questions on consecutive
-days getting different doctrine destroys user trust and makes
-evaluator scores incomparable across iterations, and (c) couple every
-user session to network availability. The job market moves in
-~6-month seasons; the calendar, not the query stream, is the right
-trigger. Task-scoped facts (the posting, the company) are exempt —
-those are always fetched fresh because they're *inputs*, not doctrine.
+Release only from a clean intended diff after the full tests, flagship render and visual review, behavioral pressure tests, and package inspection pass; set the version and changelog at release time rather than presenting an active checkout as released.

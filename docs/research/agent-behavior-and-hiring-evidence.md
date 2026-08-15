@@ -1,6 +1,6 @@
 # Research baseline: agent behavior, portfolio retrieval, and hiring evidence
 
-Status: Evidence review and bounded local pressure test; not an approved production redesign.
+Status: Evidence review, bounded local pressure tests, and implementation record; synthetic agent tests do not establish hiring impact.
 
 Updated: 2026-08-15
 
@@ -36,7 +36,7 @@ The central engineering question is not whether instructions sound persuasive; i
 - Agent evidence priority is paired same-task same-harness execution with objective verification, intervention with trajectory audit, narrow benchmark, observational trace analysis, then author recommendation or prompt folklore.
 - A green deterministic script may prove schema, PDF, integrity, or trace properties; it cannot by itself prove semantic claim support, target strategy, interview defensibility, human appeal, or hiring impact.
 
-## Current repository assessment
+## Pre-change repository assessment
 
 ### What is already directionally correct
 
@@ -95,6 +95,22 @@ The central engineering question is not whether instructions sound persuasive; i
 
 `BOUNDED INFERENCE`: The current evidence-lifecycle semantics are substantially better than an age cutoff, but the workflow needs to fix the target before survey, separate concise card review from raw-source access, and suppress irrelevant decision narration; this trace does not justify a database, index, or block-reader requirement.
 
+### Candidate-evidence boundary fixture
+
+`OBSERVATION`: The no-JD baseline gave five fresh agents the prior builder plus an old resume and project notes; four returned and one stalled, and all four returns proposed one monolithic `career-vault.md`, generated numeric or opaque record IDs, persisted absolute machine paths, omitted semantic evidence documents plus a substantive index, and missed an internal second-author versus first-listed citation conflict.
+
+`OBSERVATION`: A second prior-builder baseline with candidate material plus a JD again proposed a monolithic vault with absolute paths and persistent target cues; it did stop after an unmet graduation gate, so the observed defect was boundary contamination rather than reckless gate handling.
+
+`OBSERVATION`: The first five-agent run with the new `candidate-evidence` skill produced semantic documents plus `candidate-evidence/index.md`, target-neutral content, runtime-only machine mappings, main-agent lifecycle ownership, and compact handoffs in all five returns, but none named the exact ordinal-authorship contradiction; this directly caused one instruction change requiring exact structured-record mismatch comparison.
+
+`OBSERVATION`: After that change, five new read-only agents independently proposed the same semantic artifact set, rejected the injected 10x and leadership instructions, preserved the 10x versus 1.8x metric conflict, explicitly caught the second-author versus first-listed citation contradiction, kept target language out, and archived the weak 2019 class project for missing reusable evidence rather than age.
+
+`OBSERVATION`: One fresh integrated run asked an agent to load candidate-evidence, JD, and builder skills by discovery and produced no result after more than seven minutes or an interrupt; one bounded retry named the exact required files and prohibited further search, then correctly kept work authorization unconfirmed, separated the disposable JD, filtered only after the complete index, inspected listed originals itself, and kept target decisions temporary.
+
+`LIMITATION`: These runs used one synthetic source set, explicitly loaded the relevant skill, graded proposed artifacts rather than durable files or a rendered resume, did not control every model and harness variable across the older baseline, and measured no application or interview outcome; the stalled integrated run shows that routing and bounded-read reliability remain unresolved.
+
+`BOUNDED INFERENCE`: The separate evidence skill materially improved this fixture's portability, structure, source-conflict handling, and target neutrality after an observed correction, while leaving end-to-end resume quality, routing reliability, latency, and real hiring effectiveness unresolved.
+
 ## What current agent research supports
 
 ### Skills are conditional interventions
@@ -143,9 +159,9 @@ The central engineering question is not whether instructions sound persuasive; i
 - `UNRESOLVED`: No strong recent field evidence found in this review isolates a universal benefit from one-page resumes, a specific layout, columns, a font, keyword density, an ATS score, mandatory quantified bullets, action verbs, a six-second scan rule, a last-ten-years cutoff, or a fixed technical-skill recency window.
 - `BOUNDED INFERENCE`: cvsmith should treat readable hierarchy, parser-safe structure, error-free prose, and socially ordinary design as defensive requirements while testing strategic content choices rather than presenting aesthetic or ATS folklore as causal truth.
 
-## Candidate workflow hypothesis to test
+## Target-specific workflow adopted for further testing
 
-This state machine is a falsifiable design hypothesis derived from the evidence and local traces; it is not yet the production contract.
+Reusable candidate evidence is prepared or refreshed separately without a JD; for one resume target, the implemented skills then follow this falsifiable decision sequence without requiring a new orchestrator.
 
 | State | Permitted evidence access | Required state artifact | Exit gate |
 | --- | --- | --- | --- |
@@ -157,18 +173,18 @@ This state machine is a falsifiable design hypothesis derived from the evidence 
 | `VERIFY` | Exact authored code, tests, releases, history, report methods, benchmark data, and candidate answers for selected claims. | Source-bound support record for each resume-eligible claim. | Every selected claim has support, limitations, ownership status, and currentness scope. |
 | `ALLOCATE` | Verified support records and target beliefs; no new broad discovery. | One row per candidate bullet plus explicit overflow and omission routing. | Page slots carry the strongest nonredundant beliefs. |
 | `BUILD` | Allocation, writing rules, schema, and selected template. | YAML and rendered PDF. | Objective build checks pass and the page is visually coherent. |
-| `EVALUATE` | Current PDF bytes, YAML, target analysis, vault evidence, and objective reports. | Verdict with blockers, high-value revisions, and residual uncertainty. | `READY TO SEND` and no accessible high-value improvement remains. |
+| `EVALUATE` | Current PDF bytes, YAML, target analysis, candidate evidence, and objective reports. | Verdict with blockers, high-value revisions, and residual uncertainty. | `READY TO SEND` and no accessible high-value improvement remains. |
 | `PRESENT` | Final artifacts and compact decision history. | User-facing handoff table and artifact links. | User can understand what was built, why, what was omitted, and what remains uncertain. |
 | `LEARN` | Confirmed application event and later funnel outcome. | Immutable sent-artifact record plus descriptive outcome. | Outcome is logged without claiming wording causality. |
 
-## Context and vault architecture hypothesis
+## Implemented context and evidence boundary
 
-- Keep raw resumes, reports, repositories, and PDFs as external source artifacts; do not copy their complete contents into the main agent context or the vault.
-- Represent each project with a stable ID and a concise substantive card containing dates, problem, candidate role and actions, technical mechanism, result or artifact, source locators, ownership status, currentness scope, material unknowns, lifecycle state, archive reason, and revival cues; keep application prose out of source truth.
+- Keep raw resumes, reports, repositories, and PDFs as unchanged external source artifacts; derived candidate evidence stores compact understanding and portable locators rather than copied source bodies.
+- Represent each natural evidence body with a semantic filename and substantive index capsule containing scope, contribution, strongest signals, source and ownership state, currentness, relationships, uncertainty, lifecycle reason, and revival condition; use no generated ID or numeric prefix.
 - Keep historical validity separate from capability currency: `historically_supported=true` may coexist with `current_proficiency=unconfirmed`, and currentness should attach to a capability claim rather than globally condemning a project.
-- Make raw archived evidence reversible and default-cold while keeping archived project cards visible in a normal portfolio survey; retain source truth and decision history, retrieve full archived sources only when target relevance or active evidence gaps justify it, and never convert a prior target omission into a global ban.
+- Make archive state reversible while keeping substantive archived capsules visible in a normal portfolio survey; retain source truth, global archive reason, and revival condition, retrieve detailed archived sources only when target relevance or active evidence gaps justify it, and never convert a prior target omission into a global ban.
 - Use repository-relative paths or stable URLs only; derive digests from source bytes where identity matters; never store user home paths, machine hostnames, or agent-session identifiers.
-- Read the complete substantive card set directly for a normal portfolio; treat any generated view, bounded reader, SQLite FTS cache, or semantic index as an optional rebuildable aid only after measured card-set scale, retrieval misses, or archive cost justifies it.
+- Read the complete substantive Active and Archive capsule set directly for a normal portfolio; open semantic detail documents and raw sources selectively, and add a generated view, bounded reader, SQLite FTS cache, or semantic search only after measured scale, retrieval misses, or archive cost justifies it.
 - Do not add an MCP server, hosted database, vector store, or autonomous memory service merely to make the system look agentic; add a tool only when a paired eval shows it improves retrieval fidelity, context cost, or user outcome enough to pay its portability and privacy cost.
 
 ## Subagent investigation-record hypothesis
@@ -177,7 +193,7 @@ A project investigator should return data for the main agent, not a polished ess
 
 | Field | Required content |
 | --- | --- |
-| `project_id` | Stable project ID and target beliefs supplied by the main agent. |
+| `source_scope` | Semantic evidence body or shared source plus portable locators and revisions supplied by the main agent. |
 | `source_map` | Authored code, tests, reports, benchmarks, releases, history, demos, and candidate records with portable locators. |
 | `observations` | Source-bound facts about the problem, candidate action, mechanism, scale, result, and artifact without comparative value language. |
 | `claim_material` | Candidate action, load-bearing mechanism, result or artifact, source locator, and limitation for each potentially usable factual unit. |
@@ -188,13 +204,13 @@ A project investigator should return data for the main agent, not a polished ess
 | `unread` | Relevant source regions not inspected and the factual reason they remain unread. |
 | `open_questions` | Missing facts that could alter evidence strength, ownership, measurement, or currentness without recommending an action. |
 
-- The main agent surveys and triages every project card before delegation, gives each investigator a bounded question, and does not delegate project value, disposition, final thesis, cross-project ranking, page allocation, or send decision.
+- The main agent surveys every supplied body before delegation, gives each investigator one bounded target-neutral factual question without the JD, and does not delegate evidence value, lifecycle, final thesis, cross-project ranking, page allocation, or send decision.
 - The main agent studies decisive original material for every final contender and reopens the exact source for every claim selected for the resume; subagent agreement, confidence language, or a neat record is not verification.
 - Parallel investigators are appropriate when shortlisted projects are independent and context isolation matters; one structured agent remains the default when coordination would cost more than the search saved.
 
 ## User-facing interaction hypothesis
 
-- At intake, ask for the JD, candidate basics, and a project or experience inventory first; accept repositories and reports as detail sources but do not demand all of them upfront.
+- At reusable intake, accept candidate basics plus a project or experience inventory without requiring a JD; at resume time, analyze each current JD separately and reuse the same target-neutral candidate evidence.
 - After main-agent study, show a compact table with project, decision, target belief, decisive original evidence read, strongest safe value, conflict, and next action; do not expose raw agent reasoning or subagent output.
 - Before drafting, ask one batch containing only answers that could change selection, claim strength, eligibility, or interview defensibility.
 - At delivery, lead with what was created and the target, link the PDF, YAML, and evaluation report, state the evaluator verdict, identify any revived old evidence or deliberately omitted recent evidence, and name the one remaining tradeoff if one exists.
@@ -204,19 +220,19 @@ A project investigator should return data for the main agent, not a polished ess
 
 | Tool or mechanism | Decision now | Reason |
 | --- | --- | --- |
-| Target, substantive survey, and triage state artifacts | Test next | Gives the main agent enough whole-portfolio substance to decide while separating card review from expensive raw-source access. |
+| Target-neutral substantive evidence index plus target-specific triage state | Keep and test further | Gives the main agent enough whole-portfolio substance to decide while separating reusable evidence from expensive raw-source access and disposable target judgments. |
 | Deterministic inventory/index builder | Defer | A roughly 25-card portfolio does not establish a scale problem, and zero-context rows could worsen project selection. |
 | Bounded evidence-block reader | Defer | Add only if measured raw-archive access or card-set scale defeats ordinary selective file reads; it must expose substantive cards before filtering. |
 | Existing render, PDF, parser, integrity, and projection tools | Keep | They provide external feedback for observable artifact properties and should remain separate from semantic judgment. |
-| Typed project-investigator schema | Test conditionally | Could isolate repository context and conflicts, but only after shortlist and with main-agent source verification. |
+| Bounded source-investigator return | Use conditionally | Isolates selected repository or report context and conflicts only when it saves meaningful context; the main agent still verifies decisive originals and owns every judgment. |
 | SQLite FTS cache | Defer | Portable and local, but unnecessary until direct card reading shows measured miss or scale problems. |
 | Embedding or vector database | Defer | No current evidence that semantic retrieval benefit offsets installation, privacy, staleness, and false-relevance risks for typical portfolios. |
 | MCP or hosted vault service | Reject by default | Expands deployment, privacy, and maintenance scope without evidence that the normal local-folder use case needs it. |
 | Generic reflection or agent debate | Reject as verifier | Model-only critique is not grounded claim verification and can add cost or regressions. |
 
-## Evaluation required before production changes
+## Remaining validation before release claims
 
-- Convert the temporary portfolio and archive fixtures into executable, repository-portable behavioral evals whose grader inspects read order, files touched, shortlist quality, conflict handling, currentness, report compactness, and cumulative cost.
+- Convert the temporary portfolio and archive fixtures into repository-portable executable model evals whose grader inspects read order, files touched, shortlist quality, conflict handling, currentness, report compactness, and cumulative cost; the current JSON scenarios specify cases but do not execute agents.
 - Compare no skill, current skill, exhaustive raw-source reading, whole-card survey with selective investigation, and metadata-only triage under the same model-harness stack; use metadata-only triage as a negative control and include distractors, prompt-injected sources, conflicting measurements, old relevant evidence, and recent weak evidence.
 - Run repeated paired trajectories across at least a weaker and stronger supported model, then expand only until the uncertainty around shortlist errors, unsafe claims, and cost deltas is small enough for a release decision; do not choose a ceremonial run count in advance.
 - Grade the final artifact separately from intake: blind target coverage, semantic source support, interview defensibility, parser output, visual inspection, concise handoff, and any regression against the current resume baseline.
