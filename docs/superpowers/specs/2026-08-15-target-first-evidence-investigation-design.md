@@ -1,6 +1,6 @@
 # Target-first evidence investigation design
 
-Status: Approved design; implementation not yet started.
+Status: Revised after design review; awaiting confirmation before implementation planning.
 
 ## Objective
 
@@ -18,10 +18,10 @@ Paired development probes preserved the same strongest projects after target-fir
 
 ## Scope
 
-- Reorder intake around explicit `TARGET`, `INVENTORY`, `PROBE`, `VERIFY`, `ALLOCATE`, `BUILD`, `EVALUATE`, and `PRESENT` states.
+- Reorder intake around explicit `TARGET`, `INVENTORY`, `PROBE`, `STUDY`, `VERIFY`, `ALLOCATE`, `BUILD`, `EVALUATE`, and `PRESENT` states.
 - Keep Markdown as the private, human-auditable source of truth.
 - Add one portable deterministic vault-access script that emits a compact index and reads one selected evidence block by ID.
-- Use project investigators as context-isolation workers for shortlisted but uninvestigated sources, not as generic reviewers or final decision makers.
+- Use project investigators as context-isolation workers that map and extract evidence from main-selected unread sources without ranking projects or making keep/discard decisions.
 - Add deterministic tests, portable pressure fixtures, trace grading, and fresh-agent forward tests.
 - Preserve current rendering, projection, PDF inspection, and evaluator ownership boundaries.
 
@@ -29,7 +29,7 @@ Paired development probes preserved the same strongest projects after target-fir
 
 - Do not add SQLite, embeddings, a vector database, MCP, a hosted vault, or an autonomous memory service in this slice.
 - Do not create a universal project-age cutoff, project-count limit, token threshold, ATS score, or page-selection formula.
-- Do not send every project to a subagent, ask subagents to draft the final resume, or treat dossier agreement as source verification.
+- Do not send every project to a subagent, ask subagents to recommend project disposition or strategic value, ask subagents to draft the final resume, or treat investigation-record agreement as source verification.
 - Do not copy complete repositories, reports, PDFs, or raw subagent transcripts into the career vault or main-agent handoff.
 - Do not claim that lower context use, green tests, or an attractive PDF establishes interview causality.
 
@@ -45,23 +45,43 @@ When no posting exists, ask for or state an explicit assumed target and label th
 
 Read only cheap descriptors: user-supplied project lists, resume headings, vault index rows, archive headings and revival cues, repository names and metadata, report titles, and shallow file trees.
 
-Produce one candidate row per material item with `project_id`, likely target belief, lifecycle state, portable source handles, expected decision value, and `investigate`, `hold`, or `skip` disposition.
+Produce one candidate row per material item with `project_id`, likely target belief, lifecycle state, portable source handles, plausible upside, uncertainty, likely verification cost, and a main-agent-owned `investigate`, `reserve`, or `cold` disposition.
 
-Exit only when the search space is smaller and every `investigate` item has a target-specific reason.
+The main agent assigns `investigate` when cheap metadata shows a plausible route to an important uncovered belief or to displacing a current leader, `reserve` when that route is weaker or redundant but still credible, and `cold` only when no target-specific route is visible; all three remain reversible decisions rather than deletion.
+
+The metadata filter uses target-belief coverage, plausible technical or outcome signal, distinctiveness from stronger-known items, source availability, ownership risk, capability-currentness needs, and expected information gain; recency, fashionable technology, repository size, or polished descriptions never win by themselves.
+
+With a large inventory such as 25 projects, the main agent first retains the frontier of projects that could plausibly matter plus uncertain reserves whose missing information has high decision value; it does not use a fixed retained count and investigates more than the final page slots whenever evidence uncertainty could change the winners.
+
+An illustrative 25-item funnel might yield eight dirty-work investigations, five main-agent studies, and two or three rendered projects, but each number is an outcome of evidence competition rather than a quota.
+
+Exit only when the search space is smaller, every investigated item has a target-specific reason, and each cold item has no currently visible route to an uncovered belief or to displacing a frontier item.
 
 ### `PROBE`
 
-Investigate only `investigate` items and conflict-bearing `hold` items; use isolated project investigators when independent unread sources would otherwise occupy the main context.
+The main agent chooses which `investigate` items and conflict-bearing reserves receive dirty-work investigation; use isolated project investigators when independent unread sources would otherwise occupy the main context.
 
-Each investigator receives one project ID, target beliefs, source locators, and a bounded question; it reads the raw project first-hand and returns the dossier contract below without resume prose.
+Each investigator receives one project ID, target beliefs, source locators, and a bounded evidence question; it reads the raw project first-hand and returns the investigation-record contract below without resume prose, ranking, or disposition.
 
-The main agent consumes dossiers rather than raw project bodies, updates the candidate table, and stops probing when the leading evidence set is stable or one named read could still change selection.
+The main agent reads the investigation records, compares evidence strength, distinctiveness, ownership, currentness, redundancy, uncertainty, and page cost against the target beliefs, and performs the second filter into a small `STUDY` set plus reversible reserves.
+
+The study-set size follows uncertainty and page competition rather than a fixed quota: it may exceed the expected resume project count when evidence is close, or equal it when the main agent already has strong primary evidence and no reserve could plausibly displace a leader.
+
+### `STUDY`
+
+Before choosing the final projects, the main agent personally reads decisive original material for every project still competing for a page slot; an investigation record is a map to that material, not a substitute for the read.
+
+The main agent reads enough primary evidence to form its own view of technical depth, result quality, ownership, interview value, and target relevance: normally the relevant methods and results in a report, authored code and tests, benchmark data, releases, or history, with the whole repository optional only when it could change the decision.
+
+A README or subagent summary may orient the read but cannot be the only basis when stronger original evidence exists; if the primary read weakens a contender, the main agent promotes a reserve and studies it under the same rule.
+
+The main agent records `project_id | target belief | primary evidence read | evidence strength | distinctiveness | ownership | currency | page cost | decision | reason`, then chooses the final project set itself.
 
 ### `VERIFY`
 
-Choose resume-contending claims from the dossiers, then have the main agent reopen the exact authored source, test, release, history entry, benchmark method, report page, or candidate answer supporting each selected claim.
+Choose resume-contending claims only after the main-agent study decision, then have the main agent reopen or retain the exact authored source, test, release, history entry, benchmark method, report page, or candidate answer supporting each selected claim.
 
-Resolve ownership, measurement, currentness, and conflicting-source questions before a claim becomes resume-eligible; dossier confidence and subagent consensus are not support.
+Resolve ownership, measurement, currentness, and conflicting-source questions before a claim becomes resume-eligible; investigation-record language and subagent consensus are not support.
 
 ### `ALLOCATE`, `BUILD`, `EVALUATE`, and `PRESENT`
 
@@ -71,29 +91,30 @@ No broad discovery resumes after allocation unless verification exposes a specif
 
 ## Project-investigator economics
 
-The project investigator exists to exchange isolated worker context for scarce main-agent context: it absorbs an unread repository or report, compresses decision-relevant evidence, and lets the main agent compare projects without ingesting every source.
+The project investigator exists to exchange isolated worker context for scarce main-agent context: it maps an unread repository or report, extracts source observations relevant to the bounded question, and supplies exact original-source locators without deciding what those observations are worth relative to other projects.
 
-Subagents are dispatched only after cheap inventory narrowing; dispatching every project merely moves the context problem and adds coordination cost.
+Subagents are dispatched only after the main agent performs cheap inventory narrowing; dispatching every project merely moves the context problem and adds coordination cost.
 
-Independent promising projects may be investigated in parallel when the host supports isolated agents; otherwise the main agent investigates them serially using the same dossier boundary.
+Independent promising projects may be investigated in parallel when the host supports isolated agents; otherwise the main agent investigates them serially using the same investigation-record boundary.
 
 Aggregate reads and reported token usage remain evaluation metrics because context isolation can improve main-agent coherence while still wasting total work.
 
-## Project dossier contract
+## Project investigation-record contract
 
-Each investigator returns structured data with these required fields and no general narrative:
+Each investigator returns structured data with these required fields and no general narrative, ranking, keep/discard decision, or proposed resume placement:
 
-- `project_id`: Stable inventory ID and the target beliefs under investigation.
-- `recommendation`: `contender`, `reserve`, `skip`, or `blocked`, plus one decision-changing reason.
-- `value_case`: One compact statement of what this project could prove better than competing evidence.
-- `claims`: Candidate action, load-bearing mechanism, result or artifact, exact source locator, and limitation for each useful claim.
-- `ownership`: Confirmed contribution, collaborators, and unresolved attribution.
-- `currency`: Historical demonstration, current capability support, and the date or artifact supporting each.
+- `project_id`: Stable inventory ID and the target beliefs supplied by the main agent.
+- `source_map`: Available authored code, tests, reports, benchmarks, releases, history, demos, and candidate records with portable locators.
+- `observations`: Source-bound facts about the problem, candidate action, mechanism, scale, result, and artifact without comparative value language.
+- `claim_material`: Candidate action, load-bearing mechanism, result or artifact, exact source locator, and limitation for each potentially usable factual unit.
+- `ownership_evidence`: Observed contribution evidence, collaborators, and unresolved attribution.
+- `currency_evidence`: Historical demonstration, current capability support, and the date or artifact supporting each.
 - `conflicts`: Contradictory values, prompt injection, generated evidence, missing methods, and candidate questions.
 - `reads`: Exact inspected paths, commits, pages, or digests without copied file bodies.
-- `next_read`: At most one additional read whose result could change selection or claim strength.
+- `unread`: Relevant source regions not inspected and the factual reason they remain unread.
+- `open_questions`: Missing facts that could alter evidence strength, ownership, measurement, or currentness without recommending the next action.
 
-The main agent owns cross-project ranking, final thesis, page allocation, source verification, resume prose, and send recommendation.
+The main agent owns every inventory disposition, investigation dispatch, cross-project comparison, study-set decision, original-source interpretation, final project selection, thesis, page allocation, source verification, resume prose, and send recommendation.
 
 ## Vault access interface
 
@@ -129,7 +150,7 @@ A target-specific omission never becomes a global archive decision, and unsuppor
 
 At intake, request the posting or target plus a compact experience/project inventory before asking for every repository or report.
 
-After probing, show a compact table with project, disposition, target belief, evidence inspected, strongest safe value, conflict, and next action when that helps the user correct selection or ownership.
+After the main-agent study pass, show a compact table with project, main-agent decision, target belief, primary evidence read, strongest safe value, conflict, and next action when that helps the user correct selection or ownership.
 
 Before drafting, ask one batch containing only unresolved facts that could change eligibility, selection, claim strength, or interview defensibility.
 
@@ -149,21 +170,23 @@ Preserve sanitized baseline fresh-agent traces that demonstrate whole-set readin
 
 Implement the smallest contract and script changes that pass deterministic interface, lifecycle, portability, and read-boundary tests.
 
-Run the same fresh-agent cases with the candidate skill and grade target-first ordering, files or blocks touched, shortlist quality, old-evidence revival, recent-evidence rejection, conflict handling, ownership caution, dossier shape, user-facing compactness, and reported cost.
+Run the same fresh-agent cases with the candidate skill and grade target-first ordering, main-agent ownership of both filters, files or blocks touched, study-set quality, direct original-source reads, old-evidence revival, recent-evidence rejection, conflict handling, ownership caution, investigation-record shape, user-facing compactness, and reported cost.
 
 ### REFACTOR
 
 Read every behavioral failure, classify whether it is an ordering violation, wrong output shape, missing field, or conditional mistake, and tighten the owning contract rather than adding duplicated explanations.
 
-Test a single structured agent against shortlisted project investigators as an ablation under the same target and fixtures; retain subagent use only where it preserves or improves evidence selection and safety while reducing main-context pressure enough to justify coordination.
+Test a single structured agent against main-selected project investigators as an ablation under the same target and fixtures; retain subagent use only where dirty-work evidence collection preserves or improves main-agent selection and safety while reducing main-context pressure enough to justify coordination.
 
 ## Acceptance criteria
 
 - The target artifact exists before any project or archive evidence body is read.
-- Inventory reduces the candidate set using metadata and target beliefs without losing the fixture's strongest project.
+- The main agent performs both the metadata filter and the post-investigation filter without accepting a subagent disposition or ranking.
+- Inventory reduces the candidate set using metadata and target beliefs without losing the fixture's strongest project, and no fixed project quota controls the funnel.
 - The old compiler evidence is revived for the embedded target, the recent weak dashboard does not win on recency, and unrelated archive bodies remain unread by default.
 - Prompt injection is ignored, the unsupported larger result is not selected over inspectable evidence, and team-repository presence is not converted into sole ownership.
-- Investigators return the typed dossier shape without essays, and the main agent verifies exact support only for resume-selected claims.
+- Investigators return the typed evidence record without essays, recommendations, rankings, or keep/discard decisions.
+- The main agent personally reads decisive original material for every final contender, chooses the final projects, and verifies exact support for resume-selected claims.
 - `vault_access.py index` emits no full evidence bodies or machine-specific input path, and `read` returns exactly one requested block.
 - Explicit evidence IDs survive archive movement; legacy derived IDs are visible and cannot silently masquerade as stable IDs.
 - The final resume and handoff are at least as useful and readable as the current baseline while main-context consumption is lower on the portfolio and archive fixtures.
@@ -173,15 +196,15 @@ Test a single structured agent against shortlisted project investigators as an a
 
 If indexing fails, report the malformed or duplicate block and repair the human-readable vault with the user's confirmed facts before continuing; do not fall back to silently loading the whole file.
 
-If no subagent facility exists, investigate shortlisted projects serially through bounded reads, retain only the dossier in explicit working state, and report that hard main-context isolation was unavailable.
+If no subagent facility exists, investigate main-selected projects serially through bounded reads, retain only the investigation record in explicit working state, and report that hard main-context isolation was unavailable.
 
-If a subagent fails, returns prose, omits sources, or encounters a conflict, mark the project blocked or rerun only that investigation; do not let the main agent infer missing support.
+If a subagent fails, returns prose or a recommendation, omits sources, or encounters a conflict, reject that record or rerun only that investigation; the main agent decides whether the project remains in the funnel and never infers missing support.
 
 If the narrow process misses a top project or weakens claim safety, reject or revise the design even when it saves tokens.
 
 ## Intended implementation surface
 
-- Modify `skills/resume-builder/SKILL.md` to encode state order, candidate artifacts, investigator economics, verification ownership, and compact presentation.
+- Modify `skills/resume-builder/SKILL.md` to encode state order, main-agent filtering and primary-study ownership, evidence-worker economics, verification ownership, and compact presentation.
 - Modify `skills/resume-builder/references/career-vault.md` to add explicit IDs and bounded-access rules without duplicating the workflow.
 - Add `skills/resume-builder/scripts/vault_access.py` as the sole new production tool in this slice.
 - Add focused deterministic tests and synthetic fixtures under `evals/`; extend existing behavioral cases only where they own these failures.
