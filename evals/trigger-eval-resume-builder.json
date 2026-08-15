@@ -81,10 +81,10 @@
   },
   {
     "query": "just wrapped an internship at datadog, can you add it to my career vault before i forget the numbers",
-    "should_trigger": true
+    "should_trigger": false
   },
   {
     "query": "not applying anywhere right now but i want to log this side project somewhere so my next resume update is easy",
-    "should_trigger": true
+    "should_trigger": false
   }
 ]

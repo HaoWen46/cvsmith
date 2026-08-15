@@ -1,169 +1,100 @@
-# resume.yaml — data schema (v0.1)
+# resume.yaml schema
 
-The contract between the three parts of cvsmith. The **builder** writes this
-file, the **templates** (`onecol.typ`, `compact.typ`, `classic.typ`) are pure functions of it,
-and the **evaluator** checks that what the template rendered routes back into
-these same fields when parsed. Content and presentation stay fully separated:
-nothing in this file describes layout, and nothing in a template invents
-content.
+`resume.yaml` is one target-specific projection of candidate evidence; templates render its content without rewriting it.
 
-Conventions:
+## Rules
 
-- Dates are ISO `YYYY-MM` strings; an ongoing entry uses `end: present`.
-  Templates own the display formatting (e.g. "Jun 2025 – Present").
-- Bullets are plain strings of finished prose. Writing quality (impact-first,
-  quantified, no AI-slop vocabulary) is enforced upstream by the builder's
-  writing rules — the schema doesn't try to encode it.
-- Omitted optional keys mean "don't render this section". No nulls, no empty
-  lists — absence is the signal.
-- Section order in the rendered PDF is fixed by the template (standard,
-  ATS-expected order), not by key order here.
-- Every string is plain text. No markup, no Unicode tricks — the evaluator's
-  integrity checks will flag anything that doesn't extract identically to how
-  it renders.
+- Omit optional keys instead of using `null`, blank strings, or empty lists.
+- Use quoted `YYYY-MM` dates; `end: present` is allowed for ongoing entries and an award may use a quoted year.
+- Keep bullets and list items as plain strings; quote any YAML string containing `: `.
+- Keep markup and layout out of YAML; choose presentation through `meta`.
+- `meta.thesis` is a private positioning note and never renders.
 
-## Top-level structure
+## Complete shape
 
 ```yaml
-meta:                    # optional; knobs for template + evaluator
-  target_field: ai-ml    # ai-ml | swe | academic | generic — field conventions
-  target_level: intern   # intern | new-grad | junior | mid | senior |
-                         # staff | principal | lead | manager — the
-                         # seniority the CV aims at. The evaluator's
-                         # cold reader judges evidence against THIS bar
-                         # on a no-JD run, so a general CV is assessed
-                         # for level-competitiveness, not just field
-                         # style. String from the set above (a list or
-                         # typo is flagged by validate_yaml).
-  page_budget: 1         # default 1 for students/early-career
-  paper: us-letter       # us-letter (default) | a4 — match the target market
-  lang: en               # BCP-47-ish code for PDF metadata + hyphenation
-  accent: "#1f3a5f"      # compact template only: accent color (default navy)
-  template: compact      # onecol (default) | compact | classic — render.sh
-                         # uses this when no -t flag is given, so each
-                         # projection re-renders with one command
-  bullet_lines: 1        # cap rendered lines per bullet; render.sh
-                         # measures the PDF and fails on violations
-                         # (scripts/check_bullets.py). Unset, the
-                         # measurement still prints, non-fatal — set
-                         # the cap (or comment why not) instead of
-                         # ignoring the report
+meta:                              # optional
+  target_field: ai-ml              # ai-ml | swe | academic | generic
+  target_level: intern             # see levels below
+  template: compact                # onecol | compact | classic
+  paper: us-letter                 # us-letter | a4
+  page_budget: 1                   # positive integer
+  lang: en                         # optional language code
+  accent: "#1f3a5f"               # optional compact-template accent
+  vault: ../candidate-evidence/index.md  # optional compatibility field; relative evidence-index path
+  thesis: Evaluation-first ML engineer with measurable systems depth.
 
-basics:                  # required
-  name: Jordan Wu
-  email: jordan.wu@example.com
+basics:                            # required
+  name: Jordan Wu                  # required
+  email: jordan.wu@example.com     # required
   phone: "+1 555 010 0199"        # optional
-  location: Berkeley, CA          # optional; city-level only
-  links:                          # optional
-    - label: GitHub
+  location: Seattle, WA            # optional
+  links:                           # optional
+    - label: GitHub                # optional authoring label
       url: https://github.com/jordanwu
-    - label: Portfolio
-      url: https://jordanwu.dev
 
-summary: >-              # optional; discouraged for early-career (skim cost)
-  One to two sentences, only when there is a non-obvious positioning story.
+summary: One short positioning sentence when it adds information.  # optional
 
-education:               # required for students/early-career
-  - institution: University of California, Berkeley
+education:                         # optional
+  - institution: University of Washington
     degree: B.S.
-    field: Electrical Engineering and Computer Sciences
-    start: 2023-08
-    end: 2027-05
-    gpa: "3.9/4.0"                # optional; builder decides if it helps
-    coursework: [Machine Learning, Operating Systems]   # optional, short
-    honors: [Regents' Scholar]                          # optional
+    field: Computer Science
+    location: Seattle, WA          # optional
+    start: 2023-09                 # optional
+    end: 2027-12                   # optional
+    gpa: "3.8/4.0"                 # optional; always quote
+    coursework: [Machine Learning, Distributed Systems]  # optional
+    honors: [Dean's List]          # optional
 
-experience:              # optional as a whole, but entries are structured
-  - organization: Anthropic
-    title: ML Engineering Intern
-    location: San Francisco, CA   # optional
-    start: 2026-06
-    end: present
-    group: industry               # optional: research | teaching | industry
-    tags: [evals, tool use]       # optional: 2-4 domain descriptors; renders
-                                  # as a muted tag row (compact only; onecol
-                                  # and classic omit tags by design — pick
-                                  # compact when tags carry weight)
-    bullets:
-      - Built an eval harness for tool-use regressions, cutting triage
-        time for failed runs from hours to minutes across 40+ suites.
+experience:                        # optional
+  - organization: Meridian Labs
+    title: Machine Learning Engineering Intern
+    location: Seattle, WA          # optional
+    start: 2025-06                 # optional
+    end: 2025-09                   # optional
+    group: industry                # optional; research | teaching | industry
+    tags: [RAG evaluation, retrieval latency]  # optional; rendered by every template
+    bullets:                       # required, non-empty
+      - Built a nightly evaluation harness over 1,200 support tickets.
 
-projects:                # optional; often the core section for students
-  - name: cvsmith
-    summary: agent-skill toolkit for verified resumes   # optional one-liner
-    url: https://github.com/HaoWen46/cvsmith            # optional
-    stack: [Typst, Python]                              # optional, rendered inline
-    start: 2026-07                                      # optional
-    end: present                                        # optional
-    bullets:
-      - Agent-skill toolkit that renders tagged PDFs and adversarially
-        verifies them against 2026 screening-pipeline checks.
+projects:                          # optional
+  - name: ledgerlite               # required
+    summary: append-only finance CLI  # optional
+    url: https://github.com/jordanwu/ledgerlite  # optional
+    start: 2024-01                 # optional
+    end: present                   # optional
+    stack: [Rust, SQLite]          # optional; rendered by every template
+    bullets:                       # required, non-empty
+      - Added double-entry validation and signed releases.
 
-skills:                  # optional; grouped, never a keyword dump
-  - label: Languages
-    items: [Python, Rust, TypeScript]
-  - label: ML
-    items: [PyTorch, evals, RAG, agent frameworks]
+skills:                            # optional
+  - label: Languages               # required
+    items: [Python, Rust, SQL]      # required, non-empty
 
-publications:            # optional
-  - citation: "Wu, J. et al. (2026). Title. Venue."
-    url: https://arxiv.org/abs/...                      # optional
+publications:                      # optional
+  - citation: "Wu, J. (2026). Title. Venue."  # required
+    url: https://example.com/paper.pdf         # optional
 
-awards:                  # optional
-  - name: Regional ICPC — 2nd place
-    date: 2025-11                                       # optional
+awards:                            # optional
+  - name: Regional ICPC — 2nd place  # required
+    date: 2025-11                    # optional; YYYY-MM or quoted YYYY
 ```
 
-## Field notes
+## Target levels
 
-- **`meta.target_field`** routes the builder to the matching
-  `references/fields/*.md` file and tells the evaluator which field
-  conventions to score against — the builder hands the yaml path to
-  the evaluator at verify time (its step 8) precisely so this knob,
-  `page_budget`, and `lang` reach a scorer that otherwise sees only
-  the PDF. It never changes rendering.
-- **`basics.links`**: templates print the URL itself — shortened for
-  display (scheme stripped; `compact` also strips `www.`) — as both the
-  visible text and the hyperlink target, so the URL survives as
-  extractable text for screeners. `label` names the link in the data
-  file for the builder and user; no template renders it. URLs carrying
-  tracking parameters (`utm_*`, `fbclid`, `gclid`, `mc_cid`) fail
-  `scripts/validate_yaml.py`.
-- **`projects[].stack`**: rendered inline by `onecol` and as the tag row
-  by `compact`; `classic` omits it by design (monochrome discipline).
-- **`experience` vs `projects`**: paid/formal roles go in `experience`;
-  everything else (OSS, research not under a formal title, hackathons) goes
-  in `projects`. The evaluator's parse simulation checks that both sections
-  route under standard headings ("Experience", "Projects").
-- **`experience[].group`** (`research` | `teaching` | `industry`): for
-  academic-track CVs (grad school, REUs, fellowships). When *any* entry
-  carries a group, the template renders one standard-headed section per
-  group — "Research Experience", "Teaching Experience", "Industry
-  Experience", in that order — and ungrouped entries fall into the
-  industry bucket, so group all entries when you group any. All three
-  headings are in the parse simulator's recognized taxonomy. Omit
-  `group` everywhere for a single "Experience" section (the industry
-  default). See `references/fields/academic.md`.
-- **Project right column**: in `onecol` and `classic` a project entry's
-  right-hand meta shows its `url` when present, otherwise its date range
-  — one slot per entry keeps the skim clean, so prefer `url` for living
-  projects and dates for finished ones. `compact` has two meta slots by
-  design (url on the name row, dates on the tag row) and renders both
-  when both are given — no information is dropped there.
-- **`skills`**: groups keep the section honest — 2–4 groups, each a short
-  list the person can defend in an interview. The JD-alignment layer scores
-  semantic coverage from bullets first; `skills` is a secondary signal.
+- Industry: `intern`, `new-grad`, `junior`, `mid`, `senior`, `staff`, `principal`, `lead`, `manager`.
+- Academic: `grad-applicant`, `phd-applicant`, `postdoc`.
 
-## Open questions
+## Rendering behavior
 
-- ~~Whether `meta.page_budget` > 1 changes template selection or just
-  lints.~~ Resolved in M1: it lints only — `render.sh` warns when the
-  output exceeds the budget; template choice stays explicit.
-- Certifications / languages-spoken sections: add on first real demand
-  rather than speculatively.
-- ~~Schema validation~~ Decided: `scripts/validate_yaml.py`, run by
-  render.sh before every compile. Builder-side beat the evaluator-side
-  option because the evaluator's contract is the PDF (it never sees
-  the yaml), while the silent-loss class this catches — a typoed
-  optional key or section name rendering a clean page with content
-  missing — must die before the render, not after.
+- Every template renders all content keys, including `experience[].tags` and `projects[].stack`.
+- When no experience entry has `group`, all entries render under `Experience`; when any entry has `group`, every entry must have one and the templates render Research, Teaching, and Industry Experience sections.
+- Links render their URL as visible linked text; `label` helps the author identify the link but does not replace the URL.
+- Project dates and URLs may both be present and both render.
+- `classic` stays monochrome; `accent` changes the `compact` theme only.
+
+## Practical notes
+
+- Put a thesis title or supervisor in `education[].field` when it belongs on the degree line; put a research lab or advisor in `experience[].organization` when it describes the work setting.
+- Use `gpa` only for an actual GPA; put classifications or distinctions in `honors`.
+- Use `experience` for formal roles and `projects` for independent, open-source, or informal work.
