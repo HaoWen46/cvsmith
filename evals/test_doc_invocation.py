@@ -1,6 +1,6 @@
 """Doc-reality tripwire for external review finding 2 (round-7): builder
-SKILL.md documents `scripts/check_projection.py <resume> career-vault.md`
-as something the user types directly, but the file shipped mode 0644 —
+SKILL.md documents check_projection.py as something the user types
+directly, but the file shipped mode 0644 —
 exit 126, permission denied, the instant anyone followed the doc. Every
 existing test invoked the script via `[sys.executable, str(CHECK), ...]`,
 which never touches the file's own execute bit or shebang, so the break
@@ -72,19 +72,20 @@ experience:
 
 def extract_documented_invocation() -> str:
     """Pull the literal check_projection invocation out of shipped
-    SKILL.md — not a copy the test maintainer typed, the actual doc
-    text, backtick-fenced, whitespace-collapsed across its line wrap."""
+    SKILL.md — not a copy the test maintainer typed, the actual fenced
+    shell block, whitespace-collapsed across any line wrap."""
     text = SKILL_MD.read_text(encoding="utf-8")
-    m = re.search(
-        r"`(uv run scripts/check_projection\.py.*?)`",
-        text, re.DOTALL)
-    assert m, (
-        "SKILL.md no longer documents check_projection.py via a "
-        "backtick-fenced `uv run scripts/check_projection.py ...` "
-        "invocation — either the command moved/changed form, or the "
-        "doc regressed to the bare (unrunnable-without-a-chmod) form "
-        "this test exists to catch. Update the extraction or fix the doc.")
-    return " ".join(m.group(1).split())
+    blocks = re.findall(r"```(?:sh|shell)\s*\n(.*?)```", text, re.DOTALL)
+    commands = [
+        " ".join(block.split())
+        for block in blocks
+        if "scripts/check_projection.py" in block
+    ]
+    assert len(commands) == 1, (
+        "SKILL.md must document exactly one check_projection.py command "
+        "inside a fenced shell block; otherwise this test cannot exercise "
+        "the command a user would paste")
+    return commands[0]
 
 
 def test_documented_check_projection_invocation_actually_runs(tmp_path):
@@ -98,13 +99,15 @@ def test_documented_check_projection_invocation_actually_runs(tmp_path):
     resume.write_text(RESUME)
     vault.write_text(VAULT)
 
-    # Substitute the doc's placeholder and its literal `career-vault.md`
-    # arg with the real fixture paths, then run the command *exactly* as
-    # extracted — same shell-splitting a user's terminal would do, cwd
-    # at the skill root the doc assumes, no sys.executable prefix.
+    # Substitute the documented absolute-path examples with real fixture
+    # paths, then run the command *exactly* as extracted — same shell-
+    # splitting a user's terminal would do, cwd at the skill root the doc
+    # assumes, no sys.executable prefix.
     command = documented.replace(
-        "<the file you just named>", str(resume)
-    ).replace("career-vault.md", str(vault))
+        "/absolute/path/resume.yaml", str(resume)
+    ).replace(
+        "/absolute/path/candidate-evidence/index.md", str(vault)
+    )
 
     proc = subprocess.run(
         shlex.split(command), cwd=SKILL_DIR,
