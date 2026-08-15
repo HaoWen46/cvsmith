@@ -1,0 +1,42 @@
+[
+  {
+    "query": "I just finished an internship; organize the resume, project report, and repo into reusable evidence before I forget the details",
+    "should_trigger": true
+  },
+  {
+    "query": "Here are GitHub links for my projects and an old CV. Build a source-backed career evidence index I can reuse across applications",
+    "should_trigger": true
+  },
+  {
+    "query": "Refresh my existing candidate-evidence folder from these changed reports without reprocessing unchanged projects",
+    "should_trigger": true
+  },
+  {
+    "query": "This team project has conflicting benchmark numbers and unclear ownership; investigate and update my reusable evidence",
+    "should_trigger": true
+  },
+  {
+    "query": "I am not applying yet, but archive weak old experience and keep anything that could become valuable again",
+    "should_trigger": true
+  },
+  {
+    "query": "Tailor a finished resume from my prepared evidence index for this Stripe backend JD",
+    "should_trigger": false
+  },
+  {
+    "query": "Analyze these three job descriptions and show the gates and meaningful differences",
+    "should_trigger": false
+  },
+  {
+    "query": "Review this exact resume PDF for layout, extraction, claim risk, and target fit",
+    "should_trigger": false
+  },
+  {
+    "query": "I submitted the application yesterday; record the sent resume and recruiter-screen outcome",
+    "should_trigger": false
+  },
+  {
+    "query": "Help me prepare stories for tomorrow's behavioral interview using the resume I already sent",
+    "should_trigger": false
+  }
+]
