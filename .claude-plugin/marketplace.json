@@ -1,0 +1,25 @@
+{
+  "name": "cvsmith",
+  "owner": {
+    "name": "HaoWen46"
+  },
+  "metadata": {
+    "description": "Portable resume-building and application-evidence skills",
+    "version": "0.1.2"
+  },
+  "plugins": [
+    {
+      "name": "cvsmith",
+      "description": "Organize candidate evidence, analyze jobs, build and inspect resumes, and track applications.",
+      "source": "./",
+      "strict": false,
+      "skills": [
+        "./skills/application-tracker",
+        "./skills/candidate-evidence",
+        "./skills/jd-analyzer",
+        "./skills/resume-builder",
+        "./skills/resume-evaluator"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,89 @@
+# Synthetic fixture: Sam Casey and every organization, result, and URL below are invented for cvsmith tests.
+meta:
+  target_field: ai-ml
+  target_level: intern
+  template: compact
+  page_budget: 1
+  vault: ../../../examples/ai-ml-intern/candidate-evidence/index.md
+  thesis: An ML engineer who measures model behavior through evaluation, retrieval optimization, red-teaming, and systems experiments.
+
+basics:
+  name: Sam Casey
+  email: sam.casey@example.com
+  phone: "+1 (555) 010-4477"
+  location: Seattle, WA
+  links:
+    - label: GitHub
+      url: https://github.com/samcasey-demo
+    - label: Portfolio
+      url: https://samcasey.example.com
+
+education:
+  - institution: University of Washington
+    degree: B.S.
+    field: Computer Science
+    start: 2023-09
+    end: 2027-12
+    gpa: "3.8/4.0"
+    coursework: [Machine Learning, Distributed Systems, NLP, Databases]
+    honors: ["Dean's List (6 quarters)"]
+
+experience:
+  - organization: Meridian Labs
+    title: Machine Learning Engineering Intern
+    location: Seattle, WA
+    start: 2025-06
+    end: 2025-09
+    tags: [RAG evaluation, retrieval latency, prompt-injection red-teaming]
+    bullets:
+      - Built nightly Python/pytest RAG evals over 1,200 tickets, catching 3 retrieval regressions pre-release.
+      - Cut retrieval p95 from 480 to 210 ms with cache warming and HNSW at stable recall@10.
+      - Built a 41-case prompt-injection suite required to deploy two production assistants.
+  - organization: UW Systems Research Group
+    title: Undergraduate Research Assistant
+    location: Seattle, WA
+    start: 2024-10
+    end: 2025-05
+    tags: [GPU cluster scheduling, trace-driven simulation]
+    bullets:
+      - Built a GPU scheduling simulator reproducing 3 baselines within 2%, plus a starvation test.
+      - Cut p99 queueing delay 31% on bursty traces without reducing completed jobs.
+
+projects:
+  - name: HuggingFace datasets — upstream contributor
+    url: https://github.com/huggingface/datasets/pull/DEMO-1
+    stack: [Python]
+    start: 2025-08
+    bullets:
+      - Fixed CSV row loss and JSONL BOM failures with merged HuggingFace tests.
+  - name: whisperboard
+    url: https://github.com/samcasey-demo/whisperboard
+    stack: [Python, PyTorch]
+    start: 2024-01
+    end: 2024-04
+    bullets:
+      - Fine-tuned Whisper-small on 30 h; cut WER from 18.2% to 11.6% on held-out audio.
+  - name: ledgerlite
+    url: https://github.com/samcasey-demo/ledgerlite
+    stack: [Rust, SQLite]
+    start: 2023-03
+    end: present
+    bullets:
+      - Built an append-only finance CLI with double-entry validation in Rust and SQLite.
+      - Shipped signed macOS/Linux releases; reached 1.4k stars and 27 contributors.
+
+skills:
+  - label: Languages
+    items: [Python, Rust]
+  - label: ML
+    items: [PyTorch, RAG pipelines, eval harnesses]
+  - label: Systems
+    items: [HNSW, GPU cluster scheduling, Linux, SQLite]
+
+publications:
+  - citation: "Okafor, D., Casey, S., and Lin, M. (2025). Preemption-Aware Scheduling for Shared GPU Clusters. HotCloud Workshop."
+    url: https://example.com/hotcloud25-preemption.pdf
+
+awards:
+  - name: ACM ICPC Pacific Northwest Regional — 5th place
+    date: 2024-11

@@ -1,0 +1,74 @@
+# Synthetic academic resume used to verify grouped experience.
+
+meta:
+  target_field: academic
+  page_budget: 1
+
+basics:
+  name: Dana Okafor
+  email: dana.okafor@example.com
+  location: Ann Arbor, MI
+  links:
+    - label: GitHub
+      url: https://github.com/danaokafor-demo
+
+education:
+  - institution: University of Michigan
+    degree: B.S.
+    field: Computer Science and Mathematics
+    start: 2022-09
+    end: 2026-05
+    gpa: "3.9/4.0"
+    coursework: [Graduate Machine Learning, Real Analysis, Randomized Algorithms]
+    honors: [James B. Angell Scholar]
+
+experience:
+  - organization: Michigan AI Lab, Prof. E. Winters
+    title: Undergraduate Researcher
+    location: Ann Arbor, MI
+    start: 2024-05
+    end: present
+    group: research
+    bullets:
+      - Ran continual-learning evals on 4 datasets, reproducing baselines within 1.5% for ICML Table 2.
+      - Built PyTorch data-loading and checkpointing tools adopted by 3 lab researchers.
+  - organization: REU, Cascade State University
+    title: Research Intern (NSF REU)
+    location: Portland, OR
+    start: 2024-06
+    end: 2024-08
+    group: research
+    bullets:
+      - Built graph-sampling estimators; the report ranked top 3 of 14 REU projects.
+  - organization: University of Michigan, EECS Department
+    title: Instructional Aide, Data Structures (EECS 281)
+    location: Ann Arbor, MI
+    start: 2023-09
+    end: present
+    group: teaching
+    bullets:
+      - Led weekly sections for 60 students, earning 4.8/5 evaluations over 3 semesters.
+      - Rewrote autograder tests, cutting regrade requests by one-third.
+  - organization: Great Lakes Insurance Group
+    title: Software Engineering Intern
+    location: Detroit, MI
+    start: 2023-06
+    end: 2023-08
+    group: industry
+    bullets:
+      - Moved claims reports from nightly cron to events, cutting latency from 24 h to 20 min.
+
+publications:
+  - citation: "Okafor, D., Winters, E. (2025). Rehearsal Schedules for
+      Continual Learning. NeurIPS Workshop on Continual Learning (poster)."
+    url: https://example.com/neurips25-rehearsal.pdf
+
+skills:
+  - label: Languages
+    items: [Python, C++, MATLAB]
+  - label: ML
+    items: [PyTorch, JAX, scikit-learn, experiment tracking]
+
+awards:
+  - name: Putnam Competition — top 500
+    date: 2024-12

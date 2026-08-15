@@ -1,0 +1,40 @@
+# macOS
+.DS_Store
+._*
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+
+# Build & release artifacts
+dist/
+build/
+*.skill
+
+# Skill-testing workspaces and eval-run output (skill-creator conventions)
+*-workspace/
+feedback.json
+
+# Generated fixture PDFs (rebuild with evals/fixtures/generate.py)
+evals/fixtures/build/
+
+# Personal working area — real career data never belongs in this repo.
+# If you run the skills inside this checkout, keep raw materials and
+# generated resumes in these directories.
+/materials/
+/output/
+/drafts/
+
+# Local editor / tool state
+.worktrees/
+.claude/settings.local.json
+.idea/
+.vscode/
+evals/fixtures/resume-sample/*.pdf
+.claude/worktrees/
+.claude/subagents/

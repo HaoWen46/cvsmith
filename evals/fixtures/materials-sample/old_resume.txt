@@ -1,0 +1,30 @@
+SAM CASEY
+sam.casey@example.com | 555-010-4477 | Seattle
+
+OBJECTIVE
+Hardworking computer science student passionate about leveraging
+cutting-edge AI technologies to drive impactful solutions.
+
+EDUCATION
+University of Washington - Computer Science
+Expected graduation 2026, GPA 3.8
+
+WORK HISTORY
+Meridian Labs (summer 2025) - intern
+- Responsible for working on the evaluation system for the AI assistant
+- Helped improve the speed of the retrieval system
+- Worked on security testing for prompts
+
+UW research lab (2024-2025)
+- Assisted with GPU scheduling research project
+- Helped write a paper
+
+MY PROJECTS
+- ledgerlite: a finance app written in Rust (it got popular on github!)
+- whisperboard: meeting transcription with AI
+
+SKILLS
+Python, Rust, TypeScript, SQL, PyTorch, scikit-learn, Machine Learning,
+Deep Learning, AI, LLMs, RAG, NLP, Computer Vision, Data Science,
+Docker, Kubernetes, AWS, GCP, Linux, Git, Agile, Teamwork, Leadership,
+Communication, Problem Solving

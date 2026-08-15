@@ -1,0 +1,48 @@
+{
+  "layer": "L3-structure",
+  "file": "examples/ai-ml-intern/resume.pdf",
+  "file_sha256": "fc1d132f1dfce23d8eea367be96f9684fde390763f3116bf1c96b8b70170fc92",
+  "result": "pass",
+  "checks": [
+    {
+      "check_id": "page_budget",
+      "level": "pass",
+      "detail": "1/1 page(s)"
+    },
+    {
+      "check_id": "page_size",
+      "level": "pass",
+      "detail": "letter (612x792pt)"
+    },
+    {
+      "check_id": "tagged_pdf",
+      "level": "pass",
+      "detail": "structure tree present"
+    },
+    {
+      "check_id": "fonts_embedded",
+      "level": "pass",
+      "detail": "all fonts embedded"
+    },
+    {
+      "check_id": "single_column",
+      "level": "pass",
+      "detail": "no likely multi-column gutter detected"
+    },
+    {
+      "check_id": "header_order",
+      "level": "pass",
+      "detail": "contact line is extracted at line 2"
+    },
+    {
+      "check_id": "image_pages",
+      "level": "pass",
+      "detail": "no image-only pages"
+    }
+  ],
+  "metrics": {
+    "pages": 1,
+    "page_width_pt": 612,
+    "page_height_pt": 792
+  }
+}

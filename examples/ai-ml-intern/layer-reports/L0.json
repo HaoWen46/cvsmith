@@ -1,0 +1,30 @@
+{
+  "layer": "L0-extraction",
+  "file": "examples/ai-ml-intern/resume.pdf",
+  "file_sha256": "fc1d132f1dfce23d8eea367be96f9684fde390763f3116bf1c96b8b70170fc92",
+  "result": "pass",
+  "checks": [
+    {
+      "check_id": "text_layer",
+      "level": "pass",
+      "detail": "1753 chars across 1 page(s)"
+    },
+    {
+      "check_id": "encoding",
+      "level": "pass",
+      "detail": "no encoding damage detected"
+    },
+    {
+      "check_id": "extractor_agreement",
+      "level": "pass",
+      "detail": "two independent extractors recover the same content (token overlap 1.00)"
+    }
+  ],
+  "metrics": {
+    "chars": 1753,
+    "words": 296,
+    "pages": 1,
+    "bad_char_ratio": 0.00048,
+    "extractor_agreement": 1
+  }
+}

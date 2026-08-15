@@ -1,0 +1,68 @@
+{
+  "layer": "L1-parse-sim",
+  "file": "examples/ai-ml-intern/resume.pdf",
+  "file_sha256": "fc1d132f1dfce23d8eea367be96f9684fde390763f3116bf1c96b8b70170fc92",
+  "result": "pass",
+  "checks": [
+    {
+      "check_id": "sections_found",
+      "level": "pass",
+      "detail": "recognized: education, experience, projects, skills, publications, awards"
+    },
+    {
+      "check_id": "core_sections",
+      "level": "pass",
+      "detail": "experience or projects recognized"
+    },
+    {
+      "check_id": "unknown_headings",
+      "level": "pass",
+      "detail": "no unrecognized heading-shaped lines"
+    },
+    {
+      "check_id": "contact_email",
+      "level": "pass",
+      "detail": "sam.casey@example.com"
+    },
+    {
+      "check_id": "name_line",
+      "level": "pass",
+      "detail": "Sam Casey"
+    },
+    {
+      "check_id": "dates_parse",
+      "level": "pass",
+      "detail": "parsed ranges: {'experience': 2, 'education': 1, 'projects': 2}"
+    }
+  ],
+  "metrics": {
+    "date_ranges": {
+      "experience": 2,
+      "education": 1,
+      "projects": 2
+    }
+  },
+  "sections": {
+    "education": 4,
+    "experience": 9,
+    "projects": 10,
+    "skills": 3,
+    "publications": 2,
+    "awards": 1
+  },
+  "unknown_headings": [],
+  "contact": {
+    "name_guess": "Sam Casey",
+    "emails": [
+      "sam.casey@example.com"
+    ],
+    "phones": [
+      "+1 (555) 010-4477"
+    ],
+    "identifiers": [],
+    "urls": [
+      "github.com/samcasey-demo",
+      "samcasey.example.com"
+    ]
+  }
+}

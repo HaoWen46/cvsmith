@@ -1,0 +1,36 @@
+# Synthetic sparse resume used to verify that every template remains readable without filler.
+
+meta:
+  target_field: ai-ml
+  page_budget: 1
+
+basics:
+  name: Sam Casey
+  email: sam.casey@example.com
+  phone: "+1 (555) 010-4477"
+  location: Seattle, WA
+
+education:
+  - institution: University of Washington
+    degree: B.S.
+    field: Computer Science
+    start: 2022-09
+    end: 2026-06
+
+experience:
+  - organization: Meridian Labs
+    title: Software Engineering Intern
+    location: Seattle, WA
+    start: 2025-06
+    end: 2025-09
+    bullets:
+      - Built a small internal tool used by the team.
+
+projects:
+  - name: ledgerlite
+    bullets:
+      - Small personal-finance CLI.
+
+skills:
+  - label: Languages
+    items: [Python, Rust]

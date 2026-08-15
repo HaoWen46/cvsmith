@@ -1,0 +1,45 @@
+# Synthetic fixture — "Dana Okafor" does not exist. Every employer,
+# metric, and URL below is invented for application-tracker eval testing
+# (evals.json, application-tracker eval id 1: the Stripe applied
+# transition with a matching digest). Conforms to
+# skills/resume-builder/assets/templates/data-schema.md (draft v0.1).
+
+meta:
+  target_field: swe
+  page_budget: 1
+
+basics:
+  name: Dana Okafor
+  email: dana.okafor@example.com
+  phone: "+1 (555) 010-8821"
+  location: Austin, TX
+  links:
+    - label: GitHub
+      url: https://github.com/danaokafor-demo
+
+education:
+  - institution: University of Texas at Austin
+    degree: B.S.
+    field: Computer Science
+    start: 2022-08
+    end: 2026-05
+    gpa: "3.7/4.0"
+
+experience:
+  - organization: Fenwick Data Systems
+    title: Backend Engineering Intern
+    location: Austin, TX
+    start: 2025-06
+    end: 2025-09
+    tags: [distributed systems, API design, load testing]
+    bullets:
+      - Rebuilt a rate-limiting middleware shared by 6 internal services,
+        cutting p99 latency from 340 ms to 120 ms under a 4x load test.
+      - Migrated a queue-processing worker from polling to event-driven
+        consumption, dropping average job pickup delay from 8 s to 400 ms.
+
+skills:
+  - label: Languages
+    items: [Go, Python, SQL]
+  - label: Systems
+    items: [Postgres, Kafka, Docker, Linux]
