@@ -4,7 +4,7 @@ Status: Revised after design review; awaiting confirmation before implementation
 
 ## Objective
 
-Make `resume-builder` find the strongest defensible evidence for a chosen job without loading every project, report, repository, or archived vault block into the main agent's context.
+Make `resume-builder` find the strongest defensible evidence for a chosen job by letting the main agent understand the whole normal portfolio before selectively loading full repositories, reports, and raw archived evidence.
 
 The optimization target is interview usefulness under truth, readability, privacy, and context-cost constraints; tool use and agent count are means rather than quality signals.
 
@@ -18,9 +18,9 @@ Paired development probes preserved the same strongest projects after target-fir
 
 ## Scope
 
-- Reorder intake around explicit `TARGET`, `INVENTORY`, `PROBE`, `STUDY`, `VERIFY`, `ALLOCATE`, `BUILD`, `EVALUATE`, and `PRESENT` states.
-- Keep Markdown as the private, human-auditable source of truth.
-- Add one portable deterministic vault-access script that emits a compact index and reads one selected evidence block by ID.
+- Reorder intake around explicit `TARGET`, `SURVEY`, `TRIAGE`, `INVESTIGATE`, `STUDY`, `VERIFY`, `ALLOCATE`, `BUILD`, `EVALUATE`, and `PRESENT` states.
+- Keep concise substantive project cards in Markdown as the private, portable, human-auditable decision packet and keep bulky original sources outside it.
+- Require the main agent to read the complete substantive card set for a normal portfolio before its first project disposition.
 - Use project investigators as context-isolation workers that map and extract evidence from main-selected unread sources without ranking projects or making keep/discard decisions.
 - Add deterministic tests, portable pressure fixtures, trace grading, and fresh-agent forward tests.
 - Preserve current rendering, projection, PDF inspection, and evaluator ownership boundaries.
@@ -28,6 +28,7 @@ Paired development probes preserved the same strongest projects after target-fir
 ## Non-goals
 
 - Do not add SQLite, embeddings, a vector database, MCP, a hosted vault, or an autonomous memory service in this slice.
+- Do not rank or discard a normal portfolio from project names, dates, tags, repository metadata, headings, or lifecycle labels without substantive project context.
 - Do not create a universal project-age cutoff, project-count limit, token threshold, ATS score, or page-selection formula.
 - Do not send every project to a subagent, ask subagents to recommend project disposition or strategic value, ask subagents to draft the final resume, or treat investigation-record agreement as source verification.
 - Do not copy complete repositories, reports, PDFs, or raw subagent transcripts into the career vault or main-agent handoff.
@@ -41,25 +42,33 @@ Use the posting, candidate constraints, eligibility facts, and relevant prior ou
 
 When no posting exists, ask for or state an explicit assumed target and label the result general rather than inspecting everything in search of a target.
 
-### `INVENTORY`
+### `SURVEY`
 
-Read only cheap descriptors: user-supplied project lists, resume headings, vault index rows, archive headings and revival cues, repository names and metadata, report titles, and shallow file trees.
+For a normal human portfolio—about 25 projects is expected, not hundreds—the main agent reads one substantive card or bounded original overview for every project, including archived projects whose cards are part of that portfolio, before assigning any project disposition; this is an expected use case rather than a count cutoff.
 
-Produce one candidate row per material item with `project_id`, likely target belief, lifecycle state, portable source handles, plausible upside, uncertainty, likely verification cost, and a main-agent-owned `investigate`, `reserve`, or `cold` disposition.
+Each card provides `project_id | dates | problem and users | candidate role and actions | technical mechanism | result or concrete artifact | evidence and source handles | ownership, currentness, and material unknowns | lifecycle and revival cues`; names, tags, dates, stars, repository size, file trees, and polished summaries alone are not a card.
 
-The main agent assigns `investigate` when cheap metadata shows a plausible route to an important uncovered belief or to displacing a current leader, `reserve` when that route is weaker or redundant but still credible, and `cold` only when no target-specific route is visible; all three remain reversible decisions rather than deletion.
+If the user supplies only a title, link, or folder name, the main agent opens a bounded original overview such as a README introduction, report abstract or executive summary, prior project description, or equivalent source and creates the missing card; if no substantive overview is available, mark the project `insufficient-overview` and ask rather than pretending metadata reveals its value.
 
-The metadata filter uses target-belief coverage, plausible technical or outcome signal, distinctiveness from stronger-known items, source availability, ownership risk, capability-currentness needs, and expected information gain; recency, fashionable technology, repository size, or polished descriptions never win by themselves.
+The main agent retains the complete card set as its comparison frame, so it sees what each project actually attempted, what the candidate did, what exists, and what remains uncertain without ingesting every implementation file or full report.
 
-With a large inventory such as 25 projects, the main agent first retains the frontier of projects that could plausibly matter plus uncertain reserves whose missing information has high decision value; it does not use a fixed retained count and investigates more than the final page slots whenever evidence uncertainty could change the winners.
+Exit only when every plausible project has a substantive card or an explicit `insufficient-overview` status and the main agent can compare the portfolio against the target beliefs.
 
-An illustrative 25-item funnel might yield eight dirty-work investigations, five main-agent studies, and two or three rendered projects, but each number is an outcome of evidence competition rather than a quota.
+### `TRIAGE`
 
-Exit only when the search space is smaller, every investigated item has a target-specific reason, and each cold item has no currently visible route to an uncovered belief or to displacing a frontier item.
+The main agent compares all substantive cards and assigns a reversible `investigate`, `reserve`, or `cold-for-target` disposition based on target-belief coverage, plausible technical or outcome signal, distinctiveness, source availability, ownership risk, capability-currentness needs, uncertainty, page competition, and expected information gain.
 
-### `PROBE`
+Recency, fashionable technology, repository size, polished language, lifecycle state, or one isolated metric never wins by itself, and an archived or old project can remain competitive when its substance serves the target better than recent work.
 
-The main agent chooses which `investigate` items and conflict-bearing reserves receive dirty-work investigation; use isolated project investigators when independent unread sources would otherwise occupy the main context.
+The main agent retains every project that could plausibly cover an important uncovered belief, displace a current frontier item, or resolve a high-value uncertainty; it uses no fixed retained count and records a target-specific reason for each disposition.
+
+An illustrative 25-card funnel might produce eight dirty-work investigations, five main-agent studies, and two or three rendered projects, but those counts are consequences of evidence competition rather than quotas.
+
+Exit only when each investigation has a decision-changing question, each reserve has a plausible promotion condition, and each cold-for-target item lacks a currently visible route to the target or frontier; none of these states deletes or globally condemns the project.
+
+### `INVESTIGATE`
+
+The main agent chooses which `investigate` items and conflict-bearing reserves receive dirty-work investigation after personally surveying and triaging the substantive card set; use isolated project investigators when independent unread sources would otherwise occupy the main context.
 
 Each investigator receives one project ID, target beliefs, source locators, and a bounded evidence question; it reads the raw project first-hand and returns the investigation-record contract below without resume prose, ranking, or disposition.
 
@@ -93,7 +102,9 @@ No broad discovery resumes after allocation unless verification exposes a specif
 
 The project investigator exists to exchange isolated worker context for scarce main-agent context: it maps an unread repository or report, extracts source observations relevant to the bounded question, and supplies exact original-source locators without deciding what those observations are worth relative to other projects.
 
-Subagents are dispatched only after the main agent performs cheap inventory narrowing; dispatching every project merely moves the context problem and adds coordination cost.
+The authority pattern mirrors serious organizational diligence: the decision maker reads every substantive brief, analysts inspect selected underlying records, the decision maker studies decisive primary material for finalists, and the decision maker makes every comparative judgment.
+
+Subagents are dispatched only after the main agent performs the substantive survey and first triage; dispatching every project merely moves the context problem and adds coordination cost.
 
 Independent promising projects may be investigated in parallel when the host supports isolated agents; otherwise the main agent investigates them serially using the same investigation-record boundary.
 
@@ -114,31 +125,25 @@ Each investigator returns structured data with these required fields and no gene
 - `unread`: Relevant source regions not inspected and the factual reason they remain unread.
 - `open_questions`: Missing facts that could alter evidence strength, ownership, measurement, or currentness without recommending the next action.
 
-The main agent owns every inventory disposition, investigation dispatch, cross-project comparison, study-set decision, original-source interpretation, final project selection, thesis, page allocation, source verification, resume prose, and send recommendation.
+The main agent owns every project disposition, investigation dispatch, cross-project comparison, study-set decision, original-source interpretation, final project selection, thesis, page allocation, source verification, resume prose, and send recommendation.
 
-## Vault access interface
+## Project-card and source-access contract
 
-Add `skills/resume-builder/scripts/vault_access.py` with two commands executed through `uv`.
+The career vault remains Markdown, but its normal decision surface is a set of concise substantive project cards rather than zero-context index rows or copied source bodies.
 
-`index <vault>` emits JSON Lines containing a vault digest and compact block rows without full bodies or the input file's machine path.
+New or updated cards receive a stable explicit `ID`; the ID survives lifecycle changes, and archived cards retain dates, substance, source handles, archive reason, and revival cues so the main agent can reconsider them without reopening every raw artifact.
 
-Each index row contains `id`, `id_status`, `section`, `heading`, lifecycle markers, a short evidence summary, revival cues, portable source handles, source count, body byte count, and digest-bound line bounds.
+Portable source handles are stable URLs or paths relative to the vault or a named project root; absolute machine paths may be supplied at runtime but never become checked-in requirements or persistent card content.
 
-`read <vault> <id>` emits exactly one selected block plus its digest and line bounds; there is no `--all` mode.
+For a normal portfolio, the main agent reads the complete substantive card set directly; raw repositories, full reports, PDFs, histories, and large evidence blocks are opened selectively after triage.
 
-An optional explicit trace path records operation, selected ID, vault digest, and emitted byte count without recording machine paths or evidence bodies.
+No new vault index, database, or block-reader tool is part of the first slice because the current evidence does not show that a roughly 25-card decision packet needs one.
 
-New or updated meaningful vault blocks receive an immutable explicit `ID`; legacy blocks receive deterministic provisional IDs marked `derived`, and a block must gain an explicit ID before archival movement or revival so its identity survives section changes.
-
-The script rejects duplicate IDs, malformed block structure, and supplied digest mismatches; it reports missing explicit IDs as derived-ID warnings and never mutates the vault.
-
-Portable source handles are stable URLs or paths relative to the vault or named project root; absolute machine paths remain usable only as runtime inputs and are flagged rather than copied into an index artifact.
-
-The index is a rebuildable view rather than a second source of truth, and no generated index is required to be committed or moved between machines.
+A generated view or bounded reader may be proposed later only after measured card-set scale, retrieval misses, or archive cost justifies it; any such interface must return substantive cards before filtering and may never reduce project judgment to titles, dates, tags, or other metadata.
 
 ## Archive and currentness semantics
 
-Archive remains reversible and default-cold: valid but repeatedly redundant, superseded-as-current, weak, or off-target material keeps its sources, dates, archive reason, and revival cue outside the normal candidate set.
+Archive remains reversible and raw-source-cold: valid but repeatedly redundant, superseded-as-current, weak, or off-target material keeps a substantive card, sources, dates, archive reason, and revival cue visible to the normal portfolio survey while its bulky evidence stays outside the active working set until the main agent revives it.
 
 Old evidence competes on target relevance, distinctiveness, defensibility, and page cost rather than age alone.
 
@@ -162,13 +167,13 @@ At delivery, lead with the created PDF, YAML, evaluation report, target, and ver
 
 Add synthetic fixtures containing an old relevant compiler project, a recent weak dashboard, unrelated archived distractors, a prompt-injected README, a report with an unsupported large result, a checked benchmark with a smaller result, and ambiguous team ownership.
 
-Add deterministic tests that fail against the current contract because target selection follows broad inspection and no bounded vault interface exists.
+Add deterministic tests that fail against the current contract because target selection follows broad raw-artifact inspection, no substantive-card survey is required before filtering, and worker authority is underspecified.
 
 Preserve sanitized baseline fresh-agent traces that demonstrate whole-set reading, archive dumping, skipped target analysis, or excessive main-context input without embedding machine paths or session identifiers.
 
 ### GREEN
 
-Implement the smallest contract and script changes that pass deterministic interface, lifecycle, portability, and read-boundary tests.
+Implement the smallest skill, card-schema, lifecycle, portability, and read-boundary changes that make the main agent survey substance before filtering without adding an unproven retrieval service.
 
 Run the same fresh-agent cases with the candidate skill and grade target-first ordering, main-agent ownership of both filters, files or blocks touched, study-set quality, direct original-source reads, old-evidence revival, recent-evidence rejection, conflict handling, ownership caution, investigation-record shape, user-facing compactness, and reported cost.
 
@@ -176,25 +181,26 @@ Run the same fresh-agent cases with the candidate skill and grade target-first o
 
 Read every behavioral failure, classify whether it is an ordering violation, wrong output shape, missing field, or conditional mistake, and tighten the owning contract rather than adding duplicated explanations.
 
+Compare exhaustive raw-source reading, whole-card survey with selective investigation, and metadata-only triage under the same target and fixtures; treat metadata-only triage as a negative control and retain the card workflow only if it preserves or improves selection and safety while reducing raw-source context.
+
 Test a single structured agent against main-selected project investigators as an ablation under the same target and fixtures; retain subagent use only where dirty-work evidence collection preserves or improves main-agent selection and safety while reducing main-context pressure enough to justify coordination.
 
 ## Acceptance criteria
 
-- The target artifact exists before any project or archive evidence body is read.
-- The main agent performs both the metadata filter and the post-investigation filter without accepting a subagent disposition or ranking.
-- Inventory reduces the candidate set using metadata and target beliefs without losing the fixture's strongest project, and no fixed project quota controls the funnel.
-- The old compiler evidence is revived for the embedded target, the recent weak dashboard does not win on recency, and unrelated archive bodies remain unread by default.
+- The target artifact exists before the agent opens linked or folder-based project and archive evidence.
+- For the normal portfolio fixture, the main agent reads every substantive project card before triage and never makes a project disposition from title, date, tags, repository metadata, or lifecycle state alone.
+- The main agent performs both the post-survey and post-investigation filters without accepting a subagent disposition or ranking, and no fixed project quota controls the funnel.
+- The old compiler card is considered and its evidence is revived for the embedded target, the recent weak dashboard does not win on recency, and unrelated raw archive bodies remain unread by default.
 - Prompt injection is ignored, the unsupported larger result is not selected over inspectable evidence, and team-repository presence is not converted into sole ownership.
 - Investigators return the typed evidence record without essays, recommendations, rankings, or keep/discard decisions.
 - The main agent personally reads decisive original material for every final contender, chooses the final projects, and verifies exact support for resume-selected claims.
-- `vault_access.py index` emits no full evidence bodies or machine-specific input path, and `read` returns exactly one requested block.
-- Explicit evidence IDs survive archive movement; legacy derived IDs are visible and cannot silently masquerade as stable IDs.
+- Explicit project IDs survive archive movement, and project cards plus source handles contain no machine-specific dependency.
 - The final resume and handoff are at least as useful and readable as the current baseline while main-context consumption is lower on the portfolio and archive fixtures.
 - No database, service, model provider, home directory, hostname, or agent-session identifier becomes a runtime requirement or checked-in artifact.
 
 ## Failure handling
 
-If indexing fails, report the malformed or duplicate block and repair the human-readable vault with the user's confirmed facts before continuing; do not fall back to silently loading the whole file.
+If a card is missing or malformed, read a bounded original overview or ask for the missing substance; do not rank the project from metadata or silently invent the card.
 
 If no subagent facility exists, investigate main-selected projects serially through bounded reads, retain only the investigation record in explicit working state, and report that hard main-context isolation was unavailable.
 
@@ -205,8 +211,7 @@ If the narrow process misses a top project or weakens claim safety, reject or re
 ## Intended implementation surface
 
 - Modify `skills/resume-builder/SKILL.md` to encode state order, main-agent filtering and primary-study ownership, evidence-worker economics, verification ownership, and compact presentation.
-- Modify `skills/resume-builder/references/career-vault.md` to add explicit IDs and bounded-access rules without duplicating the workflow.
-- Add `skills/resume-builder/scripts/vault_access.py` as the sole new production tool in this slice.
+- Modify `skills/resume-builder/references/career-vault.md` to define substantive project cards, explicit IDs, reversible archive semantics, and portable source handles without duplicating the workflow.
 - Add focused deterministic tests and synthetic fixtures under `evals/`; extend existing behavioral cases only where they own these failures.
 - Update the research decision register after measured forward tests, not before.
 
