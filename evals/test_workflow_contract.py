@@ -35,10 +35,8 @@ def test_six_skills_have_distinct_owners_and_explicit_handoffs():
 
 def test_programs_are_limited_to_observable_properties():
     readme = read("README.md")
-    plan = read("PROJECT_PLAN.md")
     assert "Scripts measure observable properties" in readme
     assert "Agents decide meaning and usefulness" in readme
-    assert "Objective software reports only observable" in plan
 
 
 def test_practical_risk_and_completion_rules_are_explicit():

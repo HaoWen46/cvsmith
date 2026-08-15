@@ -11,7 +11,7 @@ place — governed, not sprayed.
 | Tier | Decay | Examples | Policy |
 |---|---|---|---|
 | 1 — Mechanics | years | parsing physics, single-column, honesty discipline, bullet formula | bundled in references; **never** researched at runtime |
-| 2 — Slow-cycle facts | ~6–24 months | vendor screening behavior, detection stats, which evidence is "hot", recruiting-season calendar, regional conventions | bundled with `Last verified:` / `Verify by:` stamps; re-verified **on schedule by the repo** (see MAINTENANCE.md), not per query |
+| 2 — Slow-cycle facts | ~6–24 months | vendor screening behavior, detection stats, which evidence is "hot", recruiting-season calendar, regional conventions | bundled with `Last verified:` / `Verify by:` stamps; verify a load-bearing fact at use when its date has expired |
 | 3 — Task-scoped facts | per task | the posting itself, the company's stack/team/blog, this role's comp, this board's data | **always fetched fresh at use** — this is task input, not research spam |
 
 **When to research, in one rule:** fetch tier-3 always; touch tier-2
@@ -48,12 +48,7 @@ still between them.
   better instrument.
 
 ### Semantic matching (L4)
-- Deliberately **judgment, not a local embedding score**. A
-  sentence-transformers cosine would look objective while measuring
-  the wrong model (vendors' matchers are unknowable and varied) —
-  precision theater. The agent reading requirements against evidence
-  *is* the honest simulation. Revisit only if a vendor publishes
-  their matcher (tier-2 fact; it would go through MAINTENANCE.md).
+- Deliberately **judgment, not a local embedding score**. A sentence-transformers cosine would look objective while measuring the wrong model (vendors' matchers are unknowable and varied) — precision theater. The agent reading requirements against evidence *is* the honest simulation. Revisit only if a vendor publishes enough current detail to validate a different method, and verify that primary source before changing this contract.
 
 ### JD ingestion (tier-3: always fetch fresh)
 - Given a company name, postings often live on public board APIs
@@ -71,20 +66,12 @@ better than the posting's boilerplate — it sharpens which evidence
 leads and preps interviews. Spend this fetch only when the user is
 investing heavily; skip it for volume applications.
 
-### Market context (tier-2, scheduled; light tier-3 checks)
+### Market context (dated tier-2; light tier-3 checks)
 - Indeed Hiring Lab, BLS JOLTS (monthly releases), layoffs trackers,
   levels.fyi (comp reality-check — remember: this toolkit never gives
   the user financial advice, just points at data).
-- Recruiting seasons are calendar facts (new-grad cycles open
-  Aug–Oct, internships Jul–Sep for the following summer): bundled in
-  field guides as tier-2, refreshed on the seasonal schedule — this
-  is why the repo re-verifies twice a year, not per query.
+- Recruiting seasons are calendar facts (new-grad cycles often open Aug–Oct and internships Jul–Sep for the following summer): treat bundled field-guide dates as tier-2, and verify them only when they are load-bearing and past their `Verify by:` date.
 
 ## Tool updating (the bundled ones)
 
-Versions are pinned so behavior is reproducible; updates are
-deliberate events, not drift: `uv lock --upgrade` + full test suite
-(the fixtures are the regression net — an extractor behavior change
-shows up as a failing planted-fixture test), Typst bumped when release
-notes touch PDF export, fonts vendored so they never drift. Cadence
-and steps live in MAINTENANCE.md.
+Versions are pinned so behavior is reproducible; treat updates as deliberate changes, not drift: run `uv lock --upgrade` and the full test suite, review fixture deltas, inspect Typst PDF-export release notes before upgrading Typst, and keep fonts vendored.

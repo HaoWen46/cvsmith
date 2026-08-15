@@ -52,9 +52,7 @@ uv run scripts/package_release.py
 
 The packager writes `dist/<name>.skill` archives and rejects missing referenced files or invalid skill metadata.
 
-## Status
-
-This checkout contains uncommitted workflow changes; do not infer its behavior from an installed or previously built archive.
+## Limits
 
 The deterministic tools have repository tests, but end-to-end quality still depends on an agent following the skill, reading the actual artifact, and making sound hiring judgments; a green test suite does not establish that behavioral result.
 

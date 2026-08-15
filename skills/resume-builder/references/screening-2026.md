@@ -3,10 +3,7 @@
 Last verified: 2026-07
 Verify by: 2027-07
 
-Sources frozen from the project research base (PROJECT_PLAN.md §9);
-claims marked (†) are the perishable ones — the refresh protocol is
-MAINTENANCE.md's job, not the reading agent's. Within the window,
-trust this file over general recollection.
+Claims marked (†) are perishable. Within the verification window, use this sourced reference over general recollection; after `Verify by:`, verify any load-bearing claim against a current primary source before relying on it.
 
 ## The pipeline
 
