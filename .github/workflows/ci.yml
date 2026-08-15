@@ -80,7 +80,7 @@ jobs:
           done
           # meta_val regressions: quoted values and CRLF files must render
           echo "== quoted meta.template"
-          sed 's/  page_budget: 1/  page_budget: 1\n  template: "compact"/' \
+          sed 's/^  template: .*/  template: "compact"/' \
             evals/fixtures/resume-sample/resume.yaml > /tmp/quoted.yaml
           bash skills/resume-builder/scripts/render.sh /tmp/quoted.yaml -o /tmp/quoted.pdf
           echo "== CRLF yaml"
