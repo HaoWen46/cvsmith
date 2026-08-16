@@ -66,7 +66,7 @@ def test_documented_local_paths_exist_in_each_archive(tmp_path):
 
 @pytest.mark.parametrize("skill", sorted(path for path in SKILLS.iterdir() if (path / "SKILL.md").is_file()), ids=lambda path: path.name)
 def test_skill_metadata_is_loadable_and_compact(skill):
-    lines = (skill / "SKILL.md").read_text().splitlines()
+    lines = (skill / "SKILL.md").read_text(encoding="utf-8").splitlines()
     close = lines[1:].index("---") + 1
     meta = yaml.safe_load("\n".join(lines[1:close]))
     assert meta["name"] == skill.name
