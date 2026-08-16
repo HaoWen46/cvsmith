@@ -13,6 +13,19 @@ EXPECTED_SKILLS = {
     "resume-builder",
     "resume-evaluator",
 }
+AGENT_PLUGIN_SCHEMA = "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json"
+AGENT_PLUGIN_FIELDS = {
+    "$schema",
+    "name",
+    "version",
+    "description",
+    "author",
+    "homepage",
+    "repository",
+    "license",
+    "keywords",
+    "extensions",
+}
 
 
 def load_json(path: Path) -> dict:
@@ -33,6 +46,29 @@ def test_canonical_skill_set_is_the_public_five():
 
 def test_codex_plugin_exposes_the_canonical_skill_tree():
     manifest = load_json(REPO / ".codex-plugin/plugin.json")
+    project = tomllib.loads((REPO / "pyproject.toml").read_text(encoding="utf-8"))["project"]
+    assert manifest["name"] == "cvsmith"
+    assert manifest["version"] == project["version"]
+    assert manifest["license"] == "MIT"
+    assert manifest["skills"] == "./skills/"
+    assert (REPO / manifest["skills"]).resolve() == (REPO / "skills").resolve()
+
+
+def test_portable_agent_plugin_exposes_the_canonical_skill_tree_by_convention():
+    manifest = load_json(REPO / "plugin.json")
+    project = tomllib.loads((REPO / "pyproject.toml").read_text(encoding="utf-8"))["project"]
+    assert set(manifest) <= AGENT_PLUGIN_FIELDS
+    assert manifest["$schema"] == AGENT_PLUGIN_SCHEMA
+    assert manifest["name"] == "cvsmith"
+    assert manifest["version"] == project["version"]
+    assert manifest["repository"] == "https://github.com/HaoWen46/cvsmith"
+    assert manifest["license"] == "MIT"
+    assert "skills" not in manifest
+    assert canonical_skills() == EXPECTED_SKILLS
+
+
+def test_kimi_plugin_exposes_the_canonical_skill_tree():
+    manifest = load_json(REPO / "kimi.plugin.json")
     project = tomllib.loads((REPO / "pyproject.toml").read_text(encoding="utf-8"))["project"]
     assert manifest["name"] == "cvsmith"
     assert manifest["version"] == project["version"]
@@ -89,6 +125,28 @@ def test_readme_documents_complete_native_plugin_commands():
     assert "claude plugin install cvsmith@cvsmith" in readme
     assert "codex plugin marketplace add HaoWen46/cvsmith" in readme
     assert "codex plugin add cvsmith@cvsmith" in readme
+
+
+def test_readme_documents_an_install_path_for_every_supported_harness():
+    readme = (REPO / "README.md").read_text(encoding="utf-8")
+    expected = {
+        "Claude Code": "claude plugin install cvsmith@cvsmith",
+        "OpenAI Codex": "codex plugin add cvsmith@cvsmith",
+        "OpenCode": "gh skill install HaoWen46/cvsmith --all --agent opencode --scope user",
+        "Gemini CLI": "gemini skills install https://github.com/HaoWen46/cvsmith --path skills --scope user",
+        "GitHub Copilot CLI": "copilot plugin install HaoWen46/cvsmith",
+        "DeepSeek Harness": "gh skill install HaoWen46/cvsmith --all --agent universal --scope user",
+        "OpenClaw": "gh skill install HaoWen46/cvsmith --all --agent openclaw --scope user",
+        "Qwen Code": "qwen extensions install HaoWen46/cvsmith",
+        "Kimi Code": "/plugins install https://github.com/HaoWen46/cvsmith",
+        "Hermes Agent": "hermes plugins install HaoWen46/cvsmith --no-enable",
+    }
+    for host, command in expected.items():
+        assert host in readme
+        assert command in readme
+    assert "hermes plugins enable cvsmith" in readme
+    assert "/reload" in readme
+    assert "GitHub CLI Preview" in readme
 
 
 def test_readme_does_not_require_the_third_party_npm_installer():

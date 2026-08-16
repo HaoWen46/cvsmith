@@ -1,0 +1,21 @@
+{
+  "name": "cvsmith",
+  "version": "0.1.2",
+  "description": "Build defensible role-specific resumes from reusable candidate evidence, inspect the exact PDF, and track real application outcomes.",
+  "homepage": "https://github.com/HaoWen46/cvsmith",
+  "license": "MIT",
+  "keywords": [
+    "resume",
+    "cv",
+    "job-search",
+    "agent-skills"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "cvsmith",
+    "shortDescription": "Build and verify defensible, targeted resumes.",
+    "longDescription": "Organize reusable candidate evidence, analyze a role, build and inspect the exact resume PDF, and track what was actually submitted.",
+    "developerName": "HaoWen46",
+    "websiteURL": "https://github.com/HaoWen46/cvsmith"
+  }
+}

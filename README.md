@@ -24,7 +24,81 @@ No local script predicts a named employer's parser, judges whether two claims me
 
 ## Install
 
-cvsmith is a repository bundle of five Agent Skills, not a standalone app, package, daemon, or single agent. The [Agent Skills specification](https://agentskills.io/specification) defines what belongs inside each skill directory; it does not define a universal installer or registry.
+cvsmith is a repository bundle of five Agent Skills, not a standalone app, daemon, or single agent. The canonical source is the five directories under `skills/`; plugin manifests only tell compatible hosts how to install that same tree.
+
+The [Agent Skills specification](https://agentskills.io/specification) defines each skill directory but does not define a universal installer or registry. [Agent Plugins v1](https://agent-plugins.org/) defines a portable bundle containing `plugin.json` and `skills/`, while each host still controls installation, permissions, and updates.
+
+### Claude Code
+
+```sh
+claude plugin marketplace add HaoWen46/cvsmith
+claude plugin install cvsmith@cvsmith
+```
+
+### OpenAI Codex and ChatGPT
+
+```sh
+codex plugin marketplace add HaoWen46/cvsmith
+codex plugin add cvsmith@cvsmith
+```
+
+In ChatGPT desktop, add the `cvsmith` personal marketplace and install the plugin from the Plugins Directory.
+
+### Gemini CLI
+
+```sh
+gemini skills install https://github.com/HaoWen46/cvsmith --path skills --scope user
+```
+
+### GitHub Copilot CLI
+
+```sh
+copilot plugin install HaoWen46/cvsmith
+```
+
+### Qwen Code
+
+```sh
+qwen extensions install HaoWen46/cvsmith
+```
+
+### Kimi Code
+
+Run these inside Kimi Code:
+
+```text
+/plugins install https://github.com/HaoWen46/cvsmith
+/reload
+```
+
+### Hermes Agent
+
+```sh
+hermes plugins install HaoWen46/cvsmith --no-enable
+hermes plugins enable cvsmith
+```
+
+### OpenCode
+
+```sh
+gh skill install HaoWen46/cvsmith --all --agent opencode --scope user
+```
+
+### DeepSeek Harness
+
+```sh
+gh skill install HaoWen46/cvsmith --all --agent universal --scope user
+```
+
+The universal target installs into `~/.agents/skills/`, one of DeepSeek Harness's native user-level skill roots.
+
+### OpenClaw
+
+```sh
+gh skill install HaoWen46/cvsmith --all --agent openclaw --scope user
+```
+
+The three `gh skill` commands use the official [GitHub CLI Preview](https://cli.github.com/manual/gh_skill_install) installer to copy every canonical skill into the selected host's documented user-level directory and retain source metadata for updates. It is an optional compatibility bridge, not a required runtime or package protocol.
 
 ### Install with your agent
 
@@ -38,27 +112,7 @@ The canonical skill roots are `skills/application-tracker/`, `skills/candidate-e
 
 The repository URL is enough only when the host can access GitHub and supports repository import or can clone files. The name `cvsmith` alone becomes installable only after a registry searched by that host lists it.
 
-### Claude Code
-
-Use Claude Code's native marketplace flow:
-
-```sh
-claude plugin marketplace add HaoWen46/cvsmith
-claude plugin install cvsmith@cvsmith
-```
-
-### Codex and ChatGPT
-
-Use the native Codex plugin flow:
-
-```sh
-codex plugin marketplace add HaoWen46/cvsmith
-codex plugin add cvsmith@cvsmith
-```
-
-In ChatGPT desktop, the same repository marketplace appears as the `cvsmith` source in the Plugins Directory; selecting the plugin there is the UI equivalent. Public name-only discovery requires publication to the host's plugin directory rather than another repository file.
-
-### Direct skill import
+### Manual direct import
 
 Every canonical directory above is a complete Agent Skill and can be imported independently. Clients commonly scan `~/.agents/skills/` for user scope and `<project>/.agents/skills/` for project scope, although the host's native location takes precedence. To install a checkout into the cross-client user scope on macOS or Linux:
 

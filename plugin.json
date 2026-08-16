@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "cvsmith",
+  "version": "0.1.2",
+  "description": "Build defensible role-specific resumes from reusable candidate evidence, inspect the exact PDF, and track real application outcomes.",
+  "author": {
+    "name": "HaoWen46",
+    "url": "https://github.com/HaoWen46"
+  },
+  "homepage": "https://github.com/HaoWen46/cvsmith",
+  "repository": "https://github.com/HaoWen46/cvsmith",
+  "license": "MIT",
+  "keywords": [
+    "resume",
+    "cv",
+    "job-search",
+    "agent-skills"
+  ]
+}
